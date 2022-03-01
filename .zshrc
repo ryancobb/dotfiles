@@ -1,0 +1,111 @@
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+if [[ ! -f ${ZDOTDIR:-${HOME}}/.zcomet/bin/zcomet.zsh ]]; then
+  command git clone https://github.com/agkozak/zcomet.git ${ZDOTDIR:-${HOME}}/.zcomet/bin
+fi
+
+source ${ZDOTDIR:-${HOME}}/.zcomet/bin/zcomet.zsh
+
+# Exports #############################################################################################
+export BAT_THEME="ansi"
+export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES # needed for ansible node_exporter
+export GOPATH="$HOME/go"
+export HISTFILE="$HOME/.zsh_history"
+export HISTSIZE=100000
+export HISTFILESIZE=100000
+export ZSHSZ_TILDE=1
+
+if [[ "$(command -v nvim)" ]]; then
+  if [ -n "$NVIM_LISTEN_ADDRESS" ]; then
+      export VISUAL="nvr -cc split --remote-wait +'set bufhidden=wipe'"
+      export EDITOR="nvr -cc split --remote-wait +'set bufhidden=wipe'"
+  else
+      export VISUAL="nvim"
+      export EDITOR="nvim"
+  fi
+
+  export MANPAGER='nvim +Man!'
+  export MANWIDTH=999
+fi
+
+export PATH="$GOPATH/bin:$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/local/sbin:$PATH"
+
+# zcomet ##############################################################################################
+
+zcomet load asdf-vm/asdf asdf.sh 
+zcomet load agkozak/zsh-z
+
+zcomet load junegunn/fzf shell completion.zsh key-bindings.zsh
+(( ${+commands[fzf]} )) || ~[fzf]/install --bin
+
+if [ -x "$(command -v brew)" ]; then
+  zcomet fpath "$(brew --prefix)/share/zsh/site-functions"
+fi
+zcomet fpath asdf-vm/asdf completions
+zcomet compinit
+
+zcomet load Aloxaf/fzf-tab
+zcomet load zdharma-continuum/fast-syntax-highlighting
+zcomet load zsh-users/zsh-autosuggestions
+
+zcomet load romkatv/powerlevel10k
+
+#######################################################################################################
+
+zstyle ':completion:*:git-checkout:*' sort false
+zstyle ':completion:*:descriptions' format '[%d]'
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'exa -1 --color=always $realpath'
+zstyle ':completion:*:(ssh|scp|ftp|sftp):*' hosts $hosts
+zstyle ':completion:*:(ssh|scp|ftp|sftp):*' users $users
+
+# Aliases #############################################################################################
+
+alias ssh="kitty +kitten ssh"
+alias bx='bundle exec'
+alias ll='exa -lbF --git'
+alias rg="rg --hidden --glob '!.git'"
+alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles.git/ --work-tree=$HOME'
+
+# Git Aliases
+alias lg='lazygit'
+alias gst='git status'
+alias gl='git pull'
+alias gco='git checkout'
+alias ggp='git push'
+alias gscrub='git reset --hard @{upstream}'
+
+# Functions ###########################################################################################
+
+copdiff() { git diff --name-only --diff-filter=d $1 -- "*.rb" } 
+copexclude() { sed "/^db\/schema\.rb/d" }
+cop() { copdiff $1 | copexclude | xargs bundle exec rubocop -a }
+portkill() { lsof -t -i:$1 | xargs kill -9 }
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/Users/ryancobb/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/ryancobb/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/Users/ryancobb/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/ryancobb/google-cloud-sdk/completion.zsh.inc'; fi
+
+setopt inc_append_history
+setopt share_history
+setopt extended_history
+setopt hist_ignore_all_dups
+
+unsetopt nomatch # run rake task with args with no error
+
+bindkey -e
+if [ -x "$(command -v fzf)" ]; then bindkey '^r' fzf-history-widget; fi
+
+if [ -x "$(command -v direnv)" ]; then
+  eval "$(direnv hook zsh)"
+fi
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
