@@ -70,7 +70,6 @@ alias ssh="kitty +kitten ssh"
 alias bx='bundle exec'
 alias ll='exa -lbF --git'
 alias rg="rg --hidden --glob '!.git'"
-alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles.git/ --work-tree=$HOME'
 
 # Git Aliases
 alias lg='lazygit'
