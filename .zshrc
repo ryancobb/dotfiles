@@ -79,6 +79,9 @@ alias gco='git checkout'
 alias ggp='git push'
 alias gscrub='git reset --hard @{upstream}'
 
+
+if [[ "$(command -v hivemind)" ]]; then alias foreman='hivemind'; fi
+
 # Functions ###########################################################################################
 
 copdiff() { git diff --name-only --diff-filter=d $1 -- "*.rb" } 
