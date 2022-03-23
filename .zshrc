@@ -39,6 +39,7 @@ export PATH="$GOPATH/bin:$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/
 
 zcomet load asdf-vm/asdf asdf.sh 
 zcomet load agkozak/zsh-z
+zcomet load sunlei/zsh-ssh
 
 zcomet load junegunn/fzf shell completion.zsh key-bindings.zsh
 (( ${+commands[fzf]} )) || ~[fzf]/install --bin
@@ -47,6 +48,10 @@ if [ -x "$(command -v brew)" ]; then
   zcomet fpath "$(brew --prefix)/share/zsh/site-functions"
 fi
 zcomet fpath asdf-vm/asdf completions
+zstyle ':completion:*:git-checkout:*' sort false
+zstyle ':completion:*:descriptions' format '[%d]'
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'exa -1 --color=always $realpath'
 zcomet compinit
 
 zcomet load Aloxaf/fzf-tab
@@ -57,12 +62,6 @@ zcomet load romkatv/powerlevel10k
 
 #######################################################################################################
 
-zstyle ':completion:*:git-checkout:*' sort false
-zstyle ':completion:*:descriptions' format '[%d]'
-zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
-zstyle ':fzf-tab:complete:cd:*' fzf-preview 'exa -1 --color=always $realpath'
-zstyle ':completion:*:(ssh|scp|ftp|sftp):*' hosts $hosts
-zstyle ':completion:*:(ssh|scp|ftp|sftp):*' users $users
 
 # Aliases #############################################################################################
 
