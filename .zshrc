@@ -75,7 +75,7 @@ alias lg='lazygit'
 alias gst='git status'
 alias gl='git pull'
 alias gco='git checkout'
-alias ggp='git push'
+alias ggp='git push -u origin HEAD'
 alias gscrub='git reset --hard @{upstream}'
 
 
