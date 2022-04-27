@@ -11,8 +11,6 @@ fi
 
 source ${ZDOTDIR:-${HOME}}/.zcomet/bin/zcomet.zsh
 
-eval "$(hub alias -s)"
-
 # Exports #############################################################################################
 export BAT_THEME="ansi"
 export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES # needed for ansible node_exporter
