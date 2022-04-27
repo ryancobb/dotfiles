@@ -11,6 +11,8 @@ fi
 
 source ${ZDOTDIR:-${HOME}}/.zcomet/bin/zcomet.zsh
 
+eval "$(hub alias -s)"
+
 # Exports #############################################################################################
 export BAT_THEME="ansi"
 export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES # needed for ansible node_exporter
@@ -22,11 +24,12 @@ export ZSHSZ_TILDE=1
 
 if [[ "$(command -v nvim)" ]]; then
   if [ -n "$NVIM_LISTEN_ADDRESS" ]; then
-      export VISUAL="nvr -cc split --remote-wait +'set bufhidden=wipe'"
-      export EDITOR="nvr -cc split --remote-wait +'set bufhidden=wipe'"
+    alias nvim="nvr -cc split --remote-wait + 'set bufhidden=wipe'"
+    export VISUAL="nvr -cc split --remote-wait +'set bufhidden=wipe'"
+    export EDITOR="nvr -cc split --remote-wait +'set bufhidden=wipe'"
   else
-      export VISUAL="nvim"
-      export EDITOR="nvim"
+    export VISUAL="nvim"
+    export EDITOR="nvim"
   fi
 
   export MANPAGER='nvim +Man!'
@@ -40,6 +43,7 @@ export PATH="$GOPATH/bin:$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/
 zcomet load asdf-vm/asdf asdf.sh 
 zcomet load agkozak/zsh-z
 zcomet load sunlei/zsh-ssh
+zcomet load zsh-users/zsh-completions
 
 zcomet load junegunn/fzf shell completion.zsh key-bindings.zsh
 (( ${+commands[fzf]} )) || ~[fzf]/install --bin
