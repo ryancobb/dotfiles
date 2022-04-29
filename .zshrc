@@ -18,7 +18,8 @@ export GOPATH="$HOME/go"
 export HISTFILE="$HOME/.zsh_history"
 export HISTSIZE=100000
 export HISTFILESIZE=100000
-export ZSHSZ_TILDE=1
+export ZSHZ_TILDE=1
+export ZSHZ_UNCOMMON=1
 
 if [[ "$(command -v nvim)" ]]; then
   if [ -n "$NVIM_LISTEN_ADDRESS" ]; then
@@ -52,7 +53,8 @@ fi
 zcomet fpath asdf-vm/asdf completions
 zstyle ':completion:*:git-checkout:*' sort false
 zstyle ':completion:*:descriptions' format '[%d]'
-zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*' menu select
+# zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 zstyle ':fzf-tab:complete:cd:*' fzf-preview 'exa -1 --color=always $realpath'
 zcomet compinit
 
