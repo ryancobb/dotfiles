@@ -18,8 +18,6 @@ export GOPATH="$HOME/go"
 export HISTFILE="$HOME/.zsh_history"
 export HISTSIZE=100000
 export HISTFILESIZE=100000
-export ZSHZ_TILDE=1
-export ZSHZ_UNCOMMON=1
 
 if [[ "$(command -v nvim)" ]]; then
   if [ -n "$NVIM_LISTEN_ADDRESS" ]; then
@@ -40,7 +38,6 @@ export PATH="$GOPATH/bin:$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/
 # zcomet ##############################################################################################
 
 zcomet load asdf-vm/asdf asdf.sh 
-zcomet load agkozak/zsh-z
 zcomet load sunlei/zsh-ssh
 zcomet load zsh-users/zsh-completions
 
@@ -48,8 +45,14 @@ zcomet load junegunn/fzf shell completion.zsh key-bindings.zsh
 (( ${+commands[fzf]} )) || ~[fzf]/install --bin
 
 if [ -x "$(command -v brew)" ]; then
+  # brew version of git autocomplete is bad, remove it
+  if [[ -f /usr/local/share/zsh/site-functions/_git ]]; then
+    command rm /usr/local/share/zsh/site-functions/_git
+  fi
+
   zcomet fpath "$(brew --prefix)/share/zsh/site-functions"
 fi
+
 zcomet fpath asdf-vm/asdf completions
 zstyle ':completion:*:git-checkout:*' sort false
 zstyle ':completion:*:descriptions' format '[%d]'
@@ -108,9 +111,9 @@ unsetopt nomatch # run rake task with args with no error
 bindkey -e
 if [ -x "$(command -v fzf)" ]; then bindkey '^r' fzf-history-widget; fi
 
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
 if [ -x "$(command -v direnv)" ]; then
   eval "$(direnv hook zsh)"
 fi
-
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
