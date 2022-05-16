@@ -12,7 +12,8 @@ fi
 source ${ZDOTDIR:-${HOME}}/.zcomet/bin/zcomet.zsh
 
 # Exports #############################################################################################
-export BAT_THEME="ansi"
+export BAT_THEME="base16-256"
+export LS_COLORS='no=00;37:fi=00:di=00;33:ln=04;36:pi=40;33:so=01;35:bd=40;33;01:'
 export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES # needed for ansible node_exporter
 export GOPATH="$HOME/go"
 export HISTFILE="$HOME/.zsh_history"
@@ -37,9 +38,10 @@ export PATH="$GOPATH/bin:$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/
 
 # zcomet ##############################################################################################
 
-zcomet load asdf-vm/asdf asdf.sh 
+zcomet load asdf-vm/asdf asdf.sh
 zcomet load sunlei/zsh-ssh
 zcomet load zsh-users/zsh-completions
+zcomet load romkatv/powerlevel10k
 
 zcomet load junegunn/fzf shell completion.zsh key-bindings.zsh
 (( ${+commands[fzf]} )) || ~[fzf]/install --bin
@@ -56,16 +58,14 @@ fi
 zcomet fpath asdf-vm/asdf completions
 zstyle ':completion:*:git-checkout:*' sort false
 zstyle ':completion:*:descriptions' format '[%d]'
-zstyle ':completion:*' menu select
-# zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 zstyle ':fzf-tab:complete:cd:*' fzf-preview 'exa -1 --color=always $realpath'
+
 zcomet compinit
 
 zcomet load Aloxaf/fzf-tab
-zcomet load zdharma-continuum/fast-syntax-highlighting
 zcomet load zsh-users/zsh-autosuggestions
-
-zcomet load romkatv/powerlevel10k
+zcomet load zsh-users/zsh-syntax-highlighting
 
 #######################################################################################################
 
@@ -84,7 +84,6 @@ alias gl='git pull'
 alias gco='git checkout'
 alias ggp='git push -u origin HEAD'
 alias gscrub='git reset --hard @{upstream}'
-
 
 if [[ "$(command -v hivemind)" ]]; then alias foreman='hivemind'; fi
 
