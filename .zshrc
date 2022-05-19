@@ -12,7 +12,7 @@ fi
 source ${ZDOTDIR:-${HOME}}/.zcomet/bin/zcomet.zsh
 
 # Exports #############################################################################################
-export BAT_THEME="base16-256"
+export BAT_THEME="base16"
 export LS_COLORS='no=00;37:fi=00:di=00;33:ln=04;36:pi=40;33:so=01;35:bd=40;33;01:'
 export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES # needed for ansible node_exporter
 export GOPATH="$HOME/go"
