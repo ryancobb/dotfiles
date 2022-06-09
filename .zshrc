@@ -48,8 +48,8 @@ zcomet load junegunn/fzf shell completion.zsh key-bindings.zsh
 
 if [ -x "$(command -v brew)" ]; then
   # brew version of git autocomplete is bad, remove it
-  if [[ -f /usr/local/share/zsh/site-functions/_git ]]; then
-    command rm /usr/local/share/zsh/site-functions/_git
+  if [[ -f /opt/homebrew/share/zsh/site-functions/_git ]]; then
+    command rm /opt/homebrew/share/zsh/site-functions/_git
   fi
 
   zcomet fpath "$(brew --prefix)/share/zsh/site-functions"
