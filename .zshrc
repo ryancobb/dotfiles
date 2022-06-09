@@ -34,7 +34,8 @@ if [[ "$(command -v nvim)" ]]; then
   export MANWIDTH=999
 fi
 
-export PATH="$GOPATH/bin:$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/local/sbin:$PATH"
+path+=("$GOPATH/bin")
+path+=("$HOME/.local/bin")
 
 # zcomet ##############################################################################################
 
