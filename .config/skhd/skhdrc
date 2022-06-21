@@ -1,0 +1,16 @@
+alt - h : yabai -m window --focus west
+alt - j : yabai -m window --focus south
+alt - k : yabai -m window --focus north
+alt - l : yabai -m window --focus east
+
+alt + shift - h : yabai -m window --swap west || $(yabai -m window --display west; yabai -m display --focus west)
+alt + shift - j : yabai -m window --swap south || $(yabai -m window --display south; yabai -m display --focus south)
+alt + shift - k : yabai -m window --swap north || $(yabai -m window --display north; yabai -m display --focus north)
+alt + shift - l : yabai -m window --swap east || $(yabai -m window --display east; yabai -m display --focus east)
+
+alt - e : yabai -m space --layout bsp
+alt - l : yabai -m space --layout float
+alt - s : yabai -m space --layout stack
+
+alt - w : yabai -m window --close
+alt - f : yabai -m window --toggle zoom-fullscreen
