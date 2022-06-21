@@ -36,6 +36,8 @@ fi
 
 path+=("$GOPATH/bin")
 path+=("$HOME/.local/bin")
+path+=("/opt/homebrew/bin")
+path+=("/opt/homebrew/sbin")
 
 # zcomet ##############################################################################################
 
