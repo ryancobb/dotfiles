@@ -1,32 +1,23 @@
-alt - b : yabai -m space --layout bsp
-alt - s : yabai -m space --layout stack
+hyper - t : open -a 'kitty'
+hyper - i : open -a 'Safari Technology Preview'
+hyper - e : open -a 'Hey'
+hyper - space : open -a 'Raycast'
+hyper - x : open -a 'Todoist'
+hyper - m : open -a 'Music'
+
+hyper - b : yabai -m space --layout bsp
+hyper - s : yabai -m space --layout stack
+
+hyper - h : yabai -m window --focus east || $(yabai -m display --focus east)
+hyper - j : yabai -m window --resize right:50:0 || $(yabai -m window --resize left:50:0)
+hyper - k : yabai -m window --resize left:-50:0 ||  $(yabai -m window --resize right:-50:0)
+hyper - l : yabai -m window --focus west || $(yabai -m display --focus west)
 
 alt - v : yabai -m window --toggle split
 alt - f : yabai -m window --toggle float
 alt - e : yabai -m window --toggle float;\
           yabai -m window --grid 28:28:1:1:26:26
 
-
-alt - w : yabai -m window --close
-
-alt - p : yabai -m window --focus stack.next
-alt - n : yabai -m window --focus stack.prev
-
-alt - h : yabai -m window --focus west || $(yabai -m display --focus west)
-alt - j : yabai -m window --focus south || $(yabai -m display --focus south)
-alt - k : yabai -m window --focus north || $(yabai -m display --focus north)
-alt - l : yabai -m window --focus east || $(yabai -m display --focus east)
-
-shift + cmd - h : yabai -m window --space prev
-shift + cmd - l : yabai -m window --space next
-
-lctrl + alt - h : yabai -m window --swap west || $(yabai -m window --display west; yabai -m display --focus west)
-lctrl + alt - j : yabai -m window --swap south || $(yabai -m window --display south; yabai -m display --focus south)
-lctrl + alt - k : yabai -m window --swap north || $(yabai -m window --display north; yabai -m display --focus north)
-lctrl + alt - l : yabai -m window --swap east || $(yabai -m window --display east; yabai -m display --focus east)
-
-shift + alt - h : yabai -m window --resize left:-50:0 ||  $(yabai -m window --resize right:-50:0)
-shift + alt - j : yabai -m window --resize bottom:0:50 || $(yabai -m window --resize top:0:50)
-shift + alt - k : yabai -m window --resize top:0:-50 || $(yabai -m window --resize bottom:0:-50)
-shift + alt - l : yabai -m window --resize right:50:0 || $(yabai -m window --resize left:50:0)
+hyper - left : yabai -m window --space prev
+hyper - right : yabai -m window --space next
 
