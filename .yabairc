@@ -18,6 +18,7 @@ yabai -m rule --add app='^Parcel$' manage=off
 yabai -m rule --add app='^Reminders$' manage=off
 yabai -m rule --add app='^System Information$' manage=off
 yabai -m rule --add app='^System Preferences$' manage=off
+yabai -m rule --add app='^System Settings$' manage=off
 yabai -m rule --add app='^Todoist$' manage=off
 
 yabai -m rule --add app='^kitty$' border=off
