@@ -8,10 +8,10 @@ hyper - m : open -a 'Music'
 hyper - b : yabai -m space --layout bsp
 hyper - s : yabai -m space --layout stack
 
-hyper - h : yabai -m window --focus east || $(yabai -m display --focus east)
-hyper - j : yabai -m window --resize right:50:0 || $(yabai -m window --resize left:50:0)
-hyper - k : yabai -m window --resize left:-50:0 ||  $(yabai -m window --resize right:-50:0)
-hyper - l : yabai -m window --focus west || $(yabai -m display --focus west)
+shift + cmd - h : yabai -m window --focus west || $(yabai -m display --focus west)
+shift + cmd - j : yabai -m window --resize left:-50:0 ||  $(yabai -m window --resize right:-50:0)
+shift + cmd - k : yabai -m window --resize right:50:0 || $(yabai -m window --resize left:50:0)
+shift + cmd - l : yabai -m window --focus east || $(yabai -m display --focus east)
 
 alt - v : yabai -m window --toggle split
 alt - f : yabai -m window --toggle float

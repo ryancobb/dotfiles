@@ -9,15 +9,16 @@ yabai -m config window_shadow                float
 
 yabai -m config mouse_follows_focus          on
 
-yabai -m rule --add app='^System Information$' manage=off
-yabai -m rule --add app='^System Preferences$' manage=off
 yabai -m rule --add app='^1Password$' manage=off
 yabai -m rule --add app='^App Store$' manage=off
 yabai -m rule --add app='^Calculator$' manage=off
 yabai -m rule --add app='^Dash$' manage=off
-yabai -m rule --add app='^Todoist$' manage=off
-yabai -m rule --add app='^Reminders$' manage=off
 yabai -m rule --add app='^Finder$' manage=off
+yabai -m rule --add app='^Parcel$' manage=off
+yabai -m rule --add app='^Reminders$' manage=off
+yabai -m rule --add app='^System Information$' manage=off
+yabai -m rule --add app='^System Preferences$' manage=off
+yabai -m rule --add app='^Todoist$' manage=off
 
 yabai -m rule --add app='^kitty$' border=off
 
