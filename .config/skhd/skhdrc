@@ -1,12 +1,12 @@
-hyper - t : open -a 'kitty'
-hyper - i : open -a 'Safari Technology Preview'
 hyper - e : open -a 'Hey'
-hyper - space : open -a 'Raycast'
-hyper - x : open -a 'Todoist'
+hyper - i : open -a 'Orion'
 hyper - m : open -a 'Music'
+hyper - s : open -a 'Slack'
+hyper - space : open -a 'Raycast'
+hyper - t : open -a 'kitty'
+hyper - x : open -a 'Todoist'
 
 hyper - b : yabai -m space --layout bsp
-hyper - s : yabai -m space --layout stack
 
 shift + cmd - h : yabai -m window --focus west || $(yabai -m display --focus west)
 shift + cmd - j : yabai -m window --resize left:-50:0 ||  $(yabai -m window --resize right:-50:0)
