@@ -22,7 +22,7 @@ export HISTFILESIZE=100000
 
 if [[ "$(command -v nvim)" ]]; then
   if [ -n "$NVIM_LISTEN_ADDRESS" ]; then
-    alias nvim="nvr -cc split --remote-wait + 'set bufhidden=wipe'"
+    alias nvim="nvr -cc split --remote-wait +'set bufhidden=wipe'"
     export VISUAL="nvr -cc split --remote-wait +'set bufhidden=wipe'"
     export EDITOR="nvr -cc split --remote-wait +'set bufhidden=wipe'"
   else
@@ -75,7 +75,7 @@ zcomet load zsh-users/zsh-syntax-highlighting
 
 # Aliases #############################################################################################
 
-alias ssh="kitty +kitten ssh"
+alias ssh="wezterm ssh"
 alias bx='bundle exec'
 alias ll='exa -lbF --git'
 alias rg="rg --hidden --glob '!.git'"
@@ -119,3 +119,4 @@ if [ -x "$(command -v fzf)" ]; then bindkey '^r' fzf-history-widget; fi
 if [ -x "$(command -v direnv)" ]; then
   eval "$(direnv hook zsh)"
 fi
+
