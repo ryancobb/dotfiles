@@ -1,4 +1,5 @@
 local wezterm = require 'wezterm'
+local act = wezterm.action
 
 return {
   font = wezterm.font('JetBrainsMono Nerd Font', { weight = 'Medium' }),
@@ -46,72 +47,19 @@ return {
   },
 
   keys = {
-    {
-      key = 'w',
-      mods = 'CMD',
-      action = wezterm.action.CloseCurrentPane { confirm = true }
-    },
-    {
-      key = 'h',
-      mods = 'CMD|SHIFT',
-      action = wezterm.action.SplitPane {
-        direction = 'Down',
-        size = { Percent = 20 }
-      },
-    },
-    {
-      key = 'v',
-      mods = 'CMD|SHIFT',
-      action = wezterm.action.SplitPane {
-        direction = 'Right'
-      },
-    },
-    {
-      key = 'h',
-      mods = 'CTRL|SHIFT',
-      action = wezterm.action.ActivatePaneDirection 'Left',
-    },
-    {
-      key = 'l',
-      mods = 'CTRL|SHIFT',
-      action = wezterm.action.ActivatePaneDirection 'Right',
-    },
-    {
-      key = 'k',
-      mods = 'CTRL|SHIFT',
-      action = wezterm.action.ActivatePaneDirection 'Up',
-    },
-    {
-      key = 'j',
-      mods = 'CTRL|SHIFT',
-      action = wezterm.action.ActivatePaneDirection 'Down',
-    },
-    {
-      key = 'LeftArrow',
-      mods = 'CTRL|SHIFT',
-      action = wezterm.action.AdjustPaneSize { 'Left', 5 },
-    },
-    {
-      key = 'RightArrow',
-      mods = 'CTRL|SHIFT',
-      action = wezterm.action.AdjustPaneSize { 'Right', 5 },
-    },
-    {
-      key = 'UpArrow',
-      mods = 'CTRL|SHIFT',
-      action = wezterm.action.AdjustPaneSize { 'Up', 5 },
-    },
-    {
-      key = 'DownArrow',
-      mods = 'CTRL|SHIFT',
-      action = wezterm.action.AdjustPaneSize { 'Down', 5 },
-    },
-    {
-      key = '0',
-      mods = 'CTRL',
-      action = wezterm.action.PaneSelect {
-        mode = 'SwapWithActive'
-      }
-    }
+    { key = 'w', mods = 'CMD', action = act.CloseCurrentPane { confirm = true } },
+    { key = 'h', mods = 'CMD|SHIFT', action = act.SplitPane { direction = 'Down', size = { Percent = 20 } }, },
+    { key = 'v', mods = 'CMD|SHIFT', action = act.SplitPane { direction = 'Right' }, },
+    { key = 'h', mods = 'CTRL|SHIFT', action = act.ActivatePaneDirection 'Left', },
+    { key = 'l', mods = 'CTRL|SHIFT', action = act.ActivatePaneDirection 'Right', },
+    { key = 'k', mods = 'CTRL|SHIFT', action = act.ActivatePaneDirection 'Up', },
+    { key = 'j', mods = 'CTRL|SHIFT', action = act.ActivatePaneDirection 'Down', },
+    { key = 'LeftArrow', mods = 'CTRL|SHIFT', action = act.AdjustPaneSize { 'Left', 5 }, },
+    { key = 'RightArrow', mods = 'CTRL|SHIFT', action = act.AdjustPaneSize { 'Right', 5 }, },
+    { key = 'UpArrow', mods = 'CTRL|SHIFT', action = act.AdjustPaneSize { 'Up', 5 }, },
+    { key = 'DownArrow', mods = 'CTRL|SHIFT', action = act.AdjustPaneSize { 'Down', 5 }, },
+    { key = '0', mods = 'CTRL', action = act.PaneSelect { mode = 'SwapWithActive' } },
+    { key = 'PageUp', mods = 'SHIFT', action = act.ScrollByPage(-0.5) },
+    { key = 'PageDown', mods = 'SHIFT', action = act.ScrollByPage(0.5) },
   }
 }
