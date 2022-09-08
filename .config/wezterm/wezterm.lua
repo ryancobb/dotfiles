@@ -3,6 +3,7 @@ local act = wezterm.action
 
 return {
   font = wezterm.font('JetBrainsMono Nerd Font', { weight = 'Medium' }),
+  harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' },
   font_size = 13.0,
 
   window_decorations = 'RESIZE',
@@ -48,7 +49,7 @@ return {
 
   keys = {
     { key = 'w', mods = 'CMD', action = act.CloseCurrentPane { confirm = true } },
-    { key = 'h', mods = 'CMD|SHIFT', action = act.SplitPane { direction = 'Down', size = { Percent = 20 } }, },
+    { key = 's', mods = 'CMD|SHIFT', action = act.SplitPane { direction = 'Down', size = { Percent = 20 } }, },
     { key = 'v', mods = 'CMD|SHIFT', action = act.SplitPane { direction = 'Right' }, },
     { key = 'h', mods = 'CTRL|SHIFT', action = act.ActivatePaneDirection 'Left', },
     { key = 'l', mods = 'CTRL|SHIFT', action = act.ActivatePaneDirection 'Right', },
