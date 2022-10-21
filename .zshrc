@@ -19,6 +19,8 @@ export GOPATH="$HOME/go"
 export HISTFILE="$HOME/.zsh_history"
 export HISTSIZE=100000
 export HISTFILESIZE=100000
+export LDFLAGS="-L/opt/homebrew/opt/icu4c/lib"
+export CPPFLAGS="-I/opt/homebrew/opt/icu4c/include"
 
 if [[ "$(command -v nvim)" ]]; then
   if [ -n "$NVIM_LISTEN_ADDRESS" ]; then
@@ -45,6 +47,7 @@ zcomet load asdf-vm/asdf asdf.sh
 zcomet load sunlei/zsh-ssh
 zcomet load zsh-users/zsh-completions
 zcomet load romkatv/powerlevel10k
+zcomet load catppuccin/zsh-syntax-highlighting themes catppuccin_frappe-zsh-syntax-highlighting.zsh
 
 zcomet load junegunn/fzf shell completion.zsh key-bindings.zsh
 (( ${+commands[fzf]} )) || ~[fzf]/install --bin
@@ -75,7 +78,6 @@ zcomet load zsh-users/zsh-syntax-highlighting
 
 # Aliases #############################################################################################
 
-alias ssh="wezterm ssh"
 alias bx='bundle exec'
 alias ll='exa -lbF --git'
 alias rg="rg --hidden --glob '!.git'"
