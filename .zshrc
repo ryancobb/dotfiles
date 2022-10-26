@@ -47,7 +47,6 @@ zcomet load asdf-vm/asdf asdf.sh
 zcomet load sunlei/zsh-ssh
 zcomet load zsh-users/zsh-completions
 zcomet load romkatv/powerlevel10k
-zcomet load catppuccin/zsh-syntax-highlighting themes catppuccin_frappe-zsh-syntax-highlighting.zsh
 
 zcomet load junegunn/fzf shell completion.zsh key-bindings.zsh
 (( ${+commands[fzf]} )) || ~[fzf]/install --bin

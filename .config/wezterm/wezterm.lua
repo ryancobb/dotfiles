@@ -42,24 +42,27 @@ return {
     saturation = 0.9,
     brightness = 0.75
   },
-  color_scheme = 'Catppuccin Frappe',
   window_frame = {
-    active_titlebar_bg = '#232634',
+    active_titlebar_bg = '#252c31',
   },
   colors = {
+    foreground = '#d3c6aa',
+    background = '#2f383e',
+    cursor_bg = '#7fbbb3',
+    ansi = { '#4b565c', '#e67e80', '#a7c080', '#dbbc7f', '#7fbbb3', '#d699b6', '#83c092', '#d3c6aa' },
+    brights = { '#4b565c', '#e67e80', '#a7c080', '#dbbc7f', '#7fbbb3', '#d699b6', '#83c092', '#d3c6aa' },
     tab_bar = {
-      inactive_tab_edge = '#575757',
       active_tab = {
-        bg_color = '#626880',
-        fg_color = '#c6d0f5',
+        bg_color = '#2f383e',
+        fg_color = '#d3c6aa'
       },
       inactive_tab = {
-        bg_color = '#292c3c',
-        fg_color = '#c6d0f5'
+        bg_color = '#252c31',
+        fg_color = '#938a76'
       },
       new_tab = {
-        bg_color = '#303446',
-        fg_color = '#c6d0f5'
+        bg_color = '#20272b',
+        fg_color = '#d3c6aa'
       }
     }
   },
