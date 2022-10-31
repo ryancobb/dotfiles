@@ -2,6 +2,8 @@ local wezterm = require 'wezterm'
 local act = wezterm.action
 
 return {
+  use_fancy_tab_bar = false,
+  color_scheme = 'nordfox',
   font = wezterm.font('JetBrainsMono Nerd Font', { weight = 'Medium' }),
   harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' },
   font_size = 13.0,
@@ -42,31 +44,6 @@ return {
     saturation = 0.9,
     brightness = 0.75
   },
-  window_frame = {
-    active_titlebar_bg = '#252c31',
-  },
-  colors = {
-    foreground = '#d3c6aa',
-    background = '#2f383e',
-    cursor_bg = '#7fbbb3',
-    ansi = { '#4b565c', '#e67e80', '#a7c080', '#dbbc7f', '#7fbbb3', '#d699b6', '#83c092', '#d3c6aa' },
-    brights = { '#4b565c', '#e67e80', '#a7c080', '#dbbc7f', '#7fbbb3', '#d699b6', '#83c092', '#d3c6aa' },
-    tab_bar = {
-      active_tab = {
-        bg_color = '#2f383e',
-        fg_color = '#d3c6aa'
-      },
-      inactive_tab = {
-        bg_color = '#252c31',
-        fg_color = '#938a76'
-      },
-      new_tab = {
-        bg_color = '#20272b',
-        fg_color = '#d3c6aa'
-      }
-    }
-  },
-
   keys = {
     { key = 'w', mods = 'CMD', action = act.CloseCurrentPane { confirm = true } },
     { key = 's', mods = 'CMD|SHIFT', action = act.SplitPane { direction = 'Down', size = { Percent = 20 } }, },
