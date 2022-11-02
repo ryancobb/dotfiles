@@ -2,7 +2,6 @@ local wezterm = require 'wezterm'
 local act = wezterm.action
 
 return {
-  use_fancy_tab_bar = false,
   color_scheme = 'nordfox',
   font = wezterm.font('JetBrainsMono Nerd Font', { weight = 'Medium' }),
   harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' },
