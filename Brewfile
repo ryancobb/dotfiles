@@ -13,4 +13,5 @@ brew "zsh"
 tap "homebrew/cask-fonts"
 cask "font-jetbrains-mono-nerd-font"
 
-cask "kitty"
+tap "wez/wezterm"
+cask "wez/wezterm/wezterm"
