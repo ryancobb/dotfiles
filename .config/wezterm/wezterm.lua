@@ -51,6 +51,8 @@ return {
     { key = 'l', mods = 'CTRL|SHIFT', action = act.ActivatePaneDirection 'Right', },
     { key = 'k', mods = 'CTRL|SHIFT', action = act.ActivatePaneDirection 'Up', },
     { key = 'j', mods = 'CTRL|SHIFT', action = act.ActivatePaneDirection 'Down', },
+    { key = 'b', mods = 'CTRL', action = act.RotatePanes 'CounterClockwise' },
+    { key = 'n', mods = 'CTRL', action = act.RotatePanes 'Clockwise' },
     { key = 'LeftArrow', mods = 'CTRL|SHIFT', action = act.AdjustPaneSize { 'Left', 5 }, },
     { key = 'RightArrow', mods = 'CTRL|SHIFT', action = act.AdjustPaneSize { 'Right', 5 }, },
     { key = 'UpArrow', mods = 'CTRL|SHIFT', action = act.AdjustPaneSize { 'Up', 5 }, },
