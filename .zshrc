@@ -21,20 +21,10 @@ export HISTSIZE=100000
 export HISTFILESIZE=100000
 export LDFLAGS="-L/opt/homebrew/opt/icu4c/lib"
 export CPPFLAGS="-I/opt/homebrew/opt/icu4c/include"
-
-if [[ "$(command -v nvim)" ]]; then
-  if [ -n "$NVIM_LISTEN_ADDRESS" ]; then
-    alias nvim="nvr -cc split --remote-wait +'set bufhidden=wipe'"
-    export VISUAL="nvr -cc split --remote-wait +'set bufhidden=wipe'"
-    export EDITOR="nvr -cc split --remote-wait +'set bufhidden=wipe'"
-  else
-    export VISUAL="nvim"
-    export EDITOR="nvim"
-  fi
-
-  export MANPAGER='nvim +Man!'
-  export MANWIDTH=999
-fi
+export VISUAL="nvim"
+export EDITOR="nvim"
+export MANPAGER='nvim +Man!'
+export MANWIDTH=999
 
 path+=("$GOPATH/bin")
 path+=("$HOME/.local/bin")
