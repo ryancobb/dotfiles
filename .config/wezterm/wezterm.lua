@@ -92,5 +92,6 @@ return {
     { key = '0', mods = 'CTRL', action = act.PaneSelect { mode = 'SwapWithActive' } },
     { key = 'PageUp', mods = 'SHIFT', action = act.ScrollByPage(-0.5) },
     { key = 'PageDown', mods = 'SHIFT', action = act.ScrollByPage(0.5) },
+    { key = 'K', mods = 'CTRL|SHIFT', action = act.ClearScrollback 'ScrollbackAndViewport' }
   }
 }
