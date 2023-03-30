@@ -77,10 +77,6 @@ return {
   },
   keys = {
     { key = 'w', mods = 'CMD', action = act.CloseCurrentPane { confirm = true } },
-    { key = 's', mods = 'CMD|SHIFT', action = act.SplitPane { direction = 'Down', size = { Percent = 20 } }, },
-    { key = 'v', mods = 'CMD|SHIFT', action = act.SplitPane { direction = 'Right' }, },
-    { key = 'b', mods = 'CTRL|SHIFT', action = act.RotatePanes 'CounterClockwise' },
-    { key = 'n', mods = 'CTRL|SHIFT', action = act.RotatePanes 'Clockwise' },
     { key = 'h', mods = 'CTRL', action = act.EmitEvent('ActivatePaneDirection-left') },
     { key = 'l', mods = 'CTRL', action = act.EmitEvent('ActivatePaneDirection-right') },
     { key = 'k', mods = 'CTRL', action = act.EmitEvent('ActivatePaneDirection-up') },
@@ -89,9 +85,12 @@ return {
     { key = 'RightArrow', mods = 'CTRL|SHIFT', action = act.AdjustPaneSize { 'Right', 5 }, },
     { key = 'UpArrow', mods = 'CTRL|SHIFT', action = act.AdjustPaneSize { 'Up', 5 }, },
     { key = 'DownArrow', mods = 'CTRL|SHIFT', action = act.AdjustPaneSize { 'Down', 5 }, },
-    { key = '0', mods = 'CTRL', action = act.PaneSelect { mode = 'SwapWithActive' } },
-    { key = 'PageUp', mods = 'SHIFT', action = act.ScrollByPage(-0.5) },
-    { key = 'PageDown', mods = 'SHIFT', action = act.ScrollByPage(0.5) },
-    { key = 'K', mods = 'CTRL|SHIFT', action = act.ClearScrollback 'ScrollbackAndViewport' }
+    { key = '0', mods = 'CTRL|SHIFT', action = act.PaneSelect { mode = 'SwapWithActive' } },
+    { key = 'K', mods = 'CTRL|SHIFT', action = act.ClearScrollback 'ScrollbackAndViewport' },
+    { key = 'Z', mods = 'CTRL|SHIFT', action = act.TogglePaneZoomState },
+    { key = 'B', mods = 'CTRL|SHIFT', action = act.RotatePanes 'CounterClockwise' },
+    { key = 'N', mods = 'CTRL|SHIFT', action = act.RotatePanes 'Clockwise' },
+    { key = 'S', mods = 'CMD|SHIFT', action = act.SplitPane { direction = 'Down', size = { Percent = 20 } }, },
+    { key = 'V', mods = 'CMD|SHIFT', action = act.SplitPane { direction = 'Right' }, }
   }
 }
