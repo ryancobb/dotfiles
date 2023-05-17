@@ -42,17 +42,18 @@ local function split_nav(resize_or_move, key)
 end
 
 return {
+  scrollback_lines = 10000,
   color_scheme = 'nordfox',
-  font = wezterm.font('JetBrainsMono Nerd Font', { weight = 'Medium' }),
+  font = wezterm.font('JetBrainsMonoNL Nerd Font', { weight = 'Medium' }),
   harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' },
-  font_size = 13.0,
+  font_size = 12.0,
 
   window_decorations = 'RESIZE',
   window_padding = {
-    left = '0.5cell',
-    right = '0.5cell',
+    left = '0.4cell',
+    right = '0.4cell',
     top = '0.2cell',
-    bottom = '0.1cell',
+    bottom = '0.2cell',
   },
 
   hyperlink_rules = {
@@ -81,7 +82,7 @@ return {
 
   inactive_pane_hsb = {
     saturation = 0.9,
-    brightness = 0.75
+    brightness = 0.65
   },
   keys = {
     { key = 'w', mods = 'CMD', action = act.CloseCurrentPane { confirm = true } },

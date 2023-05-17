@@ -12,9 +12,14 @@ fi
 
 source ${ZDOTDIR:-${HOME}}/.zcomet/bin/zcomet.zsh
 
+if [ -f ~/.secretrc ]; then
+  source ~/.secretrc
+fi
+
 # Exports #############################################################################################
 export BAT_THEME="base16"
 export CPPFLAGS="-I/opt/homebrew/opt/icu4c/include"
+export DIRENV_LOG_FORMAT=
 export EDITOR="nvim"
 export GOPATH="$HOME/go"
 export HISTFILE="$HOME/.zsh_history"
@@ -31,9 +36,9 @@ path+=("$GOPATH/bin")
 path+=("$HOME/.local/bin")
 path+=("/opt/homebrew/bin")
 path+=("/opt/homebrew/sbin")
+#######################################################################################################
 
 # zcomet ##############################################################################################
-
 zcomet load asdf-vm/asdf asdf.sh
 zcomet load sunlei/zsh-ssh
 zcomet load zsh-users/zsh-completions
@@ -62,12 +67,9 @@ zcomet compinit
 zcomet load Aloxaf/fzf-tab
 zcomet load zsh-users/zsh-autosuggestions
 zcomet load zsh-users/zsh-syntax-highlighting
-
 #######################################################################################################
 
-
 # Aliases #############################################################################################
-
 alias bx='bundle exec'
 alias ll='exa -lbF --git'
 alias rg="rg --hidden --glob '!.git'"
@@ -81,9 +83,9 @@ alias ggp='git push -u origin HEAD'
 alias gscrub='git reset --hard @{upstream}'
 
 if [[ "$(command -v hivemind)" ]]; then alias foreman='hivemind'; fi
+#######################################################################################################
 
 # Functions ###########################################################################################
-
 copdiff() { git diff --name-only --diff-filter=d $1 -- "*.rb" } 
 copexclude() { sed "/^db\/schema\.rb/d" }
 cop() { copdiff $1 | copexclude | xargs bundle exec rubocop -a }
