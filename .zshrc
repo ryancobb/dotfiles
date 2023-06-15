@@ -31,6 +31,7 @@ export MANPAGER='nvim +Man!'
 export MANWIDTH=999
 export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES # needed for ansible node_exporter
 export VISUAL="nvim"
+export XDG_CONFIG_HOME="$HOME/.config"
 
 path+=("$GOPATH/bin")
 path+=("$HOME/.local/bin")
