@@ -44,8 +44,8 @@ end
 return {
 	scrollback_lines = 10000,
 	color_scheme = "Catppuccin Frappe",
-	font = wezterm.font("JetBrainsMonoNL Nerd Font", { weight = "Medium" }),
-	harfbuzz_features = { "calt=0", "clig=0", "liga=0" },
+	font = wezterm.font("JetBrainsMono Nerd Font", { weight = "Medium" }),
+	-- harfbuzz_features = { "calt=0", "clig=0", "liga=0" },
 	font_size = 12.0,
 
 	window_decorations = "RESIZE",
