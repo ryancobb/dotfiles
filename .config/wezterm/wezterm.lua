@@ -43,7 +43,7 @@ end
 
 return {
 	scrollback_lines = 10000,
-	color_scheme = "Catppuccin Frappe",
+	color_scheme = "Kanagawa (Gogh)",
 	font = wezterm.font("JetBrainsMono Nerd Font", { weight = "Medium" }),
 	-- harfbuzz_features = { "calt=0", "clig=0", "liga=0" },
 	font_size = 12.0,
