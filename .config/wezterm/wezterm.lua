@@ -42,8 +42,9 @@ local function split_nav(resize_or_move, key)
 end
 
 return {
+	force_reverse_video_cursor = true,
 	scrollback_lines = 10000,
-	color_scheme = "Kanagawa (Gogh)",
+	color_scheme = "Everforest Dark (Gogh)",
 	font = wezterm.font("JetBrainsMono Nerd Font", { weight = "Medium" }),
 	-- harfbuzz_features = { "calt=0", "clig=0", "liga=0" },
 	font_size = 12.0,
