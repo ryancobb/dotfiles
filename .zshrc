@@ -106,7 +106,7 @@ setopt hist_ignore_all_dups
 
 unsetopt nomatch # run rake task with args with no error
 
-bindkey -e
+bindkey -v
 if [ -x "$(command -v fzf)" ]; then bindkey '^r' fzf-history-widget; fi
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
