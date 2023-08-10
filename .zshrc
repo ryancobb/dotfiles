@@ -32,6 +32,7 @@ export MANWIDTH=999
 export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES # needed for ansible node_exporter
 export VISUAL="nvim"
 export XDG_CONFIG_HOME="$HOME/.config"
+export ZELLIJ_CONFIG_DIR="$HOME/.config/zellij"
 
 path+=("$GOPATH/bin")
 path+=("$HOME/.local/bin")
@@ -75,6 +76,7 @@ zcomet load zsh-users/zsh-syntax-highlighting
 alias bx='bundle exec'
 alias ll='exa -lbF --git'
 alias rg="rg --hidden --glob '!.git'"
+alias zj='zellij'
 
 # Git Aliases
 alias lg='lazygit'
@@ -106,7 +108,7 @@ setopt hist_ignore_all_dups
 
 unsetopt nomatch # run rake task with args with no error
 
-bindkey -v
+bindkey -e
 if [ -x "$(command -v fzf)" ]; then bindkey '^r' fzf-history-widget; fi
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
