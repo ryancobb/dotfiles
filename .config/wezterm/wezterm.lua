@@ -95,6 +95,12 @@ config.hyperlink_rules = {
 		regex = "\\b\\w+://[\\w.-]+\\.[a-z]{2,15}\\S*\\b",
 		format = "$0",
 	},
+	-- match the URL with a PORT
+	-- such 'http://localhost:3000/index.html'
+	{
+		regex = "\\b\\w+://(?:[\\w.-]+):\\d+\\S*\\b",
+		format = "$0",
+	},
 	-- file:// URI
 	{
 		regex = [[\bfile://\S*\b]],
@@ -118,13 +124,11 @@ config.keys = {
 	split_nav("resize", "RightArrow"),
 	split_nav("resize", "UpArrow"),
 	split_nav("resize", "DownArrow"),
+	{ key = "0", mods = "CTRL", action = act.PaneSelect({ mode = "SwapWithActive" }) },
 	{ key = "l", mods = "ALT", action = act.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
 	{ key = "w", mods = "CMD", action = act.CloseCurrentPane({ confirm = true }) },
-	{ key = "0", mods = "CTRL|SHIFT", action = act.PaneSelect({ mode = "SwapWithActive" }) },
 	{ key = "K", mods = "CTRL|SHIFT", action = act.ClearScrollback("ScrollbackAndViewport") },
 	{ key = "Z", mods = "CTRL|SHIFT", action = act.TogglePaneZoomState },
-	{ key = "B", mods = "CTRL|SHIFT", action = act.RotatePanes("CounterClockwise") },
-	{ key = "N", mods = "CTRL|SHIFT", action = act.RotatePanes("Clockwise") },
 	{ key = "{", mods = "CTRL|SHIFT", action = act.MoveTabRelative(-1) },
 	{ key = "}", mods = "CTRL|SHIFT", action = act.MoveTabRelative(1) },
 	{ key = "S", mods = "CMD|SHIFT", action = act.SplitPane({ direction = "Down", size = { Percent = 20 } }) },

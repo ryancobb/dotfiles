@@ -1,10 +1,6 @@
-(( ${+commands[direnv]} )) && emulate zsh -c "$(direnv export zsh)"
-
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
-
-(( ${+commands[direnv]} )) && emulate zsh -c "$(direnv hook zsh)"
 
 if [[ ! -f ${ZDOTDIR:-${HOME}}/.zcomet/bin/zcomet.zsh ]]; then
   command git clone https://github.com/agkozak/zcomet.git ${ZDOTDIR:-${HOME}}/.zcomet/bin
@@ -14,6 +10,10 @@ source ${ZDOTDIR:-${HOME}}/.zcomet/bin/zcomet.zsh
 
 if [ -f ~/.secretrc ]; then
   source ~/.secretrc
+fi
+
+if [[ -f "/opt/homebrew/opt/asdf/libexec/asdf.sh" ]]; then
+  source /opt/homebrew/opt/asdf/libexec/asdf.sh
 fi
 
 # Exports #############################################################################################
@@ -41,14 +41,10 @@ path+=("/opt/homebrew/sbin")
 #######################################################################################################
 
 # zcomet ##############################################################################################
-zcomet load asdf-vm/asdf asdf.sh
 zcomet load sunlei/zsh-ssh
 zcomet load zsh-users/zsh-completions
 zcomet load romkatv/powerlevel10k
 zcomet load trystan2k/zsh-tab-title
-
-zcomet load junegunn/fzf shell completion.zsh key-bindings.zsh
-(( ${+commands[fzf]} )) || ~[fzf]/install --bin
 
 if [ -x "$(command -v brew)" ]; then
   # brew version of git autocomplete is bad, remove it
@@ -59,11 +55,9 @@ if [ -x "$(command -v brew)" ]; then
   zcomet fpath "$(brew --prefix)/share/zsh/site-functions"
 fi
 
-zcomet fpath asdf-vm/asdf completions
 zstyle ':completion:*:git-checkout:*' sort false
 zstyle ':completion:*:descriptions' format '[%d]'
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
-zstyle ':fzf-tab:complete:cd:*' fzf-preview 'exa -1 --color=always $realpath'
 
 zcomet compinit
 
@@ -118,3 +112,4 @@ if [ -x "$(command -v direnv)" ]; then
   eval "$(direnv hook zsh)"
 fi
 
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
