@@ -72,7 +72,7 @@ zcomet load zsh-users/zsh-syntax-highlighting
 
 # Aliases #############################################################################################
 alias bx='bundle exec'
-alias ll='exa -lbF --git'
+alias ll='eza -lbF --git'
 alias rg="rg --hidden --glob '!.git'"
 alias zj='zellij'
 
