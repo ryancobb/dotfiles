@@ -16,6 +16,10 @@ if [[ -f "/opt/homebrew/opt/asdf/libexec/asdf.sh" ]]; then
   source /opt/homebrew/opt/asdf/libexec/asdf.sh
 fi
 
+if [[ -f "$HOME/.asdf/.asdf.sh" ]]; then
+  source "$HOME/.asdf/asdf.sh"
+fi
+
 # Exports #############################################################################################
 export BAT_THEME="base16"
 export CPPFLAGS="-I/opt/homebrew/opt/icu4c/include"
@@ -26,7 +30,7 @@ export HISTFILE="$HOME/.zsh_history"
 export HISTFILESIZE=100000
 export HISTSIZE=100000
 export LDFLAGS="-L/opt/homebrew/opt/icu4c/lib"
-export LS_COLORS='no=00;37:fi=00:di=00;33:ln=04;36:pi=40;33:so=01;35:bd=40;33;01:'
+export LS_COLORS=''
 export MANPAGER='nvim +Man!'
 export MANWIDTH=999
 export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES # needed for ansible node_exporter
