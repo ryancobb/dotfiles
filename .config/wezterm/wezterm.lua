@@ -135,74 +135,75 @@ config.keys = {
 	{ key = "V", mods = "CMD|SHIFT", action = act.SplitPane({ direction = "Right" }) },
 }
 
-config.color_scheme = "catppuccin-frappe"
-config.window_frame = {
-	active_titlebar_bg = "#232634",
-	inactive_titlebar_bg = "#232634",
-}
-config.colors = {
-	tab_bar = {
-		background = "#232634",
-		active_tab = {
-			bg_color = "#303446",
-			fg_color = "#c6d0f5",
-		},
-    inactive_tab = {
-      bg_color = "#232634",
-      fg_color = "#51576d"
-    }
+config.mouse_bindings = {
+	-- Disable the default click behavior
+	{
+		event = { Up = { streak = 1, button = "Left" } },
+		mods = "NONE",
+		action = wezterm.action.DisableDefaultAssignment,
+	},
+	{
+		event = { Up = { streak = 1, button = "Left" } },
+		mods = "CMD",
+		action = wezterm.action.OpenLinkAtMouseCursor,
+	},
+	-- Disable the Cmd-click down event to stop programs from seeing it when a URL is clicked
+	{
+		event = { Down = { streak = 1, button = "Left" } },
+		mods = "CMD",
+		action = wezterm.action.Nop,
 	},
 }
 
 -- nightfox
--- config.window_frame = {
--- 	active_titlebar_bg = "#232831",
--- 	inactive_titlebar_bg = "#232831",
--- }
---
--- config.colors = {
--- 	foreground = "#cdcecf",
--- 	background = "#2e3440",
--- 	cursor_bg = "#cdcecf",
--- 	cursor_border = "#cdcecf",
--- 	cursor_fg = "#2e3440",
--- 	compose_cursor = "#c9826b",
--- 	selection_bg = "#3e4a5b",
--- 	selection_fg = "#cdcecf",
--- 	scrollbar_thumb = "#7e8188",
--- 	split = "#232831",
--- 	visual_bell = "#cdcecf",
--- 	ansi = { "#3b4252", "#bf616a", "#a3be8c", "#ebcb8b", "#81a1c1", "#b48ead", "#88c0d0", "#e5e9f0" },
--- 	brights = { "#465780", "#d06f79", "#b1d196", "#f0d399", "#8cafd2", "#c895bf", "#93ccdc", "#e7ecf4" },
--- 	indexed = {
--- 		[16] = "#bf88bc",
--- 		[17] = "#c9826b",
--- 	},
--- 	tab_bar = {
--- 		background = "#232831",
--- 		inactive_tab_edge = "#232831",
--- 		inactive_tab_edge_hover = "#39404f",
--- 		active_tab = {
--- 			bg_color = "#7e8188",
--- 			fg_color = "#2e3440",
--- 		},
--- 		inactive_tab = {
--- 			bg_color = "#39404f",
--- 			fg_color = "#888D95",
--- 		},
--- 		inactive_tab_hover = {
--- 			bg_color = "#444c5e",
--- 			fg_color = "#cdcecf",
--- 		},
--- 		new_tab = {
--- 			bg_color = "#2e3440",
--- 			fg_color = "#abb1bb",
--- 		},
--- 		new_tab_hover = {
--- 			bg_color = "#444c5e",
--- 			fg_color = "#cdcecf",
--- 		},
--- 	},
--- }
+config.window_frame = {
+	active_titlebar_bg = "#232831",
+	inactive_titlebar_bg = "#232831",
+}
+
+config.colors = {
+	foreground = "#cdcecf",
+	background = "#2e3440",
+	cursor_bg = "#cdcecf",
+	cursor_border = "#cdcecf",
+	cursor_fg = "#2e3440",
+	compose_cursor = "#c9826b",
+	selection_bg = "#3e4a5b",
+	selection_fg = "#cdcecf",
+	scrollbar_thumb = "#7e8188",
+	split = "#232831",
+	visual_bell = "#cdcecf",
+	ansi = { "#3b4252", "#bf616a", "#a3be8c", "#ebcb8b", "#81a1c1", "#b48ead", "#88c0d0", "#e5e9f0" },
+	brights = { "#465780", "#d06f79", "#b1d196", "#f0d399", "#8cafd2", "#c895bf", "#93ccdc", "#e7ecf4" },
+	indexed = {
+		[16] = "#bf88bc",
+		[17] = "#c9826b",
+	},
+	tab_bar = {
+		background = "#232831",
+		inactive_tab_edge = "#232831",
+		inactive_tab_edge_hover = "#39404f",
+		active_tab = {
+			bg_color = "#444c5e",
+			fg_color = "#cdcecf",
+		},
+		inactive_tab = {
+			bg_color = "#232831",
+			fg_color = "#7e8188",
+		},
+		inactive_tab_hover = {
+			bg_color = "#444c5e",
+			fg_color = "#cdcecf",
+		},
+		new_tab = {
+			bg_color = "#2e3440",
+			fg_color = "#abb1bb",
+		},
+		new_tab_hover = {
+			bg_color = "#444c5e",
+			fg_color = "#cdcecf",
+		},
+	},
+}
 
 return config
