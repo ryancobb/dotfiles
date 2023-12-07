@@ -68,7 +68,7 @@ end)
 local config = {
 	force_reverse_video_cursor = true,
 	scrollback_lines = 10000,
-	font = wezterm.font("JetBrainsMono Nerd Font", { weight = "Medium" }),
+	font = wezterm.font("JetBrainsMono NF", { weight = "Medium" }),
 	font_size = 12.0,
 
 	window_decorations = "RESIZE",
@@ -133,6 +133,10 @@ config.keys = {
 	{ key = "}", mods = "CTRL|SHIFT", action = act.MoveTabRelative(1) },
 	{ key = "S", mods = "CMD|SHIFT", action = act.SplitPane({ direction = "Down", size = { Percent = 20 } }) },
 	{ key = "V", mods = "CMD|SHIFT", action = act.SplitPane({ direction = "Right" }) },
+	-- Make Option-Left equivalent to Alt-b which many line editors interpret as backward-word
+	{ key = "LeftArrow", mods = "OPT", action = wezterm.action({ SendString = "\x1bb" }) },
+	-- Make Option-Right equivalent to Alt-f; forward-word
+	{ key = "RightArrow", mods = "OPT", action = wezterm.action({ SendString = "\x1bf" }) },
 }
 
 config.mouse_bindings = {
