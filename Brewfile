@@ -1,12 +1,13 @@
 brew "bat"
+brew "bottom"
 brew "direnv"
 brew "exa"
 brew "fd"
 brew "git-delta"
 brew "hivemind"
-brew "htop"
 brew "less"
-brew "neovim", args: ["head"]
+brew "mos"
+brew "neovim" 
 brew "rg"
 brew "zsh"
 
