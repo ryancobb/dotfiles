@@ -66,7 +66,6 @@ wezterm.on("update-right-status", function(window)
 end)
 
 local config = {
-	force_reverse_video_cursor = true,
 	scrollback_lines = 10000,
 	font = wezterm.font("JetBrainsMono NF", { weight = "Medium" }),
 	font_size = 12.0,
