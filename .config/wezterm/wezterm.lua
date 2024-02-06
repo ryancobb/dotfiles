@@ -1,6 +1,5 @@
 local wezterm = require("wezterm")
 local act = wezterm.action
-local mux = wezterm.mux
 
 local function is_vim(pane)
 	-- this is set by the plugin, and unset on ExitPre in Neovim
@@ -42,33 +41,11 @@ local function split_nav(resize_or_move, key)
 	}
 end
 
-wezterm.on("gui-startup", function()
-	mux.spawn_window({
-		workspace = "gitlab",
-		cwd = wezterm.home_dir .. "/Projects/gdk/gitlab",
-		args = {},
-	})
-
-	mux.spawn_window({
-		workspace = "cdot",
-		cwd = wezterm.home_dir .. "/Projects/customers-gitlab-com",
-	})
-
-	mux.spawn_window({
-		worspace = "default",
-		cwd = wezterm.home_dir,
-		args = {},
-	})
-end)
-
-wezterm.on("update-right-status", function(window)
-	window:set_right_status(window:active_workspace())
-end)
-
 local config = {
 	scrollback_lines = 10000,
 	font = wezterm.font("JetBrainsMono NF", { weight = "Medium" }),
 	font_size = 12.0,
+	front_end = "WebGpu",
 
 	window_decorations = "RESIZE",
 	window_padding = {
@@ -79,7 +56,7 @@ local config = {
 	},
 
 	inactive_pane_hsb = {
-		saturation = 0.9,
+		saturation = 0.8,
 		brightness = 0.65,
 	},
 }
