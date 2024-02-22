@@ -12,6 +12,10 @@ if [ -f ~/.secretrc ]; then
   source ~/.secretrc
 fi
 
+if [ -f ~/.config/wezterm/wezterm.sh ]; then
+  source ~/.config/wezterm/wezterm.sh
+fi
+
 if [[ -f "/opt/homebrew/opt/asdf/libexec/asdf.sh" ]]; then
   source /opt/homebrew/opt/asdf/libexec/asdf.sh
 elif [[ -f "$HOME/.asdf/asdf.sh" ]]; then
