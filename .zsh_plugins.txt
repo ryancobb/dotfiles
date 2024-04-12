@@ -1,0 +1,12 @@
+zsh-users/zsh-completions
+
+romkatv/powerlevel10k kind:fpath
+
+sunlei/zsh-ssh
+trystan2k/zsh-tab-title
+
+belak/zsh-utils path:completion
+
+Aloxaf/fzf-tab
+zsh-users/zsh-autosuggestions
+zdharma-continuum/fast-syntax-highlighting

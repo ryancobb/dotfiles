@@ -1,28 +1,8 @@
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
-
-if [[ ! -f ${ZDOTDIR:-${HOME}}/.zcomet/bin/zcomet.zsh ]]; then
-  command git clone https://github.com/agkozak/zcomet.git ${ZDOTDIR:-${HOME}}/.zcomet/bin
-fi
-
-source ${ZDOTDIR:-${HOME}}/.zcomet/bin/zcomet.zsh
-
+# Exports #############################################################################################
 if [ -f ~/.secretrc ]; then
   source ~/.secretrc
 fi
 
-if [ -f ~/.config/wezterm/wezterm.sh ]; then
-  source ~/.config/wezterm/wezterm.sh
-fi
-
-if [[ -f "/opt/homebrew/opt/asdf/libexec/asdf.sh" ]]; then
-  source /opt/homebrew/opt/asdf/libexec/asdf.sh
-elif [[ -f "$HOME/.asdf/asdf.sh" ]]; then
-  source "$HOME/.asdf/asdf.sh"
-fi
-
-# Exports #############################################################################################
 export BAT_THEME="base16"
 export CPPFLAGS="-I/opt/homebrew/opt/icu4c/include"
 export DIRENV_LOG_FORMAT=
@@ -39,37 +19,44 @@ export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES # needed for ansible node_exporte
 export VISUAL="nvim"
 export XDG_CONFIG_HOME="$HOME/.config"
 export ZELLIJ_CONFIG_DIR="$HOME/.config/zellij"
+export ZSH_TAB_TITLE_DEFAULT_DISABLE_PREFIX=true
 
 path+=("$GOPATH/bin")
 path+=("$HOME/.local/bin")
 path+=("/opt/homebrew/bin")
 path+=("/opt/homebrew/sbin")
+
 #######################################################################################################
 
-# zcomet ##############################################################################################
-zcomet load sunlei/zsh-ssh
-zcomet load zsh-users/zsh-completions
-zcomet load romkatv/powerlevel10k
-zcomet load trystan2k/zsh-tab-title
+# if type brew &>/dev/null
+#   if [[ -f /opt/homebrew/share/zsh/site-functions/_git ]]; then
+#     command rm /opt/homebrew/share/zsh/site-functions/_git
+#   fi
+# then
+#   FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
+# fi
 
-if [ -x "$(command -v brew)" ]; then
-  # brew version of git autocomplete is bad, remove it
-  if [[ -f /opt/homebrew/share/zsh/site-functions/_git ]]; then
-    command rm /opt/homebrew/share/zsh/site-functions/_git
-  fi
-
-  zcomet fpath "$(brew --prefix)/share/zsh/site-functions"
-fi
-
+# disable sort when completing `git checkout`
 zstyle ':completion:*:git-checkout:*' sort false
+# set descriptions format to enable group support
+# NOTE: don't use escape sequences here, fzf-tab will ignore them
 zstyle ':completion:*:descriptions' format '[%d]'
+# set list-colors to enable filename colorizing
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+# force zsh not to show completion menu, which allows fzf-tab to capture the unambiguous prefix
+zstyle ':completion:*' menu no
+# preview directory's content with eza when completing cd
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
+# switch group using `<` and `>`
+zstyle ':fzf-tab:*' switch-group '<' '>'
 
-zcomet compinit
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-zcomet load Aloxaf/fzf-tab
-zcomet load zsh-users/zsh-autosuggestions
-zcomet load zsh-users/zsh-syntax-highlighting
+source $(brew --prefix)/opt/antidote/share/antidote/antidote.zsh
+antidote load
+
+autoload -Uz promptinit && promptinit && prompt 'powerlevel10k'
+
 #######################################################################################################
 
 # Aliases #############################################################################################
@@ -95,12 +82,6 @@ copexclude() { sed "/^db\/schema\.rb/d" }
 cop() { copdiff $1 | copexclude | xargs bundle exec rubocop -a }
 portkill() { lsof -t -i:$1 | xargs kill -9 }
 
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/ryancobb/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/ryancobb/google-cloud-sdk/path.zsh.inc'; fi
-
-# The next line enables shell command completion for gcloud.
-if [ -f '/Users/ryancobb/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/ryancobb/google-cloud-sdk/completion.zsh.inc'; fi
-
 setopt inc_append_history
 setopt share_history
 setopt extended_history
@@ -109,6 +90,7 @@ setopt hist_ignore_all_dups
 unsetopt nomatch # run rake task with args with no error
 
 bindkey -e
+
 if [ -x "$(command -v fzf)" ]; then bindkey '^r' fzf-history-widget; fi
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
@@ -118,4 +100,4 @@ if [ -x "$(command -v direnv)" ]; then
   eval "$(direnv hook zsh)"
 fi
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
