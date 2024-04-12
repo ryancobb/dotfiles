@@ -28,13 +28,10 @@ path+=("/opt/homebrew/sbin")
 
 #######################################################################################################
 
-# if type brew &>/dev/null
-#   if [[ -f /opt/homebrew/share/zsh/site-functions/_git ]]; then
-#     command rm /opt/homebrew/share/zsh/site-functions/_git
-#   fi
-# then
-#   FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
-# fi
+if type brew &>/dev/null 
+then
+  FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
+fi
 
 # disable sort when completing `git checkout`
 zstyle ':completion:*:git-checkout:*' sort false
