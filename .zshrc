@@ -3,6 +3,7 @@ if [ -f ~/.secretrc ]; then
   source ~/.secretrc
 fi
 
+
 export BAT_THEME="base16"
 export CPPFLAGS="-I/opt/homebrew/opt/icu4c/include"
 export DIRENV_LOG_FORMAT=
@@ -30,7 +31,9 @@ path+=("/opt/homebrew/sbin")
 
 if type brew &>/dev/null 
 then
-  FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
+  export BREW_PREFIX=$(brew --prefix)
+  source $BREW_PREFIX/opt/asdf/libexec/asdf.sh
+  fpath+="$BREW_PREFIX/share/zsh/site-functions"
 fi
 
 # disable sort when completing `git checkout`
@@ -47,10 +50,28 @@ zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
 # switch group using `<` and `>`
 zstyle ':fzf-tab:*' switch-group '<' '>'
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+# Set the root name of the plugins files (.txt and .zsh) antidote will use.
+zsh_plugins=${ZDOTDIR:-~}/.zsh_plugins
 
-source $(brew --prefix)/opt/antidote/share/antidote/antidote.zsh
-antidote load
+# Ensure the .zsh_plugins.txt file exists so you can add plugins.
+[[ -f ${zsh_plugins}.txt ]] || touch ${zsh_plugins}.txt
+
+# Lazy-load antidote from its functions directory.
+fpath+="$BREW_PREFIX/opt/antidote/share/antidote/functions/"
+autoload -Uz antidote
+
+# Generate a new static file whenever .zsh_plugins.txt is updated.
+if [[ ! ${zsh_plugins}.zsh -nt ${zsh_plugins}.txt ]]; then
+  antidote bundle <${zsh_plugins}.txt >|${zsh_plugins}.zsh
+fi
+
+# Source your static plugins file.
+source ${zsh_plugins}.zsh
+
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+if [ -x "$(command -v fzf)" ]; then bindkey '^r' fzf-history-widget; fi
 
 autoload -Uz promptinit && promptinit && prompt 'powerlevel10k'
 
@@ -87,14 +108,4 @@ setopt hist_ignore_all_dups
 unsetopt nomatch # run rake task with args with no error
 
 bindkey -e
-
-if [ -x "$(command -v fzf)" ]; then bindkey '^r' fzf-history-widget; fi
-
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-
-if [ -x "$(command -v direnv)" ]; then
-  eval "$(direnv hook zsh)"
-fi
-
 

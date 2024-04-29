@@ -6,6 +6,14 @@ local function is_vim(pane)
 	return pane:get_user_vars().IS_NVIM == "true"
 end
 
+local function find_vim_pane(tab)
+	for _, pane in ipairs(tab:panes()) do
+		if is_vim(pane) then
+			return pane
+		end
+	end
+end
+
 local arrow_keys = {
 	LeftArrow = "Left",
 	DownArrow = "Down",
@@ -43,7 +51,7 @@ end
 
 local config = {
 	scrollback_lines = 10000,
-	font = wezterm.font("JetBrainsMono NF", { weight = "Medium" }),
+	font = wezterm.font("JetBrainsMono Nerd Font"),
 	font_size = 12.0,
 	front_end = "WebGpu",
 
@@ -104,7 +112,7 @@ config.keys = {
 	{ key = "l", mods = "ALT", action = act.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
 	{ key = "w", mods = "CMD", action = act.CloseCurrentPane({ confirm = true }) },
 	{ key = "K", mods = "CTRL|SHIFT", action = act.ClearScrollback("ScrollbackAndViewport") },
-	{ key = "Z", mods = "CTRL|SHIFT", action = act.TogglePaneZoomState },
+	{ key = "\\", mods = "CTRL", action = act.TogglePaneZoomState },
 	{ key = "{", mods = "CTRL|SHIFT", action = act.MoveTabRelative(-1) },
 	{ key = "}", mods = "CTRL|SHIFT", action = act.MoveTabRelative(1) },
 	{ key = "S", mods = "CMD|SHIFT", action = act.SplitPane({ direction = "Down", size = { Percent = 20 } }) },
@@ -185,5 +193,32 @@ config.colors = {
 		},
 	},
 }
+
+-- This function returns the suggested title for a tab.
+-- It prefers the title that was set via `tab:set_title()`
+-- or `wezterm cli set-tab-title`, but falls back to the
+-- title of the active pane in that tab.
+local function tab_title(tab_info)
+	local title = tab_info.tab_title
+	-- if the tab title is explicitly set, take that
+	if title and #title > 0 then
+		return title
+	end
+	-- Otherwise, use the title from the active pane
+	-- in that tab
+	return tab_info.active_pane.title
+end
+
+wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
+	local zoomed = ""
+	local index = tab.tab_index + 1
+	local title = tab_title(tab)
+	if tab.active_pane.is_zoomed then
+		zoomed = " [Z] "
+	end
+	return {
+		{ Text = string.format(" %d %s%s ", index, title, zoomed) },
+	}
+end)
 
 return config
