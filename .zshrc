@@ -109,3 +109,5 @@ unsetopt nomatch # run rake task with args with no error
 
 bindkey -e
 
+eval "$(direnv hook zsh)"
+

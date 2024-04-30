@@ -4,6 +4,7 @@ romkatv/powerlevel10k kind:fpath
 
 sunlei/zsh-ssh
 trystan2k/zsh-tab-title
+agkozak/zsh-z
 
 belak/zsh-utils path:completion
 
