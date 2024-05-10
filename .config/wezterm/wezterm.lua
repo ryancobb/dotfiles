@@ -6,14 +6,6 @@ local function is_vim(pane)
 	return pane:get_user_vars().IS_NVIM == "true"
 end
 
-local function find_vim_pane(tab)
-	for _, pane in ipairs(tab:panes()) do
-		if is_vim(pane) then
-			return pane
-		end
-	end
-end
-
 local arrow_keys = {
 	LeftArrow = "Left",
 	DownArrow = "Down",

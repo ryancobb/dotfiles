@@ -29,9 +29,14 @@ path+=("/opt/homebrew/sbin")
 
 #######################################################################################################
 
-if type brew &>/dev/null 
-then
+if type brew &>/dev/null; then
   export BREW_PREFIX=$(brew --prefix)
+
+  # brew version of git autocomplete is bad, remove it
+  if [[ -f $BREW_PREFIX/share/zsh/site-functions/_git ]]; then
+    command rm $BREW_PREFIX/share/zsh/site-functions/_git
+  fi
+
   source $BREW_PREFIX/opt/asdf/libexec/asdf.sh
   fpath+="$BREW_PREFIX/share/zsh/site-functions"
 fi
