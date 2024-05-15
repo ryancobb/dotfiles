@@ -7,4 +7,4 @@ def on_focus_change(boss: Boss, window: Window, data: Dict[str, Any])-> None:
     if data["focused"]:
         window.change_colors({DynamicColor.default_bg: "#2e3440"})
     else:
-        window.change_colors({DynamicColor.default_bg: "#20242c"})
+        window.change_colors({DynamicColor.default_bg: "#242830"})
