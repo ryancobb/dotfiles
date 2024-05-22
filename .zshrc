@@ -3,7 +3,6 @@ if [ -f ~/.secretrc ]; then
   source ~/.secretrc
 fi
 
-
 export BAT_THEME="base16"
 export CPPFLAGS="-I/opt/homebrew/opt/icu4c/include"
 export DIRENV_LOG_FORMAT=
@@ -20,7 +19,6 @@ export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES # needed for ansible node_exporte
 export VISUAL="nvim"
 export XDG_CONFIG_HOME="$HOME/.config"
 export ZELLIJ_CONFIG_DIR="$HOME/.config/zellij"
-export ZSH_TAB_TITLE_DEFAULT_DISABLE_PREFIX=true
 
 path+=("$GOPATH/bin")
 path+=("$HOME/.local/bin")
@@ -30,15 +28,13 @@ path+=("/opt/homebrew/sbin")
 #######################################################################################################
 
 if type brew &>/dev/null; then
-  export BREW_PREFIX=$(brew --prefix)
-
   # brew version of git autocomplete is bad, remove it
-  if [[ -f $BREW_PREFIX/share/zsh/site-functions/_git ]]; then
-    command rm $BREW_PREFIX/share/zsh/site-functions/_git
+  if [[ -f $HOMEBREW_PREFIX/share/zsh/site-functions/_git ]]; then
+    command rm $HOMEBREW_PREFIX/share/zsh/site-functions/_git
   fi
 
-  source $BREW_PREFIX/opt/asdf/libexec/asdf.sh
-  fpath+="$BREW_PREFIX/share/zsh/site-functions"
+  source $HOMEBREW_PREFIX/opt/asdf/libexec/asdf.sh
+  fpath+="$HOMEBREW_PREFIX/share/zsh/site-functions"
 fi
 
 # disable sort when completing `git checkout`
@@ -62,7 +58,7 @@ zsh_plugins=${ZDOTDIR:-~}/.zsh_plugins
 [[ -f ${zsh_plugins}.txt ]] || touch ${zsh_plugins}.txt
 
 # Lazy-load antidote from its functions directory.
-fpath+="$BREW_PREFIX/opt/antidote/share/antidote/functions/"
+fpath+="$HOMEBREW_PREFIX/opt/antidote/share/antidote/functions/"
 autoload -Uz antidote
 
 # Generate a new static file whenever .zsh_plugins.txt is updated.
@@ -73,12 +69,13 @@ fi
 # Source your static plugins file.
 source ${zsh_plugins}.zsh
 
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 if [ -x "$(command -v fzf)" ]; then bindkey '^r' fzf-history-widget; fi
 
-autoload -Uz promptinit && promptinit && prompt 'powerlevel10k'
+eval "$(starship init zsh)"
+eval "$(direnv hook zsh)"
+
+autoload -Uz promptinit && promptinit
 
 #######################################################################################################
 
@@ -86,17 +83,13 @@ autoload -Uz promptinit && promptinit && prompt 'powerlevel10k'
 alias bx='bundle exec'
 alias ll='eza -lbF --git'
 alias rg="rg --hidden --glob '!.git'"
-alias zj='zellij'
 
 # Git Aliases
-alias lg='lazygit'
 alias gst='git status'
 alias gl='git pull'
 alias gco='git checkout'
 alias ggp='git push -u origin HEAD'
 alias gscrub='git reset --hard @{upstream}'
-
-if [[ "$(command -v hivemind)" ]]; then alias foreman='hivemind'; fi
 #######################################################################################################
 
 # Functions ###########################################################################################
@@ -113,6 +106,4 @@ setopt hist_ignore_all_dups
 unsetopt nomatch # run rake task with args with no error
 
 bindkey -e
-
-eval "$(direnv hook zsh)"
 
