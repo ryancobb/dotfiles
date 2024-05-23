@@ -3,9 +3,8 @@ if [ -f ~/.secretrc ]; then
   source ~/.secretrc
 fi
 
-export BAT_THEME="base16"
+export BAT_THEME="ansi"
 export CPPFLAGS="-I/opt/homebrew/opt/icu4c/include"
-export DIRENV_LOG_FORMAT=
 export EDITOR="nvim"
 export GOPATH="$HOME/go"
 export HISTFILE="$HOME/.zsh_history"
@@ -15,25 +14,37 @@ export LDFLAGS="-L/opt/homebrew/opt/icu4c/lib"
 export LS_COLORS=''
 export MANPAGER='nvim +Man!'
 export MANWIDTH=999
-export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES # needed for ansible node_exporter
 export VISUAL="nvim"
 export XDG_CONFIG_HOME="$HOME/.config"
-export ZELLIJ_CONFIG_DIR="$HOME/.config/zellij"
+
+if test -d /home/linuxbrew/.linuxbrew; then # Linux
+  export HOMEBREW_PREFIX="/home/linuxbrew/.linuxbrew"
+  export HOMEBREW_CELLAR="$HOMEBREW_PREFIX/Cellar"
+  export HOMEBREW_REPOSITORY="$HOMEBREW_PREFIX/Homebrew"
+elif test -d /opt/homebrew; then # MacOS
+  export HOMEBREW_PREFIX="/opt/homebrew"
+  export HOMEBREW_CELLAR="$HOMEBREW_PREFIX/Cellar"
+  export HOMEBREW_REPOSITORY="$HOMEBREW_PREFIX/homebrew"
+fi
+
+path+=("$HOMEBREW_PREFIX/bin")
+path+=("$HOMEBREW_PREFIX/sbin")
+manpath+=("$HOMEBREW_PREFIX/share/man")
+infopath+=("$HOMEBREW_PREFIX/share/info")
 
 path+=("$GOPATH/bin")
 path+=("$HOME/.local/bin")
-path+=("/opt/homebrew/bin")
-path+=("/opt/homebrew/sbin")
 
 #######################################################################################################
 
-if type brew &>/dev/null; then
+if test -d $HOMEBREW_PREFIX; then
   # brew version of git autocomplete is bad, remove it
   if [[ -f $HOMEBREW_PREFIX/share/zsh/site-functions/_git ]]; then
     command rm $HOMEBREW_PREFIX/share/zsh/site-functions/_git
   fi
 
-  source $HOMEBREW_PREFIX/opt/asdf/libexec/asdf.sh
+  eval "$($HOMEBREW_PREFIX/bin/mise activate zsh)"
+
   fpath+="$HOMEBREW_PREFIX/share/zsh/site-functions"
 fi
 
@@ -69,11 +80,9 @@ fi
 # Source your static plugins file.
 source ${zsh_plugins}.zsh
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-if [ -x "$(command -v fzf)" ]; then bindkey '^r' fzf-history-widget; fi
-
-eval "$(starship init zsh)"
-eval "$(direnv hook zsh)"
+if type fzf > /dev/null 2>&1; then
+  source <(fzf --zsh)
+fi
 
 autoload -Uz promptinit && promptinit
 
@@ -106,4 +115,3 @@ setopt hist_ignore_all_dups
 unsetopt nomatch # run rake task with args with no error
 
 bindkey -e
-

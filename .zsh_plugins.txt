@@ -3,6 +3,7 @@ zsh-users/zsh-completions
 sunlei/zsh-ssh
 agkozak/zsh-z
 
+spaceship-prompt/spaceship-prompt
 belak/zsh-utils path:completion
 
 Aloxaf/fzf-tab
