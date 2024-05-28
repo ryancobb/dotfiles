@@ -76,7 +76,7 @@ zcomet load agkozak/zsh-z
 zcomet load romkatv/powerlevel10k
 
 zcomet load Aloxaf/fzf-tab
-zcomet load zsh-users/zsh-syntax-highlighting
+zcomet load zdharma-continuum/fast-syntax-highlighting
 zcomet load zsh-users/zsh-autosuggestions
 
 zcomet compinit
@@ -115,6 +115,7 @@ setopt extended_history
 setopt hist_ignore_all_dups
 
 unsetopt nomatch # run rake task with args with no error
+unsetopt BEEP
 
 bindkey -e
 
