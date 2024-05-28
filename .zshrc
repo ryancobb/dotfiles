@@ -1,4 +1,7 @@
-# Exports #############################################################################################
+#######################################################################################################
+# Exports
+#######################################################################################################
+
 if [ -f ~/.secretrc ]; then
   source ~/.secretrc
 fi
@@ -17,6 +20,13 @@ export MANWIDTH=999
 export VISUAL="nvim"
 export XDG_CONFIG_HOME="$HOME/.config"
 
+path+=("$GOPATH/bin")
+path+=("$HOME/.local/bin")
+
+#######################################################################################################
+# Homebrew
+#######################################################################################################
+
 if test -d /home/linuxbrew/.linuxbrew; then # Linux
   export HOMEBREW_PREFIX="/home/linuxbrew/.linuxbrew"
   export HOMEBREW_CELLAR="$HOMEBREW_PREFIX/Cellar"
@@ -27,26 +37,24 @@ elif test -d /opt/homebrew; then # MacOS
   export HOMEBREW_REPOSITORY="$HOMEBREW_PREFIX/homebrew"
 fi
 
-path+=("$HOMEBREW_PREFIX/bin")
-path+=("$HOMEBREW_PREFIX/sbin")
-manpath+=("$HOMEBREW_PREFIX/share/man")
-infopath+=("$HOMEBREW_PREFIX/share/info")
-
-path+=("$GOPATH/bin")
-path+=("$HOME/.local/bin")
-
-#######################################################################################################
-
 if test -d $HOMEBREW_PREFIX; then
+  path+=("$HOMEBREW_PREFIX/bin")
+  path+=("$HOMEBREW_PREFIX/sbin")
+  manpath+=("$HOMEBREW_PREFIX/share/man")
+  infopath+=("$HOMEBREW_PREFIX/share/info")
+  fpath+="$HOMEBREW_PREFIX/share/zsh/site-functions"
+
   # brew version of git autocomplete is bad, remove it
   if [[ -f $HOMEBREW_PREFIX/share/zsh/site-functions/_git ]]; then
     command rm $HOMEBREW_PREFIX/share/zsh/site-functions/_git
   fi
 
   eval "$($HOMEBREW_PREFIX/bin/mise activate zsh)"
-
-  fpath+="$HOMEBREW_PREFIX/share/zsh/site-functions"
 fi
+
+#######################################################################################################
+# Antidote
+#######################################################################################################
 
 # disable sort when completing `git checkout`
 zstyle ':completion:*:git-checkout:*' sort false
@@ -87,8 +95,9 @@ fi
 autoload -Uz promptinit && promptinit
 
 #######################################################################################################
+# Aliases
+#######################################################################################################
 
-# Aliases #############################################################################################
 alias bx='bundle exec'
 alias ll='eza -lbF --git'
 alias rg="rg --hidden --glob '!.git'"
@@ -99,13 +108,19 @@ alias gl='git pull'
 alias gco='git checkout'
 alias ggp='git push -u origin HEAD'
 alias gscrub='git reset --hard @{upstream}'
+
+#######################################################################################################
+# Functions
 #######################################################################################################
 
-# Functions ###########################################################################################
 copdiff() { git diff --name-only --diff-filter=d $1 -- "*.rb" } 
 copexclude() { sed "/^db\/schema\.rb/d" }
 cop() { copdiff $1 | copexclude | xargs bundle exec rubocop -a }
 portkill() { lsof -t -i:$1 | xargs kill -9 }
+
+#######################################################################################################
+# Opts
+#######################################################################################################
 
 setopt inc_append_history
 setopt share_history
