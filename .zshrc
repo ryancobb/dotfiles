@@ -1,3 +1,10 @@
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
 #######################################################################################################
 # Exports
 #######################################################################################################
@@ -53,46 +60,26 @@ if test -d $HOMEBREW_PREFIX; then
 fi
 
 #######################################################################################################
-# Antidote
+# zcomet
 #######################################################################################################
 
-# disable sort when completing `git checkout`
-zstyle ':completion:*:git-checkout:*' sort false
-# set descriptions format to enable group support
-# NOTE: don't use escape sequences here, fzf-tab will ignore them
-zstyle ':completion:*:descriptions' format '[%d]'
-# set list-colors to enable filename colorizing
-zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
-# force zsh not to show completion menu, which allows fzf-tab to capture the unambiguous prefix
-zstyle ':completion:*' menu no
-# preview directory's content with eza when completing cd
-zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
-# switch group using `<` and `>`
-zstyle ':fzf-tab:*' switch-group '<' '>'
-
-# Set the root name of the plugins files (.txt and .zsh) antidote will use.
-zsh_plugins=${ZDOTDIR:-~}/.zsh_plugins
-
-# Ensure the .zsh_plugins.txt file exists so you can add plugins.
-[[ -f ${zsh_plugins}.txt ]] || touch ${zsh_plugins}.txt
-
-# Lazy-load antidote from its functions directory.
-fpath+="$HOMEBREW_PREFIX/opt/antidote/share/antidote/functions/"
-autoload -Uz antidote
-
-# Generate a new static file whenever .zsh_plugins.txt is updated.
-if [[ ! ${zsh_plugins}.zsh -nt ${zsh_plugins}.txt ]]; then
-  antidote bundle <${zsh_plugins}.txt >|${zsh_plugins}.zsh
+if [[ ! -f ${ZDOTDIR:-${HOME}}/.zcomet/bin/zcomet.zsh ]]; then
+  command git clone https://github.com/agkozak/zcomet.git ${ZDOTDIR:-${HOME}}/.zcomet/bin
 fi
 
-# Source your static plugins file.
-source ${zsh_plugins}.zsh
+source ${ZDOTDIR:-${HOME}}/.zcomet/bin/zcomet.zsh
 
-if type fzf > /dev/null 2>&1; then
-  source <(fzf --zsh)
-fi
+zcomet load zsh-users/zsh-completions
 
-autoload -Uz promptinit && promptinit
+zcomet load sunlei/zsh-ssh
+zcomet load agkozak/zsh-z
+zcomet load romkatv/powerlevel10k
+
+zcomet load Aloxaf/fzf-tab
+zcomet load zsh-users/zsh-syntax-highlighting
+zcomet load zsh-users/zsh-autosuggestions
+
+zcomet compinit
 
 #######################################################################################################
 # Aliases
@@ -130,3 +117,6 @@ setopt hist_ignore_all_dups
 unsetopt nomatch # run rake task with args with no error
 
 bindkey -e
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh

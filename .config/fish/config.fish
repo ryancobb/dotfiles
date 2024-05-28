@@ -17,8 +17,9 @@ set -gx INFOPATH "$HOMEBREW_PREFIX/share/info" $INFOPATH
 
 set fish_greeting
 set -U tide_right_prompt_items status cmd_duration context jobs
-set -Ux MANPAGER "sh -c 'col -bx | bat -l man -p'"
 set -Ux BAT_THEME ansi
+set -Ux EDITOR nvim
+set -Ux MANPAGER "sh -c 'col -bx | bat -l man -p'"
 
 alias bx='bundle exec'
 alias ll='eza -lbF --git'
