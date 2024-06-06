@@ -36,8 +36,4 @@ function portkill --argument port
     lsof -t -i:$port | xargs kill -9
 end
 
-# if type -q $mise
-#   mise activate fish | source
-# end
-
 $HOMEBREW_PREFIX/opt/mise/bin/mise activate fish | source

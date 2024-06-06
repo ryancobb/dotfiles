@@ -14,13 +14,11 @@ if [ -f ~/.secretrc ]; then
 fi
 
 export BAT_THEME="ansi"
-export CPPFLAGS="-I/opt/homebrew/opt/icu4c/include"
 export EDITOR="nvim"
 export GOPATH="$HOME/go"
 export HISTFILE="$HOME/.zsh_history"
 export HISTFILESIZE=100000
 export HISTSIZE=100000
-export LDFLAGS="-L/opt/homebrew/opt/icu4c/lib"
 export LS_COLORS=''
 export MANPAGER='nvim +Man!'
 export MANWIDTH=999
@@ -104,7 +102,7 @@ zcomet compinit
 
 alias bx='bundle exec'
 alias ll='eza -lbF --git'
-alias rg="rg --hidden --glob '!.git'"
+alias rg="rg -S --hidden --glob '!.git'"
 
 # Git Aliases
 alias gst='git status'
@@ -136,5 +134,5 @@ unsetopt BEEP
 
 bindkey -e
 
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+source <(fzf --zsh)
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh

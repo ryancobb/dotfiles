@@ -45,7 +45,6 @@ local config = {
 	scrollback_lines = 10000,
 	font = wezterm.font("JetBrainsMono Nerd Font"),
 	font_size = 12.0,
-	front_end = "WebGpu",
 
 	window_decorations = "RESIZE",
 	window_padding = {
