@@ -102,7 +102,6 @@ zcomet compinit
 
 alias bx='bundle exec'
 alias ll='eza -lbF --git'
-alias rg="rg -S --hidden --glob '!.git'"
 
 # Git Aliases
 alias gst='git status'
