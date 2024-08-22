@@ -1,8 +1,20 @@
 [include]
   path = ~/.git_user
 
+[diff]
+  tool = difftastic
+
+[difftool]
+  prompt = false
+
+[difftool "difftastic"]
+  cmd = difft "$LOCAL" "$REMOTE"
+
+[pager]
+  difftool = true
+
 [core]
-  pager = delta
+  ; pager = delta
 	excludesfile = /Users/ryancobb/.gitignore_global
 
 [push]
@@ -33,5 +45,8 @@
   minus-style = syntax "#5d001e"
   plus-emph-style = syntax bold "#33695B"
   plus-style = syntax "#004433"
+
 [alias]
 	scrub = reset --hard @{upstream}
+  dft = difftool
+  dlog = "-c diff.external=difft log -p --ext-diff"

@@ -1,4 +1,5 @@
 git:
   paging:
-    colorArg: always
-    pager: delta --dark --paging=never
+    externalDiffCommand: difft --color=always
+    # colorArg: always
+    # pager: delta --dark --paging=never
