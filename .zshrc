@@ -116,7 +116,7 @@ alias gscrub='git reset --hard @{upstream}'
 
 copdiff() { git diff --name-only --diff-filter=d $1 -- "*.rb" } 
 copexclude() { sed "/^db\/schema\.rb/d" }
-cop() { copdiff $1 | copexclude | xargs bundle exec rubocop -a }
+cop() { copdiff $1 | copexclude | xargs bundle exec rubocop -A }
 portkill() { lsof -t -i:$1 | xargs kill -9 }
 
 #######################################################################################################
