@@ -2,16 +2,7 @@
   path = ~/.git_user
 
 [diff]
-  tool = difftastic
-
-[difftool]
-  prompt = false
-
-[difftool "difftastic"]
-  cmd = difft "$LOCAL" "$REMOTE"
-
-[pager]
-  difftool = true
+  external = difft
 
 [core]
   ; pager = delta
@@ -48,5 +39,3 @@
 
 [alias]
 	scrub = reset --hard @{upstream}
-  dft = difftool
-  dlog = "-c diff.external=difft log -p --ext-diff"
