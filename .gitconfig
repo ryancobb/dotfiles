@@ -2,10 +2,9 @@
   path = ~/.git_user
 
 [diff]
-  external = difft
+  external = difft --color always --context 5
 
 [core]
-  ; pager = delta
 	excludesfile = /Users/ryancobb/.gitignore_global
 
 [push]
