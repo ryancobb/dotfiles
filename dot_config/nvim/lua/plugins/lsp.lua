@@ -40,7 +40,7 @@ return {
         --   mason = false
         -- }
         ruby_lsp = {
-          mason = false,
+          enabled = true
         }
       },
     },
