@@ -1,11 +1,12 @@
 [include]
   path = ~/.git_user
 
-[diff]
-  external = difft --color always --context 5
-
 [core]
   excludesfile = /Users/ryancobb/.gitignore_global
+  pager = delta
+
+[interactive]
+  diffFilter = delta --color-only
 
 [push]
   autoSetupRemote = true
@@ -35,6 +36,12 @@
   minus-style = syntax "#5d001e"
   plus-emph-style = syntax bold "#33695B"
   plus-style = syntax "#004433"
+
+[merge]
+  conflictstyle = diff3
+
+[diff]
+  colorMoved = default
 
 [alias]
   scrub = reset --hard @{upstream}

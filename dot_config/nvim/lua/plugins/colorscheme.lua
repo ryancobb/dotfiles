@@ -6,22 +6,6 @@ return {
       local palette = require("nightfox.palette").load("nightfox")
       local C = require("nightfox.lib.color")
 
-      -- vim.api.nvim_create_autocmd({ "FocusLost" }, {
-      --   pattern = { "*" },
-      --   callback = function()
-      --     vim.cmd("hi clear Normal")
-      --     vim.cmd("hi Normal guibg=" .. palette.bg0)
-      --   end,
-      -- })
-      --
-      -- vim.api.nvim_create_autocmd({ "FocusGained" }, {
-      --   pattern = { "*" },
-      --   callback = function()
-      --     vim.cmd("hi clear Normal")
-      --     vim.cmd("hi Normal guibg=" .. palette.bg1)
-      --   end,
-      -- })
-
       return {
         options = {
           dim_inactive = true,
@@ -75,5 +59,11 @@ return {
         end,
       })
     end,
-  }
+  },
+  {
+    "sho-87/kanagawa-paper.nvim",
+    lazy = false,
+    priority = 1000,
+    opts = {},
+  },
 }
