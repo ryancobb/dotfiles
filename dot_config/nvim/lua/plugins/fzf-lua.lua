@@ -5,20 +5,28 @@ return {
     dependencies = {
       "echasnovski/mini.icons",
     },
-    opts = {
-      grep = {
+    opts = function(_, opts)
+      local actions = require("fzf-lua.actions")
+
+      opts.grep = {
         rg_glob = true,
         fzf_opts = {
           -- ctrl+n ctrl+p to cycle history
           ["--history"] = vim.fn.stdpath("data") .. "/fzf-lua-grep-history",
         },
-      },
-      files = {
+        actions = {
+          ["ctrl-i"] = { actions.toggle_ignore },
+          ["ctrl-h"] = { actions.toggle_hidden },
+        },
+      }
+      opts.files = {
         fzf_opts = {
           -- ctrl+n ctrl+p to cycle history
           ["--history"] = vim.fn.stdpath("data") .. "/fzf-lua-files-history",
         },
         actions = {
+          ["ctrl-i"] = { actions.toggle_ignore },
+          ["ctrl-h"] = { actions.toggle_hidden },
           ["enter"] = function(selected, opts)
             local fallback = vim.api.nvim_get_current_win()
             local window_id = require("window-picker").pick_window() or fallback
@@ -26,21 +34,23 @@ return {
             require("fzf-lua.actions").file_edit(selected, opts)
           end,
         },
-      },
-      winopts = {
+      }
+      opts.winopts = {
         preview = {
           layout = "flex",
           flip_columns = 230,
         },
-      },
-      previewers = {
+      }
+      opts.previewers = {
         git_diff = {
           cmd_deleted = "DFT_WIDTH=$FZF_PREVIEW_COLUMNS git diff HEAD --",
           cmd_modified = "DFT_WIDTH=$FZF_PREVIEW_COLUMNS git diff HEAD",
           cmd_untracked = "DFT_WIDTH=$FZF_PREVIEW_COLUMNS git diff --no-index /dev/null",
         },
-      },
-    },
+      }
+
+      return opts
+    end,
     keys = {
       { "<leader><space>", "<cmd>FzfLua files<cr>", desc = "files" },
       { "<leader>st", "<cmd>FzfLua live_grep<cr>", desc = "text" },

@@ -4,8 +4,8 @@ return {
     checkbox = {
       custom = {
         important = { raw = "[!]", rendered = " ", highlight = "DiagnosticError" },
-        doing = { raw = "[-]", rendered = " " },
-        next = { raw = "[/]", rendered = "󱦟 " },
+        doing = { raw = "[-]", rendered = " ", highlight = "DiagnosticInfo" },
+        next = { raw = "[/]", rendered = "󱦟 ", highlight = "DiagnosticWarn" },
       },
     },
   },

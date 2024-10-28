@@ -1,14 +1,27 @@
 return {
   "stevearc/conform.nvim",
   opts = {
+    formatters = {
+      rubocop = {
+        command = "bundle",
+        args = {
+          "exec",
+          "rubocop",
+          "--server",
+          "-a",
+          "-f",
+          "quiet",
+          "--stderr",
+          "--stdin",
+          "$FILENAME",
+        },
+      },
+    },
     formatters_by_ft = {
       javascript = { "prettier" },
-      ruby = {
-        command = "bundle",
-        args = "exec rubocop",
-      },
+      ruby = { "rubocop" },
       vue = { "prettier" },
-      markdown = { "markdownlint-cli2" }
+      markdown = { "markdownlint-cli2" },
     },
   },
 }

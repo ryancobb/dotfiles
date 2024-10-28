@@ -45,3 +45,5 @@
 
 [alias]
   scrub = reset --hard @{upstream}
+  dft = -c diff.external=difft diff
+  dfs = -c diff.external=diffsitter diff
