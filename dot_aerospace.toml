@@ -211,6 +211,11 @@ check-further-callbacks = true
 run = ['layout floating']
 
 [[on-window-detected]]
+if.app-name-regex-substring = 'messages'
+check-further-callbacks = true
+run = ['layout floating']
+
+[[on-window-detected]]
 if.app-name-regex-substring = 'slack'
 check-further-callbacks = true
 run = ['move-node-to-workspace 2']

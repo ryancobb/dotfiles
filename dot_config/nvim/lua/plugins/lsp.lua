@@ -38,12 +38,12 @@ return {
       servers = {
         solargraph = {
           enabled = false,
-          mason = false
+          mason = false,
         },
         ruby_lsp = {
           enabled = true,
           mason = false,
-        }
+        },
       },
     },
   },
