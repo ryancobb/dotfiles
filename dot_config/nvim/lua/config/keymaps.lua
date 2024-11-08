@@ -4,7 +4,6 @@
 
 local map = vim.keymap.set
 
-vim.keymap.del({ "t" }, "<esc><esc>")
 vim.keymap.del({ "n" }, "<S-h>")
 vim.keymap.del({ "n" }, "<S-l>")
 
