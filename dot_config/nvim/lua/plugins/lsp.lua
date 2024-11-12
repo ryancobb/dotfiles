@@ -6,15 +6,6 @@ return {
       local fzflua = require("fzf-lua")
 
       keys[#keys + 1] = {
-        "<c-w>d",
-        function()
-          fzflua.lsp_definitions({
-            jump_to_single_result = true,
-            jump_to_single_result_action = require("fzf-lua.actions").file_vsplit,
-          })
-        end,
-      }
-      keys[#keys + 1] = {
         "gd",
         function()
           fzflua.lsp_definitions({
@@ -37,11 +28,11 @@ return {
       },
       servers = {
         solargraph = {
-          enabled = true,
+          enabled = false,
           mason = false,
         },
         ruby_lsp = {
-          enabled = false,
+          enabled = true,
           mason = false,
         },
       },

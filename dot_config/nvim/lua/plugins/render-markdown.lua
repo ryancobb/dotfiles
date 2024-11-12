@@ -6,7 +6,9 @@ return {
       custom = {
         important = { raw = "[!]", rendered = " ", highlight = "DiagnosticError" },
         doing = { raw = "[-]", rendered = " ", highlight = "DiagnosticInfo" },
-        next = { raw = "[/]", rendered = "󱦟 ", highlight = "DiagnosticWarn" },
+        waiting = { raw = "[w]", rendered = "󱦟 ", highlight = "DiagnosticWarn" },
+        next = { raw = "[/]", rendered = "󰒭 ", highlight = "DiagnosticHint" },
+        review = { raw = "[r]", rendered = " ", highlight = "DiagnosticHint" },
       },
     },
   },
