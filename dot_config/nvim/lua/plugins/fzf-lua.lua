@@ -38,7 +38,7 @@ return {
       opts.winopts = {
         preview = {
           layout = "flex",
-          flip_columns = 230,
+          flip_columns = 200,
         },
       }
       opts.previewers = {
@@ -47,6 +47,7 @@ return {
           cmd_modified = "DFT_WIDTH=$FZF_PREVIEW_COLUMNS git diff HEAD",
           cmd_untracked = "DFT_WIDTH=$FZF_PREVIEW_COLUMNS git diff --no-index /dev/null",
         },
+        render_markdown = { enable = true, filetypes = { ["markdown"] = true } },
       }
 
       return opts
