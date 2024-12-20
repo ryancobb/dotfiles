@@ -2,10 +2,10 @@ return {
   "saghen/blink.cmp",
   opts = {
     keymap = {
-      ['<right>'] = { 'accept', 'fallback' },
+      ["<right>"] = { "accept", "fallback" },
     },
-    windows = {
-      autocomplete = {
+    completion = {
+      list = {
         selection = "manual",
       },
     },
