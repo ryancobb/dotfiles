@@ -46,7 +46,6 @@ return {
     priority = 1000,
     config = function()
       require("everforest").setup({
-        background = "soft",
         italics = true,
         dim_inactive_windows = true,
         on_highlights = function(hl, _)
