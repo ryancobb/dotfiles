@@ -1,6 +1,6 @@
 font_family JetBrains Mono
 font_size 12.0
-inactive_text_alpha 0.5
+inactive_text_alpha 0.6
 macos_option_as_alt yes
 tab_bar_edge top
 tab_bar_style powerline
@@ -9,7 +9,8 @@ hide_window_decorations titlebar-only
 window_padding_width 3
 enabled_layouts fat:bias=75, tall, stack
 tab_title_template "[{index}] {title}"
-# text_composition_strategy 1.3 0
+cursor_trail 3
+map cmd+f combine : show_scrollback : send_text normal,application /
 
 map cmd+shift+s launch --cwd=current
 map cmd+shift+v launch --cwd=current
