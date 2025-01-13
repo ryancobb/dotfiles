@@ -6,7 +6,9 @@ return {
     },
     completion = {
       list = {
-        selection = "manual",
+        selection = {
+          preselect = true,
+        },
       },
     },
   },
