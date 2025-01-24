@@ -56,6 +56,7 @@ return {
           hl.TSSymbol = { link = "TSField" }
           hl["@string.special.symbol.ruby"] = { link = "Special" }
           hl.SnacksPicker = { link = "Normal" }
+          hl.SnacksPickerBorder = { link = "Normal" }
         end,
       })
     end,

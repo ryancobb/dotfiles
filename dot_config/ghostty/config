@@ -1,5 +1,6 @@
 theme = Everforest Dark - Hard
 
+font-size = 12
 background = 2D353B
 
 keybind = super+shift+s=new_split:down
