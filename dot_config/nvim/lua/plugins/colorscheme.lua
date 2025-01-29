@@ -57,14 +57,9 @@ return {
           hl["@string.special.symbol.ruby"] = { link = "Special" }
           hl.SnacksPicker = { link = "Normal" }
           hl.SnacksPickerBorder = { link = "Normal" }
+          hl.SnacksPickerTitle = { link = "TSNote" }
         end,
       })
     end,
-  },
-  {
-    "sho-87/kanagawa-paper.nvim",
-    lazy = false,
-    priority = 1000,
-    opts = {},
   },
 }
