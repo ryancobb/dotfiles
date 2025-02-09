@@ -9,3 +9,5 @@ yabai -m rule --add app="1Password" manage=off
 yabai -m rule --add app="CleanShot X" manage=off
 yabai -m rule --add app="Postico" manage=off
 yabai -m rule --add app="Stocks" manage=off
+yabai -m rule --add app="Weather" manage=off
+yabai -m rule --add app="Messages" manage=off

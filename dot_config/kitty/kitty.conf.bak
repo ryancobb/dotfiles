@@ -18,7 +18,6 @@ map cmd+w close_window
 map ctrl+shift+l next_layout
 map ctrl+shift+k combine : clear_terminal active : send_text normal \x0c
 map ctrl+shift+a detach_window ask
-map ctrl+shift+f toggle_layout stack
 
 map cmd+1 goto_tab 1
 map cmd+2 goto_tab 2
