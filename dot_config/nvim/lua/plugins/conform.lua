@@ -24,4 +24,16 @@ return {
       markdown = { "markdownlint-cli2" },
     },
   },
+  keys = {
+    {
+      "<leader>cf",
+      function()
+        require("conform").format({
+          timeout_ms = 5000,
+          lsp_fallback = true,
+        })
+      end,
+      desc = "format",
+    },
+  },
 }
