@@ -7,12 +7,15 @@ return {
       },
       servers = {
         solargraph = {
-          enabled = false,
           mason = false,
         },
         ruby_lsp = {
-          enabled = true,
           mason = false,
+        },
+        rubocop = {
+          mason = false,
+          -- See: https://docs.rubocop.org/rubocop/usage/lsp.html
+          cmd = { "bundle", "exec", "rubocop", "--lsp" },
         },
       },
     },

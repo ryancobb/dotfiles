@@ -11,6 +11,14 @@ return {
       end,
       desc = "alternate",
     },
+    {
+      "<leader>fr",
+      function()
+        Snacks.picker.recent({ filter = { cwd = true } })
+      end,
+      desc = "Recent (cwd)",
+    },
+    { "<leader>fR", LazyVim.pick("oldfiles"), desc = "Recent" },
   },
   opts = {
     dashboard = { enabled = false },
@@ -26,6 +34,12 @@ return {
       previewers = {
         git = {
           native = true,
+        },
+      },
+      layout = {
+        layout = {
+          width = 0.9,
+          height = 0.9,
         },
       },
     },

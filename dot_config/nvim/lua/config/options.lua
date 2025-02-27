@@ -7,10 +7,14 @@ local opt = vim.opt
 vim.g.autoformat = false
 vim.g.editorconfig = false
 
+vim.g.lazyvim_ruby_lsp = "ruby_lsp"
+vim.g.lazyvim_ruby_formatter = "rubocop"
+
+opt.cursorline = false
 opt.fillchars:append({ diff = "╱" })
 opt.laststatus = 3
-opt.list = true
 opt.lcs = { space = "·" }
+opt.list = true
 opt.relativenumber = false
 opt.title = true
 opt.titlestring = '%{substitute(getcwd(), $HOME, "~", "g")} - nvim'
