@@ -11,7 +11,6 @@ vim.g.lazyvim_ruby_lsp = "ruby_lsp"
 vim.g.lazyvim_ruby_formatter = "rubocop"
 
 opt.cursorline = false
-opt.fillchars:append({ diff = "╱" })
 opt.laststatus = 3
 opt.lcs = { space = "·" }
 opt.list = false
