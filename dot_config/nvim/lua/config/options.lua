@@ -13,7 +13,8 @@ vim.g.lazyvim_ruby_formatter = "rubocop"
 opt.cursorline = false
 opt.laststatus = 3
 opt.lcs = { space = "·" }
-opt.list = false
+opt.list = true
+opt.listchars = { tab = "» ", trail = "·", extends = ">", precedes = "<", nbsp = "␣" }
 opt.relativenumber = false
 opt.title = true
 opt.titlestring = '%{substitute(getcwd(), $HOME, "~", "g")} - nvim'

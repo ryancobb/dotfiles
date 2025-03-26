@@ -8,7 +8,7 @@ return {
       documentation = { window = { border = "single" } },
       list = {
         selection = {
-          preselect = true,
+          preselect = false,
         },
       },
     },
