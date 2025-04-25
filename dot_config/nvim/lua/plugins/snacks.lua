@@ -1,6 +1,13 @@
 return {
   "folke/snacks.nvim",
   opts = {
+    scratch = {
+      win = {
+        style = "scratch",
+        relative = "editor",
+        position = "right",
+      },
+    },
     dashboard = { enabled = false },
     picker = {
       matcher = {
