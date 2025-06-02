@@ -10,6 +10,7 @@ $character"""
 
 right_format = """
 $cmd_duration\
+$time
 """
 command_timeout = 3600
 
@@ -42,3 +43,7 @@ style = "yellow"
 format = "[$duration]($style) "
 style = "yellow"
 
+[time]
+disabled = false
+format = "[$time]($style)"
+use_12hr = true
