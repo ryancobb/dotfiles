@@ -41,7 +41,7 @@ style = "yellow"
 
 [cmd_duration]
 format = "[$duration]($style) "
-style = "yellow"
+style = "blue"
 
 [time]
 disabled = false
