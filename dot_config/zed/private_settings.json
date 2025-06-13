@@ -9,20 +9,21 @@
 {
   "icon_theme": "Catppuccin Frappé",
   "buffer_font_family": "JetBrainsMono Nerd Font Mono",
+  "buffer_line_height": "standard",
   "terminal": {
     "font_family": "JetBrainsMono Nerd Font Mono"
   },
-  "assistant": {
+  "agent": {
     "default_model": {
-      "provider": "zed.dev",
-      "model": "claude-3-7-sonnet-latest"
+      "provider": "copilot_chat",
+      "model": "gpt-4.1"
     },
     "version": "2"
   },
   "features": {
     "edit_prediction_provider": "zed"
   },
-  "ui_font_size": 14,
+  "ui_font_size": 13,
   "buffer_font_size": 12,
   "theme": {
     "mode": "system",
@@ -32,13 +33,13 @@
   "vim_mode": true,
   "languages": {
     "Ruby": {
-      "language_servers": [
-        "ruby-lsp",
-        "rubocop"
-      ]
+      "language_servers": ["ruby-lsp", "!solargraph", "!rubocop"]
     }
   },
   "active_pane_modifiers": {
     "inactive_opacity": 0.8
+  },
+  "project_panel": {
+    "indent_size": 9
   }
 }

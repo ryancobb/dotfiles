@@ -11,7 +11,9 @@
       "ctrl-l": "workspace::ActivatePaneRight",
       "ctrl-k": "workspace::ActivatePaneUp",
       "ctrl-j": "workspace::ActivatePaneDown",
-      "ctrl-`": "workspace::ToggleBottomDock"
+      "ctrl-`": "workspace::ToggleBottomDock",
+      "ctrl-alt-left": "pane::SwapItemLeft",
+      "ctrl-alt-right": "pane::SwapItemRight"
     }
   },
   {

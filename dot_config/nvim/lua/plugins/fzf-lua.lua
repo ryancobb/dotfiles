@@ -1,6 +1,9 @@
 return {
   "ibhagwan/fzf-lua",
   opts = {
+    defaults = {
+      formatter = "path.filename_first",
+    },
     files = {
       fzf_opts = {
         ["--history"] = vim.fn.stdpath("data") .. "/fzf-lua-files-history",
