@@ -94,6 +94,7 @@ zcomet compinit
 
 alias bx='bundle exec'
 alias ll='eza -lbF --git'
+alias icat="kitten icat"
 
 # Git Aliases
 alias gst='git status'

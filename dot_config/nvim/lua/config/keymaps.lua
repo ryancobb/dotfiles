@@ -10,3 +10,4 @@ vim.keymap.del({ "n" }, "<S-l>")
 map({ "n", "x" }, "q", "<nop>")
 
 map("n", "<leader>yf", '<cmd>let @+ = expand("%:~:.")<cr>', { desc = "filename" })
+map("n", "<leader>id", "\"=strftime('%Y-%m-%d')<cr>P", { desc = "insert date" })
