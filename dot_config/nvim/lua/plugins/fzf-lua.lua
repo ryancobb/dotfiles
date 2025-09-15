@@ -14,6 +14,9 @@ return {
         ["--history"] = vim.fn.stdpath("data") .. "/fzf-lua-grep-history",
       },
     },
+    marks = {
+      marks = "%a"
+    },
     winopts = {
       preview = {
         flip_columns = 120,
@@ -23,5 +26,6 @@ return {
   keys = {
     { "<leader>sr", "<cmd>FzfLua resume<cr>", desc = "resume" },
     { "<leader>st", LazyVim.pick("live_grep"), desc = "text" },
+    { "<leader>gc", "<cmd>FzfLua git_branches<cr>", desc = "text" },
   },
 }

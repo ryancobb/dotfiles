@@ -8,10 +8,10 @@
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
   "icon_theme": "Catppuccin Frappé",
-  "buffer_font_family": "JetBrainsMono Nerd Font Mono",
+  "buffer_font_family": "JetBrains Mono",
   "buffer_line_height": "standard",
   "terminal": {
-    "font_family": "JetBrainsMono Nerd Font Mono"
+    "font_family": "JetBrains Mono"
   },
   "agent": {
     "always_allow_tool_actions": true,
@@ -29,7 +29,7 @@
   "theme": {
     "mode": "system",
     "light": "One Light",
-    "dark": "Nordfox"
+    "dark": "Nordfox - opaque"
   },
   "vim_mode": true,
   "languages": {
