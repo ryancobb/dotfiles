@@ -1,7 +1,7 @@
 return {
   "MeanderingProgrammer/render-markdown.nvim",
   opts = {
-    preset = "obsidian",
+    preset = "lazy",
     code = {
       sign = false,
     },
@@ -10,6 +10,25 @@ return {
     },
     checkbox = {
       enabled = true,
+      checked = { icon = "✔" },
+      unchecked = { icon = "▢" },
+      custom = {
+        in_progress = {
+          raw = "[.]",
+          rendered = "◐",
+          highlight = "Special",
+        },
+        cancelled = {
+          raw = "[c]",
+          rendered = "✗",
+          highlight = "Error",
+        },
+        on_hold = {
+          raw = "[/]",
+          rendered = "⏸",
+          highlight = "Type",
+        },
+      },
     },
     indent = {
       enabled = true,
