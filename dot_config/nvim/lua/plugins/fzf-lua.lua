@@ -2,7 +2,7 @@ return {
   "ibhagwan/fzf-lua",
   opts = {
     defaults = {
-      formatter = "path.filename_first",
+      formatter = { "path.filename_first", 2 },
     },
     files = {
       fzf_opts = {
@@ -15,7 +15,7 @@ return {
       },
     },
     marks = {
-      marks = "%a"
+      marks = "%a",
     },
     winopts = {
       preview = {

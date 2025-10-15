@@ -16,7 +16,7 @@ return {
         in_progress = {
           raw = "[.]",
           rendered = "◐",
-          highlight = "Special",
+          highlight = "Conditional",
         },
         cancelled = {
           raw = "[c]",
@@ -32,7 +32,7 @@ return {
     },
     indent = {
       enabled = true,
-      skip_heading = true
-    }
+      skip_heading = true,
+    },
   },
 }
