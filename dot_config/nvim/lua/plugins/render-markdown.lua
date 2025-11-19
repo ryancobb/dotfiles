@@ -3,7 +3,7 @@ return {
   opts = {
     preset = "lazy",
     code = {
-      sign = false,
+      sign = true,
     },
     heading = {
       sign = false,
