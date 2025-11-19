@@ -11,6 +11,13 @@ return {
         },
         ruby_lsp = {
           mason = false,
+          init_options = {
+            addonSettings = {
+              ["Ruby LSP Rails"] = {
+                enablePendingMigrationsPrompt = false,
+              },
+            },
+          },
         },
         rubocop = {
           mason = false,
