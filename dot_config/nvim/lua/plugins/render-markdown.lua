@@ -3,7 +3,7 @@ return {
   opts = {
     preset = "lazy",
     code = {
-      sign = true,
+      sign = false,
     },
     heading = {
       sign = false,
@@ -34,5 +34,12 @@ return {
       enabled = true,
       skip_heading = true,
     },
+    inline_highlight = {
+      custom = {
+        epic = { prefix = "e", highlight = "@text.strong" },
+        issue = { prefix = "i", highlight = "NeoTreeRootName" },
+        mr = { prefix = "m", highlight = "MatchParen" },
+      }
+    }
   },
 }
