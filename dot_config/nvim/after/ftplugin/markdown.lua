@@ -13,8 +13,8 @@ local function setup_tag_highlights()
 
   local colors = {
     issue = get_hl_fg('DiagnosticError'),
-    mr = get_hl_fg('DiagnosticInfo'),
-    epic = get_hl_fg('Statement'),
+    merge = get_hl_fg('Statement'),
+    epic = get_hl_fg('Special'),
     dev = get_hl_fg('DiagnosticWarn'),
     review = get_hl_fg('Number'),
     complete = get_hl_fg('DiagnosticOk'),
