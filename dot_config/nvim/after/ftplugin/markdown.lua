@@ -18,6 +18,7 @@ local function setup_tag_highlights()
     dev = get_hl_fg('DiagnosticWarn'),
     review = get_hl_fg('Number'),
     complete = get_hl_fg('DiagnosticOk'),
+    status = get_hl_fg("Pmenu"),
   }
 
   for tag, fg in pairs(colors) do
