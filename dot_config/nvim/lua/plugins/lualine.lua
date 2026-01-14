@@ -23,19 +23,40 @@ return {
       table.remove(opts.sections.lualine_c) -- filename
       table.remove(opts.sections.lualine_c) -- icon
 
-      opts.winbar = {
+      local winbar = {
         lualine_c = {
-          { "filetype", icon_only = true, separator = "", padding = { left = 1, right = 0 } },
-          { LazyVim.lualine.pretty_path({ modified_hl = 'WarningMsg', modified_sign = '[+]', length = 10 }) },
+          {
+            "diff",
+            colored = true,
+            symbols = { added = "+", modified = "~", removed = "-" },
+            source = function()
+              local gitsigns = vim.b.gitsigns_status_dict
+              if gitsigns then
+                return {
+                  added = gitsigns.added,
+                  modified = gitsigns.changed,
+                  removed = gitsigns.removed,
+                }
+              end
+            end,
+          },
+        },
+        lualine_b = {
+          {
+            "filename",
+            file_status = true, -- shows modified/readonly status
+            path = 1, -- relative path
+            symbols = {
+              modified = " ●",
+              readonly = " ",
+              unnamed = "[No Name]",
+            },
+          },
         },
       }
 
-      opts.inactive_winbar = {
-        lualine_c = {
-          { "filetype", icon_only = true, separator = "", padding = { left = 1, right = 0 }, color = "NormalNC" },
-          { LazyVim.lualine.pretty_path({ modified_hl = 'WarningMsg', modified_sign = '[+]', length = 10 }), color = "NormalNC" },
-        },
-      }
+      opts.winbar = winbar
+      opts.inactive_winbar = winbar
     end,
   },
 }
