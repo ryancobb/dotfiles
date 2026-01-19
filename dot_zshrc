@@ -10,7 +10,7 @@ export BAT_THEME="ansi"
 export EDITOR="nvim"
 export GOPATH="$HOME/go"
 export HISTFILE="$HOME/.zsh_history"
-export HISTFILESIZE=100000
+export SAVEHIST=100000
 export HISTSIZE=100000
 export LS_COLORS=''
 export MANPAGER='nvim +Man!'
@@ -18,8 +18,7 @@ export MANWIDTH=999
 export VISUAL="nvim"
 export XDG_CONFIG_HOME="$HOME/.config"
 
-path+=("$GOPATH/bin")
-path+=("$HOME/.local/bin")
+path=("$GOPATH/bin" "$HOME/.local/bin" $path)
 
 #######################################################################################################
 # Homebrew
@@ -40,12 +39,10 @@ if test -d $HOMEBREW_PREFIX; then
   path+=("$HOMEBREW_PREFIX/sbin")
   manpath+=("$HOMEBREW_PREFIX/share/man")
   infopath+=("$HOMEBREW_PREFIX/share/info")
-  fpath+="$HOMEBREW_PREFIX/share/zsh/site-functions"
+  fpath+=("$HOMEBREW_PREFIX/share/zsh/site-functions")
 
   # brew version of git autocomplete is bad, remove it
-  if [[ -f $HOMEBREW_PREFIX/share/zsh/site-functions/_git ]]; then
-    command rm $HOMEBREW_PREFIX/share/zsh/site-functions/_git
-  fi
+  command rm -f $HOMEBREW_PREFIX/share/zsh/site-functions/_git 2>/dev/null
 
   eval "$($HOMEBREW_PREFIX/bin/mise activate zsh)"
 fi
@@ -130,3 +127,4 @@ bindkey -e
 source <(fzf --zsh)
 
 eval "$(starship init zsh)"
+
