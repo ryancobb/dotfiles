@@ -9,6 +9,15 @@ return {
       todo_states = {
         unchecked = { marker = "[ ]" },
         checked = { marker = "[x]" },
+        deferred = {
+          marker = "[>]",
+          markdown = ">",
+          type = "complete",
+        },
+      },
+      style = {
+        CheckmateDeferredMainContent = { link = "CheckmateCheckedMainContent" },
+        CheckmateDeferredAdditionalContent = { link = "CheckmateCheckedAdditionalContent" },
       },
     }
   end,
@@ -19,5 +28,9 @@ return {
       vim.api.nvim_set_hl(0, "CheckmateUncheckedMainContent", {})
       vim.api.nvim_set_hl(0, "CheckmateUncheckedAdditionalContent", {})
     end)
+
+    vim.keymap.set("n", "<leader>T>", function()
+      require("checkmate").toggle("deferred")
+    end, { desc = "Toggle deferred" })
   end,
 }

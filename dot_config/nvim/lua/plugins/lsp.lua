@@ -8,7 +8,7 @@ return {
       servers = {
         marksman = {
           on_attach = function(client, bufnr)
-            vim.diagnostic.disable(bufnr)
+            vim.diagnostic.enable(false, { bufnr = bufnr })
           end,
         },
         solargraph = {

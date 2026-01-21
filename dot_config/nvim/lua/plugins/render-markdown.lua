@@ -2,6 +2,7 @@ return {
   "MeanderingProgrammer/render-markdown.nvim",
   opts = {
     preset = "lazy",
+    anti_conceal = { enabled = false },
     code = {
       sign = false,
     },
@@ -27,6 +28,11 @@ return {
           raw = "[/]",
           rendered = "⏸",
           highlight = "Type",
+        },
+        deferred = {
+          raw = "[>]",
+          rendered = "⏭",
+          highlight = "Comment",
         },
       },
     },
