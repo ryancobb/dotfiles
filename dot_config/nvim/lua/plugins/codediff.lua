@@ -6,5 +6,8 @@ return {
     explorer = {
       view_mode = "tree",
     },
+    highlights = {
+      char_brightness = 1.2,
+    },
   },
 }
