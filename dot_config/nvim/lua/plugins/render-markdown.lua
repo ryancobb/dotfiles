@@ -2,7 +2,7 @@ return {
   "MeanderingProgrammer/render-markdown.nvim",
   opts = {
     preset = "lazy",
-    anti_conceal = { enabled = false },
+    -- anti_conceal = { enabled = false },
     code = {
       sign = false,
     },
