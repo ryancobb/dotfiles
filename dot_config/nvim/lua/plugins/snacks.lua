@@ -1,5 +1,15 @@
 return {
   "folke/snacks.nvim",
+  keys = {
+    {
+      "<leader>se",
+      function()
+        local scratch = Snacks.scratch.get({})
+        vim.cmd("edit " .. scratch.file)
+      end,
+      desc = "Open scratch as buffer",
+    },
+  },
   opts = {
     scratch = {
       win = {
