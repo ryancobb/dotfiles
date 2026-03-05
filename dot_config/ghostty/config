@@ -1,6 +1,7 @@
 theme = nordfox.ghostty
 macos-titlebar-style = native
-unfocused-split-opacity = 0.55
+unfocused-split-opacity = 0.65
+split-divider-color = #81a1c1
 
 keybind = cmd+shift+v=new_split:right
 keybind = cmd+shift+s=new_split:down
@@ -10,9 +11,12 @@ keybind = performable:ctrl+j=goto_split:down
 keybind = performable:ctrl+k=goto_split:up
 keybind = performable:ctrl+l=goto_split:right
 
-keybind = cmd+ctrl+h=resize_split:left,10
-keybind = cmd+ctrl+j=resize_split:down,10
-keybind = cmd+ctrl+k=resize_split:up,10
-keybind = cmd+ctrl+l=resize_split:right,10
+keybind = cmd+ctrl+h=resize_split:left,20
+keybind = cmd+ctrl+j=resize_split:down,20
+keybind = cmd+ctrl+k=resize_split:up,20
+keybind = cmd+ctrl+l=resize_split:right,20
 keybind = cmd+ctrl+e=equalize_splits
 keybind = cmd+ctrl+z=toggle_split_zoom
+
+keybind = cmd+shift+left=move_tab:-1
+keybind = cmd+shift+right=move_tab:1
