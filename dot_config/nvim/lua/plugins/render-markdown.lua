@@ -58,7 +58,15 @@ return {
           rendered = "⏭",
           highlight = "Comment",
         },
+        skipped = {
+          raw = "[s]",
+          rendered = "⊘",
+          highlight = "Comment",
+        },
       },
+    },
+    bullet = {
+      icons = { "●", "▸", "◆", "‣" },
     },
     indent = {
       enabled = true,

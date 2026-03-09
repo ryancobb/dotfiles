@@ -15,6 +15,7 @@ return {
         ["<leader>tn"] = { rhs = "<cmd>Checkmate create<CR>", desc = "Create todo item", modes = { "n", "v" } },
         ["<leader>tr"] = { rhs = "<cmd>Checkmate remove<CR>", desc = "Remove todo marker", modes = { "n", "v" } },
         ["<leader>tR"] = { rhs = "<cmd>Checkmate remove_all_metadata<CR>", desc = "Remove all metadata", modes = { "n", "v" } },
+        ["<leader>ts"] = { rhs = "<cmd>Checkmate toggle skipped<CR>", desc = "Set todo item as skipped", modes = { "n", "v" } },
         ["<leader>ta"] = { rhs = "<cmd>Checkmate archive<CR>", desc = "Archive completed todos", modes = { "n" } },
         ["<leader>tF"] = { rhs = "<cmd>Checkmate select_todo<CR>", desc = "Pick a todo", modes = { "n" } },
         ["<leader>tv"] = { rhs = "<cmd>Checkmate metadata select_value<CR>", desc = "Update metadata value", modes = { "n" } },
@@ -29,14 +30,21 @@ return {
           markdown = ">",
           type = "complete",
         },
+        skipped = {
+          marker = "[s]",
+          markdown = "s",
+          type = "complete",
+        },
       },
       style = {
         CheckmateDeferredMainContent = { link = "CheckmateCheckedMainContent" },
         CheckmateDeferredAdditionalContent = { link = "CheckmateCheckedAdditionalContent" },
+        CheckmateSkippedMainContent = { link = "CheckmateCheckedMainContent" },
+        CheckmateSkippedAdditionalContent = { link = "CheckmateCheckedAdditionalContent" },
       },
       metadata = {
         priority = { key = "<leader>tp" },
-        started = { key = "<leader>ts" },
+        started = { key = "<leader>tS" },
         done = { key = "<leader>td" },
       },
     }
