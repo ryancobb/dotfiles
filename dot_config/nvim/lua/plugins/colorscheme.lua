@@ -9,6 +9,11 @@ return {
             comments = "italic",
           },
         },
+        groups = {
+          nordfox = {
+            Folded = { bg = "palette.bg0" },
+          },
+        },
       }
     end,
   },
