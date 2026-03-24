@@ -2,7 +2,9 @@
 # Exports
 #######################################################################################################
 
-if [ -f ~/.secretrc ]; then
+typeset -U path manpath fpath infopath
+
+if [[ -f ~/.secretrc ]]; then
   source ~/.secretrc
 fi
 
@@ -24,45 +26,32 @@ path=("$GOPATH/bin" "$HOME/.local/bin" $path)
 # Homebrew
 #######################################################################################################
 
-if test -d /home/linuxbrew/.linuxbrew; then # Linux
+if [[ -d /home/linuxbrew/.linuxbrew ]]; then # Linux
   export HOMEBREW_PREFIX="/home/linuxbrew/.linuxbrew"
   export HOMEBREW_CELLAR="$HOMEBREW_PREFIX/Cellar"
   export HOMEBREW_REPOSITORY="$HOMEBREW_PREFIX/Homebrew"
-elif test -d /opt/homebrew; then # MacOS
+elif [[ -d /opt/homebrew ]]; then # MacOS
   export HOMEBREW_PREFIX="/opt/homebrew"
   export HOMEBREW_CELLAR="$HOMEBREW_PREFIX/Cellar"
   export HOMEBREW_REPOSITORY="$HOMEBREW_PREFIX/homebrew"
 fi
 
-if test -d $HOMEBREW_PREFIX; then
-  path+=("$HOMEBREW_PREFIX/bin")
-  path+=("$HOMEBREW_PREFIX/sbin")
+if [[ -d "$HOMEBREW_PREFIX" ]]; then
+  path=("$HOMEBREW_PREFIX/bin" "$HOMEBREW_PREFIX/sbin" $path)
   manpath+=("$HOMEBREW_PREFIX/share/man")
   infopath+=("$HOMEBREW_PREFIX/share/info")
   fpath+=("$HOMEBREW_PREFIX/share/zsh/site-functions")
 
-  # brew version of git autocomplete is bad, remove it
-  command rm -f $HOMEBREW_PREFIX/share/zsh/site-functions/_git 2>/dev/null
+  # brew version of git autocomplete is bad, remove it (re-run after brew upgrade)
+  command rm -f "$HOMEBREW_PREFIX/share/zsh/site-functions/_git" 2>/dev/null
 
-  export PATH="$HOME/.local/share/mise/shims:$PATH"
+  if [[ ! -f ~/.zsh-patina.zsh ]] || [[ "$HOMEBREW_PREFIX/bin/zsh-patina" -nt ~/.zsh-patina.zsh ]]; then
+    "$HOMEBREW_PREFIX/bin/zsh-patina" activate > ~/.zsh-patina.zsh
+  fi
+  source ~/.zsh-patina.zsh
 fi
 
-#######################################################################################################
-# fzf-tab
-#######################################################################################################
-
-zstyle ':completion:*:git-checkout:*' sort false
-# set descriptions format to enable group support
-# NOTE: don't use escape sequences here, fzf-tab will ignore them
-zstyle ':completion:*:descriptions' format '[%d]'
-# set list-colors to enable filename colorizing
-zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
-# force zsh not to show completion menu, which allows fzf-tab to capture the unambiguous prefix
-zstyle ':completion:*' menu no
-# preview directory's content with eza when completing cd
-zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
-# switch group using `<` and `>`
-zstyle ':fzf-tab:*' switch-group '<' '>'
+path=("$HOME/.local/share/mise/shims" $path)
 
 #######################################################################################################
 # zcomet
@@ -76,16 +65,25 @@ source ${ZDOTDIR:-${HOME}}/.zcomet/bin/zcomet.zsh
 
 zcomet load zsh-users/zsh-completions
 
-zcomet load sunlei/zsh-ssh
-zcomet load agkozak/zsh-z
+zcomet trigger ssh sunlei/zsh-ssh
+zcomet trigger z agkozak/zsh-z
 
 zcomet load Aloxaf/fzf-tab
-zcomet load zdharma-continuum/fast-syntax-highlighting
 zcomet load zsh-users/zsh-autosuggestions
+
+# completion config (before compinit)
+zstyle ':completion:*:git-checkout:*' sort false
+zstyle ':completion:*:descriptions' format '[%d]'
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*' menu no
 
 # Use cached .zcompdump without regenerating; after adding new completions run: rm ~/.zcompdump_*; exec zsh
 zstyle ':zcomet:compinit' arguments -C
 zcomet compinit
+
+# fzf-tab config (after compinit is fine)
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
+zstyle ':fzf-tab:*' switch-group '<' '>'
 
 #######################################################################################################
 # Aliases
@@ -101,38 +99,78 @@ alias gl='git pull'
 alias gf='git fetch'
 alias gco='git checkout'
 alias ggp='git push -u origin HEAD'
-alias gscrub='git reset --hard @{upstream}'
 
 #######################################################################################################
 # Functions
 #######################################################################################################
 
-portkill() { lsof -t -i:$1 | xargs kill -9 }
+gscrub() {
+  echo "This will discard all local changes and reset to upstream. Continue? (y/N)"
+  if read -q; then
+    echo
+    git reset --hard @{upstream}
+  else
+    echo "\nAborted."
+  fi
+}
+
+portkill() {
+  if [[ -z "$1" ]]; then
+    echo "Usage: portkill <port>" >&2
+    return 1
+  fi
+  local pids=$(lsof -t -i:"$1")
+  if [[ -z "$pids" ]]; then
+    echo "No process found on port $1" >&2
+    return 1
+  fi
+  echo "$pids" | xargs kill -15 && echo "Sent SIGTERM to processes on port $1"
+}
 
 bcop() {
   local base="${1:-main}"
-  git diff --name-only --diff-filter=d "$base"...HEAD -- "*.rb" | xargs bundle exec rubocop
+  local files=$(git diff --name-only --diff-filter=d "$base"...HEAD -- "*.rb")
+  if [[ -z "$files" ]]; then
+    echo "No changed .rb files against $base" >&2
+    return 0
+  fi
+  echo "$files" | xargs bundle exec rubocop
 }
 
 brspec() {
   local base="${1:-main}"
-  git diff --name-only --diff-filter=d "$base"...HEAD -- "*_spec.rb" | xargs bundle exec rspec
+  local files=$(git diff --name-only --diff-filter=d "$base"...HEAD -- "*_spec.rb")
+  if [[ -z "$files" ]]; then
+    echo "No changed spec files against $base" >&2
+    return 0
+  fi
+  echo "$files" | xargs bundle exec rspec
 }
 
 #######################################################################################################
 # Opts
 #######################################################################################################
 
-setopt inc_append_history
 setopt share_history
 setopt extended_history
 setopt hist_ignore_all_dups
+setopt hist_expire_dups_first
+setopt hist_ignore_space
+setopt hist_verify
 
 unsetopt nomatch # run rake task with args with no error
 unsetopt BEEP
 
 bindkey -e
 
-source <(fzf --zsh)
+# Cache fzf init to avoid subprocess on every shell launch
+if [[ ! -f ~/.fzf.zsh ]] || [[ $(command -v fzf) -nt ~/.fzf.zsh ]]; then
+  fzf --zsh > ~/.fzf.zsh
+fi
+source ~/.fzf.zsh
 
-eval "$(starship init zsh)"
+# Cache starship init to avoid subprocess on every shell launch
+if [[ ! -f ~/.starship.zsh ]] || [[ $(command -v starship) -nt ~/.starship.zsh ]]; then
+  starship init zsh > ~/.starship.zsh
+fi
+source ~/.starship.zsh
