@@ -18,7 +18,11 @@ export LS_COLORS=''
 export MANPAGER='nvim +Man!'
 export MANWIDTH=999
 export VISUAL="nvim"
-export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+
+ZSH_CACHE="$XDG_CACHE_HOME/zsh"
+mkdir -p "$ZSH_CACHE"
 
 path=("$GOPATH/bin" "$HOME/.local/bin" $path)
 
@@ -45,10 +49,10 @@ if [[ -d "$HOMEBREW_PREFIX" ]]; then
   # brew version of git autocomplete is bad, remove it (re-run after brew upgrade)
   command rm -f "$HOMEBREW_PREFIX/share/zsh/site-functions/_git" 2>/dev/null
 
-  if [[ ! -f ~/.zsh-patina.zsh ]] || [[ "$HOMEBREW_PREFIX/bin/zsh-patina" -nt ~/.zsh-patina.zsh ]]; then
-    "$HOMEBREW_PREFIX/bin/zsh-patina" activate > ~/.zsh-patina.zsh
+  if [[ ! -f "$ZSH_CACHE/patina.zsh" ]] || [[ "$HOMEBREW_PREFIX/bin/zsh-patina" -nt "$ZSH_CACHE/patina.zsh" ]]; then
+    "$HOMEBREW_PREFIX/bin/zsh-patina" activate > "$ZSH_CACHE/patina.zsh"
   fi
-  source ~/.zsh-patina.zsh
+  source "$ZSH_CACHE/patina.zsh"
 fi
 
 path=("$HOME/.local/share/mise/shims" $path)
@@ -77,7 +81,8 @@ zstyle ':completion:*:descriptions' format '[%d]'
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 zstyle ':completion:*' menu no
 
-# Use cached .zcompdump without regenerating; after adding new completions run: rm ~/.zcompdump_*; exec zsh
+# Use cached .zcompdump without regenerating; after adding new completions run: rm -rf $ZSH_CACHE; exec zsh
+zstyle ':zcomet:compinit' dump-file "$ZSH_CACHE/zcompdump"
 zstyle ':zcomet:compinit' arguments -C
 zcomet compinit
 
@@ -164,13 +169,13 @@ unsetopt BEEP
 bindkey -e
 
 # Cache fzf init to avoid subprocess on every shell launch
-if [[ ! -f ~/.fzf.zsh ]] || [[ $(command -v fzf) -nt ~/.fzf.zsh ]]; then
-  fzf --zsh > ~/.fzf.zsh
+if [[ ! -f "$ZSH_CACHE/fzf.zsh" ]] || [[ $(command -v fzf) -nt "$ZSH_CACHE/fzf.zsh" ]]; then
+  fzf --zsh > "$ZSH_CACHE/fzf.zsh"
 fi
-source ~/.fzf.zsh
+source "$ZSH_CACHE/fzf.zsh"
 
 # Cache starship init to avoid subprocess on every shell launch
-if [[ ! -f ~/.starship.zsh ]] || [[ $(command -v starship) -nt ~/.starship.zsh ]]; then
-  starship init zsh > ~/.starship.zsh
+if [[ ! -f "$ZSH_CACHE/starship.zsh" ]] || [[ $(command -v starship) -nt "$ZSH_CACHE/starship.zsh" ]]; then
+  starship init zsh > "$ZSH_CACHE/starship.zsh"
 fi
-source ~/.starship.zsh
+source "$ZSH_CACHE/starship.zsh"
