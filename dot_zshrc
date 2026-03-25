@@ -90,6 +90,12 @@ zcomet compinit
 zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
 zstyle ':fzf-tab:*' switch-group '<' '>'
 
+# carapace - multi-shell completion engine (bridges to zsh/fish/bash for unknown commands)
+if (( $+commands[carapace] )); then
+  export CARAPACE_BRIDGES='zsh,fish,bash'
+  source <(carapace _carapace zsh)
+fi
+
 #######################################################################################################
 # Aliases
 #######################################################################################################

@@ -1,0 +1,89 @@
+name: claude
+description: Claude Code - AI-powered coding assistant
+flags:
+  --add-dir=: Additional directories to allow tool access to
+  --agent=: Agent for the current session
+  --agents=: JSON object defining custom agents
+  --allow-dangerously-skip-permissions: Enable bypassing all permission checks
+  --allowed-tools=: Comma or space-separated list of tool names to allow
+  --append-system-prompt=: Append a system prompt to the default system prompt
+  --bare: Minimal mode
+  --betas=: Beta headers to include in API requests
+  --brief: Enable SendUserMessage tool for agent-to-user communication
+  --chrome: Enable Claude in Chrome integration
+  -c, --continue: Continue the most recent conversation in the current directory
+  --dangerously-skip-permissions: Bypass all permission checks
+  -d, --debug=: Enable debug mode with optional category filtering
+  --debug-file=: Write debug logs to a specific file path
+  --disable-slash-commands: Disable all skills
+  --disallowed-tools=: Comma or space-separated list of tool names to deny
+  --effort=: Effort level for the current session
+  --fallback-model=: Fallback model when default is overloaded
+  --file=: File resources to download at startup
+  --fork-session: Create a new session ID when resuming
+  --from-pr=: Resume a session linked to a PR
+  -h, --help: Display help for command
+  --ide: Auto-connect to IDE on startup
+  --include-partial-messages: Include partial message chunks as they arrive
+  --input-format=: Input format
+  --json-schema=: JSON Schema for structured output validation
+  --max-budget-usd=: Maximum dollar amount to spend on API calls
+  --mcp-config=: Load MCP servers from JSON files or strings
+  --model=: Model for the current session
+  -n, --name=: Set a display name for this session
+  --no-chrome: Disable Claude in Chrome integration
+  --no-session-persistence: Disable session persistence
+  --output-format=: Output format
+  --permission-mode=: Permission mode to use for the session
+  --plugin-dir=: Load plugins from a directory
+  -p, --print: Print response and exit
+  --replay-user-messages: Re-emit user messages from stdin on stdout
+  -r, --resume=: Resume a conversation by session ID
+  --session-id=: Use a specific session ID for the conversation
+  --setting-sources=: Comma-separated list of setting sources to load
+  --settings=: Path to a settings JSON file or string
+  --strict-mcp-config: Only use MCP servers from --mcp-config
+  --system-prompt=: System prompt to use for the session
+  --tmux: Create a tmux session for the worktree
+  --tools=: Specify the list of available tools
+  --verbose: Override verbose mode setting from config
+  -v, --version: Output the version number
+  -w, --worktree=: Create a new git worktree for this session
+completion:
+  flag:
+    effort: ["low", "medium", "high", "max"]
+    input-format: ["text", "stream-json"]
+    output-format: ["text", "json", "stream-json"]
+    permission-mode: ["acceptEdits", "bypassPermissions", "default", "dontAsk", "plan", "auto"]
+    model: ["sonnet", "opus", "haiku"]
+    debug-file: ["$files"]
+    mcp-config: ["$files"]
+    plugin-dir: ["$directories"]
+    settings: ["$files"]
+    add-dir: ["$directories"]
+commands:
+  - name: agents
+    description: List configured agents
+  - name: auth
+    description: Manage authentication
+  - name: auto-mode
+    description: Inspect auto mode classifier configuration
+  - name: doctor
+    description: Check the health of your Claude Code auto-updater
+  - name: install
+    description: Install Claude Code native build
+    completion:
+      positional:
+        - ["stable", "latest"]
+  - name: mcp
+    description: Configure and manage MCP servers
+  - name: plugin
+    description: Manage Claude Code plugins
+    aliases:
+      - plugins
+  - name: setup-token
+    description: Set up a long-lived authentication token
+  - name: update
+    description: Check for updates and install if available
+    aliases:
+      - upgrade
