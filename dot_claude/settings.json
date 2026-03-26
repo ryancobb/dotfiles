@@ -9,7 +9,8 @@
     "playwright@claude-plugins-official": true,
     "explanatory-output-style@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true,
-    "ruby-lsp@claude-plugins-official": true
+    "ruby-lsp@claude-plugins-official": true,
+    "svelte@svelte": true
   },
   "alwaysThinkingEnabled": true,
   "effortLevel": "high"
