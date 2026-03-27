@@ -19,12 +19,12 @@ function M.write(wrap)
 end
 
 function M.apply(wrap)
-  vim.o.wrap = wrap
-  vim.o.linebreak = wrap
+  vim.wo.wrap = wrap
+  vim.wo.linebreak = wrap
 end
 
 function M.toggle()
-  local wrap = not vim.o.wrap
+  local wrap = not vim.wo.wrap
   M.apply(wrap)
   M.write(wrap)
   vim.notify("Wrap " .. (wrap and "on" or "off"))

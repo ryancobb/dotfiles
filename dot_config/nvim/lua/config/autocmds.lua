@@ -14,10 +14,12 @@ vim.api.nvim_create_autocmd("FileType", {
 })
 
 vim.api.nvim_create_autocmd("FileType", {
-  group = vim.api.nvim_create_augroup("disable_indent_scope", { clear = true }),
+  group = vim.api.nvim_create_augroup("markdown_settings", { clear = true }),
   pattern = { "markdown" },
   callback = function()
     vim.b.miniindentscope_disable = true
+    local wrap = require("lib.wrap")
+    wrap.apply(wrap.read())
   end,
 })
 
