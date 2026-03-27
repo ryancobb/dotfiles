@@ -39,29 +39,19 @@ return {
       unchecked = { icon = "▢" },
       custom = {
         in_progress = {
-          raw = "[.]",
+          raw = "[/]",
           rendered = "◐",
           highlight = "Conditional",
-        },
-        cancelled = {
-          raw = "[c]",
-          rendered = "✗",
-          highlight = "Error",
-        },
-        on_hold = {
-          raw = "[/]",
-          rendered = "⏸",
-          highlight = "Type",
         },
         deferred = {
           raw = "[>]",
           rendered = "⏭",
           highlight = "Comment",
         },
-        skipped = {
-          raw = "[s]",
-          rendered = "⊘",
-          highlight = "Comment",
+        needs_review = {
+          raw = "[?]",
+          rendered = "❓",
+          highlight = "DiagnosticWarn",
         },
       },
     },
