@@ -9,6 +9,8 @@ vim.keymap.del({ "n" }, "<S-l>")
 
 map({ "n", "x" }, "q", "<nop>")
 
+map("n", "<leader>uw", function() require("lib.wrap").toggle() end, { desc = "Toggle Word Wrap (persistent)" })
+
 map("n", "<leader>yf", function()
   local expr = "%:~:."
   vim.fn.setreg("+", vim.fn.expand(expr))
@@ -21,13 +23,13 @@ map("n", "<leader>yF", function()
   vim.notify("Copied: " .. vim.fn.expand(expr))
 end, { desc = "filename (full path)" })
 
-vim.keymap.set("n", "<leader>dd", function()
+map("n", "<leader>fd", function()
   local date = os.date("%Y-%m-%d")
   local filepath = vim.fn.expand("~/Projects/vaults/work/dailies/" .. date .. "-daily-plan.md")
   vim.cmd("edit " .. filepath)
 end, { desc = "Open today's daily plan" })
 
-vim.keymap.set("n", "<leader>dy", function()
+map("n", "<leader>dy", function()
   local yesterday = os.time() - 86400 -- 86400 seconds = 1 day
   local date = os.date("%Y-%m-%d", yesterday)
   local filepath = vim.fn.expand("~/Projects/vaults/work/dailies/" .. date .. "-daily-plan.md")

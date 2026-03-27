@@ -1,3 +1,2 @@
-vim.schedule(function()
-  vim.opt_local.wrap = false
-end)
+local wrap = require("lib.wrap")
+wrap.apply(wrap.read())
