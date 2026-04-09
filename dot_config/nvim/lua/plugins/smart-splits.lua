@@ -31,25 +31,25 @@ return {
         end,
       },
       {
-        "<c-D-h>",
+        "<C-S-h>",
         function()
           require("smart-splits").resize_left()
         end,
       },
       {
-        "<c-D-j>",
+        "<C-S-j>",
         function()
           require("smart-splits").resize_down()
         end,
       },
       {
-        "<c-D-k>",
+        "<C-S-k>",
         function()
           require("smart-splits").resize_up()
         end,
       },
       {
-        "<c-D-l>",
+        "<C-S-l>",
         function()
           require("smart-splits").resize_right()
         end,

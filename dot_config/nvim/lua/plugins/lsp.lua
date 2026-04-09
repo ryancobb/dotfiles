@@ -6,11 +6,7 @@ return {
         virtual_text = false,
       },
       servers = {
-        marksman = {
-          on_attach = function(client, bufnr)
-            vim.diagnostic.enable(false, { bufnr = bufnr })
-          end,
-        },
+        marksman = { enabled = false },
         solargraph = {
           mason = false,
         },

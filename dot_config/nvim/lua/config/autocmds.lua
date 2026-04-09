@@ -24,16 +24,9 @@ vim.api.nvim_create_autocmd("FileType", {
 })
 
 vim.api.nvim_create_autocmd({ "BufNewFile", "BufRead" }, {
-  pattern = { "*.hurl" },
-  callback = function()
-    vim.cmd("set filetype=hurl")
-  end,
-})
-
-vim.api.nvim_create_autocmd({ "BufNewFile", "BufRead" }, {
   pattern = { "*.envrc" },
   callback = function()
-    vim.cmd("set filetype=sh")
+    vim.bo.filetype = "sh"
   end,
 })
 
