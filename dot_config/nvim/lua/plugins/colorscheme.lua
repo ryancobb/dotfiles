@@ -26,6 +26,7 @@ return {
         variant = "ember-soft",
         on_highlights = function(hl, theme)
           hl.RenderMarkdownCodeInline = { bg = theme.ui.base2 }
+          hl.RenderMarkdownCode = { bg = theme.ui.base2 }
         end,
       })
     end,

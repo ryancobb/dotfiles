@@ -11,7 +11,7 @@ vim.g.lazyvim_ruby_lsp = "ruby_lsp"
 vim.g.lazyvim_ruby_formatter = "rubocop"
 
 opt.cursorline = false
-opt.laststatus = 3
+opt.laststatus = 2
 opt.lcs = { space = "·" }
 opt.list = true
 opt.listchars = { tab = "» ", trail = "·", extends = ">", precedes = "<", nbsp = "␣" }
