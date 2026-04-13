@@ -54,6 +54,34 @@ return {
           require("smart-splits").resize_right()
         end,
       },
+      {
+        "<C-M-S-h>",
+        function()
+          require("smart-splits").swap_buf_left()
+        end,
+        desc = "Swap window left",
+      },
+      {
+        "<C-M-S-j>",
+        function()
+          require("smart-splits").swap_buf_down()
+        end,
+        desc = "Swap window down",
+      },
+      {
+        "<C-M-S-k>",
+        function()
+          require("smart-splits").swap_buf_up()
+        end,
+        desc = "Swap window up",
+      },
+      {
+        "<C-M-S-l>",
+        function()
+          require("smart-splits").swap_buf_right()
+        end,
+        desc = "Swap window right",
+      },
     },
   },
 }

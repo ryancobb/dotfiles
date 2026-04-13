@@ -3,7 +3,7 @@ return {
   ft = { "markdown" },
   keys = {
     {
-      "<leader>uM",
+      "<leader>um",
       function()
         local state = require("render-markdown.state")
         local new_val = not state.config.anti_conceal.enabled
@@ -24,9 +24,33 @@ return {
       desc = "Toggle render-markdown anti-conceal",
     },
   },
+  config = function(_, opts)
+    require("render-markdown").setup(opts)
+    local rm = require("render-markdown")
+    local state = require("render-markdown.state")
+    Snacks.toggle({
+      name = "Render Markdown",
+      get = rm.get,
+      set = function(enabled)
+        if not enabled then
+          -- Reset anti-conceal before rm.set so the debounced update uses clean values
+          state.config.anti_conceal.enabled = false
+          state.config.win_options.concealcursor.rendered = "nvic"
+          for _, config in pairs(state.cache) do
+            config.anti_conceal.enabled = false
+            config.win_options.concealcursor.rendered = "nvic"
+          end
+        end
+        rm.set(enabled)
+      end,
+    }):map("<leader>uM")
+  end,
   opts = {
     preset = "lazy",
     anti_conceal = { enabled = false },
+    win_options = {
+      conceallevel = { default = 0, rendered = 2 },
+    },
     code = {
       sign = false,
     },
