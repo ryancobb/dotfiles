@@ -4,10 +4,6 @@
 
 typeset -U path manpath fpath infopath
 
-if [[ -f ~/.secretrc ]]; then
-  source ~/.secretrc
-fi
-
 export BAT_THEME="ansi"
 export EDITOR="nvim"
 export GOPATH="$HOME/go"
