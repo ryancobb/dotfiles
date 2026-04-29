@@ -1,0 +1,9 @@
+[
+  {
+    "label": "open-daily",
+    "command": "/Users/ryancobb/.config/zed/open-daily.sh",
+    "args": [],
+    "reveal": "never",
+    "hide": "always"
+  }
+]
