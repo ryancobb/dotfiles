@@ -23,15 +23,16 @@ map("n", "<leader>yF", function()
   vim.notify("Copied: " .. vim.fn.expand(expr))
 end, { desc = "filename (full path)" })
 
+local function monday_of(time)
+  local wday = os.date("*t", time).wday -- 1=Sun..7=Sat
+  local offset = (wday - 2 + 7) % 7
+  return time - offset * 86400
+end
+
 map("n", "<leader>fd", function()
-  local date = os.date("%Y-%m-%d")
-  local filepath = vim.fn.expand("~/Projects/vaults/work/dailies/" .. date .. "-daily-plan.md")
+  local now = os.time()
+  local date = os.date("%Y-%m-%d", now)
+  local monday = os.date("%Y-%m-%d", monday_of(now))
+  local filepath = vim.fn.expand("~/Projects/vaults/work/weeklies/" .. monday .. "/" .. date .. "-daily-plan.md")
   vim.cmd("edit " .. filepath)
 end, { desc = "Open today's daily plan" })
-
-map("n", "<leader>dy", function()
-  local yesterday = os.time() - 86400 -- 86400 seconds = 1 day
-  local date = os.date("%Y-%m-%d", yesterday)
-  local filepath = vim.fn.expand("~/Projects/vaults/work/dailies/" .. date .. "-daily-plan.md")
-  vim.cmd("edit " .. filepath)
-end, { desc = "Open yesterday's daily plan" })

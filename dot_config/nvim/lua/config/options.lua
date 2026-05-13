@@ -6,6 +6,7 @@ local opt = vim.opt
 
 vim.g.autoformat = false
 vim.g.editorconfig = false
+vim.g.root_spec = { "cwd" }
 
 vim.g.lazyvim_ruby_lsp = "ruby_lsp"
 vim.g.lazyvim_ruby_formatter = "rubocop"

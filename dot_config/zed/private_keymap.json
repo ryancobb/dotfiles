@@ -12,6 +12,7 @@
       "ctrl-k": "workspace::ActivatePaneUp",
       "ctrl-j": "workspace::ActivatePaneDown",
       "ctrl-`": "workspace::ToggleBottomDock",
+      "cmd-r": "workspace::ToggleRightDock",
       "ctrl-alt-left": "pane::SwapItemLeft",
       "ctrl-alt-right": "pane::SwapItemRight"
     }
@@ -30,6 +31,7 @@
       "space c f": "editor::Format",
       "space s t": "pane::DeploySearch",
       "space y f": "workspace::CopyRelativePath",
+      "space y shift-f": "workspace::CopyPath",
       "g c c": "editor::ToggleComments",
       "space space": "file_finder::Toggle",
       "space f d": ["task::Spawn", { "task_name": "open-daily" }],

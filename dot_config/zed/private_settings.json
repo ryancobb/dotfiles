@@ -27,6 +27,7 @@
   },
   "agent": {
     "dock": "right",
+    "sidebar_side": "right",
     "play_sound_when_agent_done": "always",
     "model_parameters": []
   },
