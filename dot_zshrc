@@ -10,7 +10,6 @@ export GOPATH="$HOME/go"
 export HISTFILE="$HOME/.zsh_history"
 export SAVEHIST=100000
 export HISTSIZE=100000
-export LS_COLORS=''
 export MANPAGER='nvim +Man!'
 export MANWIDTH=999
 export VISUAL="nvim"
@@ -20,7 +19,6 @@ export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 ZSH_CACHE="$XDG_CACHE_HOME/zsh"
 mkdir -p "$ZSH_CACHE"
 
-path=("$GOPATH/bin" "$HOME/.local/bin" $path)
 
 #######################################################################################################
 # Homebrew
@@ -43,7 +41,7 @@ if [[ -d "$HOMEBREW_PREFIX" ]]; then
   fpath+=("$HOMEBREW_PREFIX/share/zsh/site-functions")
 
   # brew version of git autocomplete is bad, remove it (re-run after brew upgrade)
-  command rm -f "$HOMEBREW_PREFIX/share/zsh/site-functions/_git" 2>/dev/null
+  [[ -e "$HOMEBREW_PREFIX/share/zsh/site-functions/_git" ]] && command rm -f "$HOMEBREW_PREFIX/share/zsh/site-functions/_git"
 
   if [[ ! -f "$ZSH_CACHE/patina.zsh" ]] || [[ "$HOMEBREW_PREFIX/bin/zsh-patina" -nt "$ZSH_CACHE/patina.zsh" ]]; then
     "$HOMEBREW_PREFIX/bin/zsh-patina" activate > "$ZSH_CACHE/patina.zsh"
@@ -66,31 +64,47 @@ source ${ZDOTDIR:-${HOME}}/.zcomet/bin/zcomet.zsh
 zcomet load zsh-users/zsh-completions
 
 zcomet trigger ssh sunlei/zsh-ssh
-zcomet trigger z agkozak/zsh-z
-
-zcomet load Aloxaf/fzf-tab
-zcomet load zsh-users/zsh-autosuggestions
+zcomet load agkozak/zsh-z # eager, not triggered: installs its hook so dir tracking starts at shell launch
 
 # completion config (before compinit)
 zstyle ':completion:*:git-checkout:*' sort false
 zstyle ':completion:*:descriptions' format '[%d]'
-zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 zstyle ':completion:*' menu no
+
+# case-insensitive, partial-word, and substring matching
+zstyle ':completion:*' matcher-list '' \
+  'm:{a-zA-Z}={A-Za-z}' \
+  'r:|[._-]=* r:|=*' \
+  'l:|=* r:|=*'
+
+# cache slow completions (brew, git, etc.)
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path "$ZSH_CACHE/zcompcache"
 
 # Use cached .zcompdump without regenerating; after adding new completions run: rm -rf $ZSH_CACHE; exec zsh
 zstyle ':zcomet:compinit' dump-file "$ZSH_CACHE/zcompdump"
 zstyle ':zcomet:compinit' arguments -C
 zcomet compinit
 
+# fzf-tab must load AFTER compinit, but BEFORE widget-wrapping plugins (autosuggestions)
+zcomet load Aloxaf/fzf-tab
+
+# autosuggestions: suggest from history + completion, cap buffer for speed
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
+zcomet load zsh-users/zsh-autosuggestions
+
 # fzf-tab config (after compinit is fine)
 zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
 zstyle ':fzf-tab:*' switch-group '<' '>'
 
-# carapace - multi-shell completion engine (bridges to zsh/fish/bash for unknown commands)
-if (( $+commands[carapace] )); then
-  export CARAPACE_BRIDGES='zsh,fish,bash'
-  source <(carapace _carapace zsh)
-fi
+# more fzf-tab previews: git, env vars, process kill
+zstyle ':fzf-tab:complete:git-(add|diff|restore|checkout):*' \
+  fzf-preview '[[ -e $realpath ]] && (git diff --color=always -- $realpath 2>/dev/null || eza -1 --color=always $realpath)'
+zstyle ':fzf-tab:complete:(-parameter-|export):*' \
+  fzf-preview 'echo ${(P)word}'
+zstyle ':fzf-tab:complete:(kill|ps):argument-rest' \
+  fzf-preview '[[ $group == "[process ID]" ]] && ps -p $word -o command='
 
 #######################################################################################################
 # Aliases
@@ -112,10 +126,15 @@ alias ggp='git push -u origin HEAD'
 #######################################################################################################
 
 gscrub() {
-  echo "This will discard all local changes and reset to upstream. Continue? (y/N)"
+  local upstream
+  if ! upstream=$(git rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2>/dev/null); then
+    echo "No upstream configured for the current branch." >&2
+    return 1
+  fi
+  echo "This will hard-reset to $upstream and delete untracked files. Continue? (y/N)"
   if read -q; then
     echo
-    git reset --hard @{upstream}
+    git reset --hard '@{upstream}' && git clean -fd
   else
     echo "\nAborted."
   fi
@@ -136,22 +155,32 @@ portkill() {
 
 bcop() {
   local base="${1:-main}"
-  local files=$(git diff --name-only --diff-filter=d "$base"...HEAD -- "*.rb")
-  if [[ -z "$files" ]]; then
+  if ! git rev-parse --verify --quiet "$base" >/dev/null; then
+    echo "Not a valid ref: $base" >&2
+    return 1
+  fi
+  local files=("${(@f)$(git diff --name-only --diff-filter=d "$base"...HEAD -- '*.rb')}")
+  files=(${files:#})
+  if (( ${#files} == 0 )); then
     echo "No changed .rb files against $base" >&2
     return 0
   fi
-  echo "$files" | xargs bundle exec rubocop
+  bundle exec rubocop "${files[@]}"
 }
 
 brspec() {
   local base="${1:-main}"
-  local files=$(git diff --name-only --diff-filter=d "$base"...HEAD -- "*_spec.rb")
-  if [[ -z "$files" ]]; then
+  if ! git rev-parse --verify --quiet "$base" >/dev/null; then
+    echo "Not a valid ref: $base" >&2
+    return 1
+  fi
+  local files=("${(@f)$(git diff --name-only --diff-filter=d "$base"...HEAD -- '*_spec.rb')}")
+  files=(${files:#})
+  if (( ${#files} == 0 )); then
     echo "No changed spec files against $base" >&2
     return 0
   fi
-  echo "$files" | xargs bundle exec rspec
+  bundle exec rspec "${files[@]}"
 }
 
 #######################################################################################################
@@ -165,19 +194,30 @@ setopt hist_expire_dups_first
 setopt hist_ignore_space
 setopt hist_verify
 
+setopt complete_in_word   # complete from cursor, not just end of word
+setopt always_to_end      # move cursor to end after completion
+setopt glob_complete      # tab on a glob expands to a completion menu
+
 unsetopt nomatch # run rake task with args with no error
 unsetopt BEEP
 
 bindkey -e
 
-# Cache fzf init to avoid subprocess on every shell launch
-if [[ ! -f "$ZSH_CACHE/fzf.zsh" ]] || [[ $(command -v fzf) -nt "$ZSH_CACHE/fzf.zsh" ]]; then
-  fzf --zsh > "$ZSH_CACHE/fzf.zsh"
+# Cache fzf init to avoid subprocess on every shell launch.
+# NOTE: must stay AFTER `zcomet load Aloxaf/fzf-tab` above — fzf captures the
+# current ^I binding (fzf-tab-complete) as its fallback for non-`**` TAB.
+# Sourcing this before fzf-tab loads would silently disable fzf-tab.
+if (( $+commands[fzf] )); then
+  if [[ ! -f "$ZSH_CACHE/fzf.zsh" ]] || [[ $commands[fzf] -nt "$ZSH_CACHE/fzf.zsh" ]]; then
+    fzf --zsh > "$ZSH_CACHE/fzf.zsh"
+  fi
+  source "$ZSH_CACHE/fzf.zsh"
 fi
-source "$ZSH_CACHE/fzf.zsh"
 
 # Cache starship init to avoid subprocess on every shell launch
-if [[ ! -f "$ZSH_CACHE/starship.zsh" ]] || [[ $(command -v starship) -nt "$ZSH_CACHE/starship.zsh" ]]; then
-  starship init zsh > "$ZSH_CACHE/starship.zsh"
+if (( $+commands[starship] )); then
+  if [[ ! -f "$ZSH_CACHE/starship.zsh" ]] || [[ $commands[starship] -nt "$ZSH_CACHE/starship.zsh" ]]; then
+    starship init zsh > "$ZSH_CACHE/starship.zsh"
+  fi
+  source "$ZSH_CACHE/starship.zsh"
 fi
-source "$ZSH_CACHE/starship.zsh"
