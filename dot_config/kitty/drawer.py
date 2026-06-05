@@ -6,8 +6,11 @@
 # then pulled back to the same edge (and size) when toggled on again. Each tab
 # gets its own independent drawer per edge.
 #
-#   map cmd+r             kitten drawer.py right
-#   map ctrl+grave_accent kitten drawer.py bottom
+# This file is wired up two ways in kitty.conf:
+#   map cmd+r   kitten drawer.py right     # toggle the right drawer
+#   map ctrl+`  kitten drawer.py bottom    # toggle the bottom drawer
+#   watcher     drawer.py                  # on_close reaps a tab's stashed
+#                                          # drawers the moment the tab closes
 import json
 
 from kittens.tui.handler import result_handler
@@ -95,11 +98,40 @@ def _drawer_fraction(layout_state, drawer_win_id):
     return found[0] if found else None
 
 
+def _ensure_splits(boss, win, layout):
+    """Switch the active tab to splits if needed.
+
+    _pin's move_to_screen_edge/bias are no-ops in the stack (zoom) layout, so a
+    drawer summoned while a tab is zoomed would otherwise land unpinned and
+    full-size. Only switch when necessary — calling goto-layout on a tab that is
+    already splits resets its existing biases.
+    """
+    if layout != "splits":
+        _rc(boss, win, "action", "goto_layout", "splits")
+
+
 def _pin(boss, win, match, screen_edge, bias):
     """Focus the drawer, pin it to its screen edge, and size it (splits layout)."""
     _rc(boss, win, "focus-window", match)
     _rc(boss, win, "action", "layout_action", f"move_to_screen_edge {screen_edge}")
     _rc(boss, win, "action", "layout_action", f"bias {bias}")
+
+
+def _reap_orphans(boss, win, ls):
+    """Close drawer windows whose home tab no longer exists.
+
+    A stashed drawer lives in a hidden OS window, so it outlives its home tab.
+    The kitten calls this on each toggle; the on_close watcher calls it shortly
+    after any tab closes.
+    """
+    existing = {t["id"] for osw in ls for t in osw.get("tabs", [])}
+    for _tab, w in _windows(ls):
+        value = (w.get("user_vars") or {}).get(VAR)
+        home = _home_tab(value) if value else None
+        if home is None:
+            continue
+        if home not in existing:
+            _rc(boss, win, "close-window", f"--match=id:{w['id']}")
 
 
 @result_handler(no_ui=True)
@@ -118,23 +150,20 @@ def handle_result(args, result, target_window_id, boss):
 
     win = boss.window_id_map.get(target_window_id)
     ls = _ls(boss, win)
-    existing_tab_ids = {t["id"] for osw in ls for t in osw.get("tabs", [])}
+    _reap_orphans(boss, win, ls)
 
-    # Find this tab's drawer, reaping any orphaned drawers whose home tab is gone.
+    # Find this tab's drawer (orphans, if any, were just closed above).
     drawer = None  # (containing_tab, window) for this tab+edge
+    cur_layout = None
     for containing_tab, w in _windows(ls):
-        value = (w.get("user_vars") or {}).get(VAR)
-        if not value:
-            continue
-        home = _home_tab(value)
-        if home is not None and home not in existing_tab_ids:
-            _rc(boss, win, "close-window", f"--match=id:{w['id']}")
-            continue
-        if value == key:
+        if containing_tab.get("id") == cur_tab_id:
+            cur_layout = containing_tab.get("layout")
+        if (w.get("user_vars") or {}).get(VAR) == key:
             drawer = (containing_tab, w)
 
     if drawer is None:
         # No drawer for this tab+edge yet -> create one at the default size.
+        _ensure_splits(boss, win, cur_layout)
         _rc(boss, win, "launch", f"--location={location}", "--cwd=current", f"--var={VAR}={key}")
         _pin(boss, win, match, screen_edge, default_bias)
         return
@@ -150,5 +179,27 @@ def handle_result(args, result, target_window_id, boss):
     else:
         # Stashed elsewhere -> bring it back and restore its last size (or default).
         bias = _as_bias((w.get("user_vars") or {}).get(SIZE_VAR), default_bias)
+        _ensure_splits(boss, win, cur_layout)
         _rc(boss, win, "detach-window", match, f"--target-tab=id:{cur_tab_id}")
         _pin(boss, win, match, screen_edge, bias)
+
+
+def on_close(boss, window, data):
+    """Global watcher: reap a tab's stashed drawers once that tab closes.
+
+    Fires for every window close. The reap is deferred to the next event-loop
+    tick: issuing remote-control commands while a window is mid-teardown raises
+    (the closing window is briefly half-removed from kitty's state). By the next
+    tick the closed tab is fully gone, so _reap_orphans closes any drawer still
+    homed to it. Without this, a stashed drawer whose tab is closed would linger
+    invisibly until the next drawer keypress.
+    """
+    from kitty.fast_data_types import add_timer
+
+    def reap(_timer_id):
+        try:
+            _reap_orphans(boss, None, _ls(boss, None))
+        except Exception:
+            pass
+
+    add_timer(reap, 0.1, False)
