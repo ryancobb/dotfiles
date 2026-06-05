@@ -50,6 +50,7 @@ if [[ -d "$HOMEBREW_PREFIX" ]]; then
 fi
 
 path=("$HOME/.local/share/mise/shims" $path)
+path=("$HOME/.local/bin" $path)
 
 #######################################################################################################
 # zcomet
