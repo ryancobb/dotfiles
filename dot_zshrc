@@ -62,6 +62,15 @@ fi
 
 source ${ZDOTDIR:-${HOME}}/.zcomet/bin/zcomet.zsh
 
+# vi mode via zsh-vi-mode (ZVM). Its own key-reading engine gives instant Esc
+# AND working multi-key sequences (text objects daw/yiw/ci", surround) — what
+# native KEYTIMEOUT can't do at once. It also handles cursor shape itself.
+# Leave ZVM_KEYTIMEOUT at default (0.4s) so text objects are typeable; instant
+# Esc comes from the separate escape engine. INIT_MODE=sourcing + early load
+# lets later plugins (fzf-tab, autosuggestions, fzf) bind on top of ZVM.
+ZVM_INIT_MODE=sourcing
+zcomet load jeffreytse/zsh-vi-mode
+
 zcomet load zsh-users/zsh-completions
 
 zcomet trigger ssh sunlei/zsh-ssh
@@ -201,8 +210,6 @@ setopt glob_complete      # tab on a glob expands to a completion menu
 
 unsetopt nomatch # run rake task with args with no error
 unsetopt BEEP
-
-bindkey -e
 
 # Cache fzf init to avoid subprocess on every shell launch.
 # NOTE: must stay AFTER `zcomet load Aloxaf/fzf-tab` above — fzf captures the
