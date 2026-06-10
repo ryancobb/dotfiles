@@ -69,6 +69,19 @@ source ${ZDOTDIR:-${HOME}}/.zcomet/bin/zcomet.zsh
 # Esc comes from the separate escape engine. INIT_MODE=sourcing + early load
 # lets later plugins (fzf-tab, autosuggestions, fzf) bind on top of ZVM.
 ZVM_INIT_MODE=sourcing
+
+# Copy yanked text to the macOS system clipboard (ZVM auto-detects pbcopy/pbpaste).
+ZVM_SYSTEM_CLIPBOARD_ENABLED=true
+
+# Visual-selection highlight. ZVM's default is a hardcoded red (#cc0000); use
+# terminal palette indices instead so the selection tracks the active kitty
+# theme (bg=8 = the theme's gray, fg=15 = its bright foreground). For an exact
+# match to kitty's mouse-selection under nordfox, swap in the hex values:
+#   ZVM_VI_HIGHLIGHT_BACKGROUND=#3e4a5b
+#   ZVM_VI_HIGHLIGHT_FOREGROUND=#cdcecf
+ZVM_VI_HIGHLIGHT_BACKGROUND=8
+ZVM_VI_HIGHLIGHT_FOREGROUND=15
+
 zcomet load jeffreytse/zsh-vi-mode
 
 zcomet load zsh-users/zsh-completions
