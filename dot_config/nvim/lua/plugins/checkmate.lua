@@ -9,7 +9,7 @@ return {
         ["<leader>tc"] = { rhs = "<cmd>Checkmate check<CR>", desc = "Set todo item as checked", modes = { "n", "v" } },
         ["<leader>tu"] = { rhs = "<cmd>Checkmate uncheck<CR>", desc = "Set todo item as unchecked", modes = { "n", "v" } },
         ["<leader>t="] = { rhs = "<cmd>Checkmate cycle_next<CR>", desc = "Cycle todo to next state", modes = { "n", "v" } },
-        ["<leader>t-"] = { rhs = "<cmd>Checkmate cycle_previous<CR>", desc = "Cycle todo to previous state", modes = { "n", "v" } },
+        ["<leader>t-"] = { rhs = "<cmd>Checkmate toggle cancelled<CR>", desc = "Set todo as cancelled", modes = { "n", "v" } },
         ["<leader>tn"] = { rhs = "<cmd>Checkmate create<CR>", desc = "Create todo item", modes = { "n", "v" } },
         ["<leader>tr"] = { rhs = "<cmd>Checkmate remove<CR>", desc = "Remove todo marker", modes = { "n", "v" } },
         ["<leader>tR"] = { rhs = "<cmd>Checkmate remove_all_metadata<CR>", desc = "Remove all metadata", modes = { "n", "v" } },
@@ -40,6 +40,11 @@ return {
           markdown = "?",
           type = "incomplete",
         },
+        cancelled = {
+          marker = "[-]",
+          markdown = "-",
+          type = "inactive",
+        },
       },
       style = {
         CheckmateInProgressMainContent = { link = "Keyword" },
@@ -48,6 +53,9 @@ return {
         CheckmateDeferredAdditionalContent = { link = "CheckmateCheckedAdditionalContent" },
         CheckmateNeedsReviewMainContent = { link = "DiagnosticError" },
         CheckmateNeedsReviewAdditionalContent = { link = "DiagnosticError" },
+        CheckmateCancelledMarker = { link = "Comment" },
+        CheckmateCancelledMainContent = { link = "Comment" },
+        CheckmateCancelledAdditionalContent = { link = "Comment" },
       },
       metadata = {
         priority = { key = "<leader>tp" },
