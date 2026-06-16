@@ -18,20 +18,6 @@ return {
     end,
   },
   {
-    "ember-theme/nvim",
-    name = "ember",
-    priority = 1000,
-    config = function()
-      require("ember").setup({
-        variant = "ember-soft",
-        on_highlights = function(hl, theme)
-          hl.RenderMarkdownCodeInline = { bg = theme.ui.base2 }
-          hl.RenderMarkdownCode = { bg = theme.ui.base2 }
-        end,
-      })
-    end,
-  },
-  {
     "sainnhe/everforest",
     priority = 1000,
     init = function()

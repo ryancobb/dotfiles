@@ -23,34 +23,39 @@ return {
         ["<leader>t["] = { rhs = "<cmd>Checkmate metadata jump_previous<CR>", desc = "Previous metadata tag", modes = { "n" } },
       },
       todo_states = {
-        unchecked = { marker = "[ ]" },
-        checked = { marker = "[x]" },
+        -- `marker` is the glyph shown in the buffer; `markdown` is the char kept
+        -- inside the brackets on disk.
+        unchecked = { marker = "▢" },
+        checked = { marker = "✔" },
         in_progress = {
-          marker = "[/]",
+          marker = "◐",
           markdown = "/",
           type = "incomplete",
         },
         deferred = {
-          marker = "[>]",
+          marker = "󰒭",
           markdown = ">",
           type = "inactive",
         },
         needs_review = {
-          marker = "[?]",
+          marker = "󰋗",
           markdown = "?",
           type = "incomplete",
         },
         cancelled = {
-          marker = "[-]",
+          marker = "󰥔",
           markdown = "-",
           type = "inactive",
         },
       },
       style = {
+        CheckmateInProgressMarker = { link = "Conditional" },
         CheckmateInProgressMainContent = { link = "Keyword" },
         CheckmateInProgressAdditionalContent = { link = "Keyword" },
+        CheckmateDeferredMarker = { link = "Comment" },
         CheckmateDeferredMainContent = { link = "CheckmateCheckedMainContent" },
         CheckmateDeferredAdditionalContent = { link = "CheckmateCheckedAdditionalContent" },
+        CheckmateNeedsReviewMarker = { link = "DiagnosticWarn" },
         CheckmateNeedsReviewMainContent = { link = "DiagnosticError" },
         CheckmateNeedsReviewAdditionalContent = { link = "DiagnosticError" },
         CheckmateCancelledMarker = { link = "Comment" },
