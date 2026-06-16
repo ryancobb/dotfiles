@@ -1,0 +1,4 @@
+# Co-managed by the Claude Code runtime + agent environment (model, effortLevel,
+# enabledPlugins, and injected AOE_INSTANCE_ID hooks are rewritten at runtime).
+# Tracking it here caused recurring `chezmoi update` conflicts, so it's unmanaged.
+.claude/settings.json
