@@ -70,11 +70,26 @@ return {
     }
   end,
   config = function(_, opts)
+    -- markview paints link text (MarkviewHyperlink, blue) at Neovim's default
+    -- extmark priority (4096), which beats checkmate's content highlight
+    -- (priority 202). Raising content above 4096 lets each todo state's content
+    -- color win, so links in checked/deferred todos go gray. Unchecked content
+    -- is cleared to {} below, so it sets no fg and active links stay blue.
+    -- Must be set BEFORE setup(): setup highlights open markdown buffers
+    -- immediately, baking the priority into those extmarks.
+    require("checkmate.highlights").PRIORITY.CONTENT = 5000
+
     require("checkmate").setup(opts)
 
     vim.schedule(function()
       vim.api.nvim_set_hl(0, "CheckmateUncheckedMainContent", {})
       vim.api.nvim_set_hl(0, "CheckmateUncheckedAdditionalContent", {})
+
+      -- Use a gray fg for strikethrough'd (checked) content. Deferred links to
+      -- this group, so it inherits the same treatment.
+      local comment_fg = vim.api.nvim_get_hl(0, { name = "Comment", link = false }).fg
+      vim.api.nvim_set_hl(0, "CheckmateCheckedMainContent", { fg = comment_fg, strikethrough = true })
+      vim.api.nvim_set_hl(0, "CheckmateCheckedAdditionalContent", { fg = comment_fg })
     end)
   end,
 }
