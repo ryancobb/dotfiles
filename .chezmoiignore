@@ -1,4 +1,5 @@
-# Co-managed by the Claude Code runtime + agent environment (model, effortLevel,
-# enabledPlugins, and injected AOE_INSTANCE_ID hooks are rewritten at runtime).
-# Tracking it here caused recurring `chezmoi update` conflicts, so it's unmanaged.
-.claude/settings.json
+# The entire ~/.claude dir is co-managed by the Claude Code runtime + agent
+# environment (settings, enabledPlugins, hooks, plugin state, caches, transcripts
+# are all rewritten at runtime). Tracking it caused recurring `chezmoi update`
+# conflicts, so the whole directory is left unmanaged.
+.claude
