@@ -14,10 +14,21 @@ return {
       { "<leader>uM", "<cmd>Markview splitToggle<cr>", desc = "Toggle Markview splitview" },
     },
     opts = function(_, opts)
-      -- Build a "label" (pill) config for every heading level. Colors live in
-      -- the MarkviewHeading*/MarkviewHeading*Corner groups, set by the config
-      -- function below from the active colorscheme.
+      -- Heading levels 1-3 render as colored bands (markview's "icon" style:
+      -- markers concealed, leading icon, line-wide background) so upper-level
+      -- sections separate clearly from body text. Levels 4-6 stay as rounded
+      -- "pill" chips. The bands' left edge is inset to the section's staircase
+      -- indent by the custom renderer below (markview's icon style would start
+      -- the bg at column 0). Colors live in the MarkviewHeading*/
+      -- MarkviewHeading*Corner groups, set by the config function below from
+      -- the active colorscheme.
       local icons = { "󰼏 ", "󰎨 ", "󰼑 ", "󰎲 ", "󰼓 ", "󰎴 " }
+      -- Top N heading levels rendered as bars instead of chips.
+      local bar_levels = 3
+      -- Indent step: spaces of section-content indent per heading level, and
+      -- the matching heading staircase step (so headings and their content
+      -- sit on the same staircase; markview's default would be 1).
+      local shift_width = 2
       -- Rounded "pill" cap glyphs, built from codepoints (U+E0B6 / U+E0B4) so
       -- the private-use characters survive being written to disk.
       local cap_left = string.char(0xEE, 0x82, 0xB6) --
@@ -27,26 +38,36 @@ return {
         -- Only content below the heading line is shifted (the heading itself
         -- is not), matching the old render-markdown skip_heading behavior.
         org_indent = true,
-        org_shift_width = 2, -- spaces of content indent per heading level
-        -- Match the heading-badge indent step to org_shift_width so headings
-        -- and their content sit on the same staircase (default would be 1).
-        shift_width = 2,
+        org_shift_width = shift_width,
+        shift_width = shift_width,
       }
       for i = 1, 6 do
         local hl = "MarkviewHeading" .. i
-        headings["heading_" .. i] = {
-          style = "label",
-          hl = hl,
-          icon = icons[i],
-          icon_hl = hl,
-          padding_left = " ",
-          padding_right = " ",
-          -- Rounded "pill" caps; their fg is the badge bg (set below).
-          corner_left = cap_left,
-          corner_left_hl = hl .. "Corner",
-          corner_right = cap_right,
-          corner_right_hl = hl .. "Corner",
-        }
+        if i <= bar_levels then
+          -- Band style. The custom renderer below insets the bg to the
+          -- staircase indent; this "icon" config is the fallback if that
+          -- renderer is ever removed (full-width band from column 0).
+          headings["heading_" .. i] = {
+            style = "icon",
+            hl = hl,
+            icon = icons[i],
+            icon_hl = hl,
+          }
+        else
+          headings["heading_" .. i] = {
+            style = "label",
+            hl = hl,
+            icon = icons[i],
+            icon_hl = hl,
+            padding_left = " ",
+            padding_right = " ",
+            -- Rounded "pill" caps; their fg is the badge bg (set below).
+            corner_left = cap_left,
+            corner_left_hl = hl .. "Corner",
+            corner_right = cap_right,
+            corner_right_hl = hl .. "Corner",
+          }
+        end
       end
 
       -- Merge into the opts lazy.nvim hands us (don't replace, or markview
@@ -55,6 +76,58 @@ return {
       -- Let checkmate.nvim own todo/checkbox rendering (avoid double-render).
       opts.markdown_inline =
         vim.tbl_deep_extend("force", opts.markdown_inline or {}, { checkboxes = { enable = false } })
+
+      -- Custom atx-heading renderer (markview's supported `renderers` hook,
+      -- keyed by node class). markview's built-in "icon" style paints the band
+      -- background across the whole screen line from column 0, which ignores
+      -- the staircase indent. For the bar levels we re-render so the band
+      -- begins at the indent (it nests under its section); chip levels are
+      -- delegated to the built-in renderer untouched.
+      opts.renderers = vim.tbl_deep_extend("force", opts.renderers or {}, {
+        markdown_atx_heading = function(buffer, item)
+          local md_render = require("markview.renderers.markdown")
+          local level = #item.marker
+          if level > bar_levels then
+            return md_render.atx_heading(buffer, item)
+          end
+
+          local hl = "MarkviewHeading" .. level
+          local range = item.range
+          local text1 = item.text[1] or ""
+          local indent = string.rep(" ", (level - 1) * shift_width)
+
+          -- Conceal the "###" marker; draw the staircase indent (no highlight,
+          -- so it stays outside the band), a rounded left cap (its fg is the
+          -- band bg, matching the chips), then the colored icon.
+          vim.api.nvim_buf_set_extmark(buffer, md_render.ns, range.row_start, range.col_start, {
+            undo_restore = false,
+            invalidate = true,
+            end_col = range.col_start + #item.marker + (#text1 > #item.marker and 1 or 0),
+            conceal = "",
+            virt_text_pos = "inline",
+            hl_mode = "combine",
+            virt_text = {
+              { indent },
+              { cap_left, hl .. "Corner" },
+              { icons[level] or "", hl },
+            },
+          })
+
+          -- Band background. The range runs to the start of the next line so it
+          -- covers this line's EOL; hl_eol then fills the band to the window
+          -- edge (a full bar). Starting at the (concealed) marker means the
+          -- visible band begins right at the inline icon above.
+          vim.api.nvim_buf_set_extmark(buffer, md_render.ns, range.row_start, range.col_start, {
+            undo_restore = false,
+            invalidate = true,
+            end_row = range.row_start + 1,
+            end_col = 0,
+            hl_group = hl,
+            hl_eol = true,
+          })
+        end,
+      })
+
       return opts
     end,
     config = function(_, opts)
