@@ -1,3 +1,9 @@
+-- Private markview checkbox "state" key used to tag checkmate todo lines (see
+-- markview.lua opts/config below). LuaJIT has no \u escape, so build the "§"
+-- byte sequence directly; the exact glyph is irrelevant, it just has to be a
+-- key that won't collide with a real `[x]`-style checkbox char.
+local checkmate_state = string.char(0xC2, 0xA7) -- §
+
 return {
   -- In-editor markdown renderer (replaces render-markdown.nvim).
   {
@@ -73,9 +79,24 @@ return {
       -- Merge into the opts lazy.nvim hands us (don't replace, or markview
       -- options from LazyVim/other specs would be dropped).
       opts.markdown = vim.tbl_deep_extend("force", opts.markdown or {}, { headings = headings })
-      -- Let checkmate.nvim own todo/checkbox rendering (avoid double-render).
-      opts.markdown_inline =
-        vim.tbl_deep_extend("force", opts.markdown_inline or {}, { checkboxes = { enable = false } })
+      -- checkmate.nvim owns todo glyph rendering. In its `*.md` buffers the
+      -- `[ ]` brackets are already rewritten to glyphs, so markview's inline
+      -- checkbox renderer never fires there and there's no double-render even
+      -- with checkboxes enabled. We must NOT disable checkboxes: the list-item
+      -- renderer's `conceal_on_checkboxes` (which hides the `- ` marker) reads
+      -- the checkbox state via a spec lookup that returns nil when disabled, so
+      -- disabling it would break the conceal we rely on below.
+      --
+      -- `checkmate_state` is a private checkbox state we tag checkmate todo
+      -- lines with (see the parser wrap below). It carries no `scope_hl`, so
+      -- markview won't tint the todo content (checkmate handles that), and an
+      -- empty `text` means markview draws nothing for it (checkmate's glyph is
+      -- the only marker shown).
+      opts.markdown_inline = vim.tbl_deep_extend("force", opts.markdown_inline or {}, {
+        checkboxes = {
+          [checkmate_state] = { text = "" },
+        },
+      })
 
       -- Custom atx-heading renderer (markview's supported `renderers` hook,
       -- keyed by node class). markview's built-in "icon" style paints the band
@@ -143,6 +164,55 @@ return {
         if range.org_end and range.row_end and range.org_end >= range.row_end then
           range.org_end = range.row_end - 1
         end
+      end
+
+      -- checkmate.nvim rewrites the buffer, turning `- [ ]` into `- ▢` (the
+      -- bracketed checkbox is gone). markview then sees a plain list item and
+      -- renders its bullet over the `-`, so a todo shows as "● ▢". Detect those
+      -- lines (list marker followed by a checkmate marker glyph) and tag them
+      -- with our private checkbox state. That trips markview's built-in
+      -- `conceal_on_checkboxes`, which hides the `- ` marker, leaving just
+      -- checkmate's glyph ("▢ task"). Bullets on non-todo lists are untouched.
+      local checkmate_markers -- set of glyphs, resolved lazily once checkmate loads
+      local function is_checkmate_todo(line)
+        if not checkmate_markers then
+          local ok, cfg = pcall(require, "checkmate.config")
+          if not (ok and cfg.options and cfg.options.todo_states) then
+            return false
+          end
+          checkmate_markers = {}
+          for _, def in pairs(cfg.options.todo_states) do
+            if def.marker then
+              checkmate_markers[def.marker] = true
+            end
+          end
+        end
+        local content = line:match("^[%>%s]*[%-%+%*]%s+(.+)$") or line:match("^[%>%s]*%d+[%.%)]%s+(.+)$")
+        if not content then
+          return false
+        end
+        for marker in pairs(checkmate_markers) do
+          local after = content:sub(#marker + 1, #marker + 1)
+          if content:sub(1, #marker) == marker and (after == "" or after == " ") then
+            return true
+          end
+        end
+        return false
+      end
+
+      local orig_insert = md_parser.insert
+      md_parser.insert = function(data)
+        if
+          type(data) == "table"
+          and data.class == "markdown_list_item"
+          and not data.checkbox
+          and data.text
+          and data.text[1]
+          and is_checkmate_todo(data.text[1])
+        then
+          data.checkbox = checkmate_state
+        end
+        return orig_insert(data)
       end
 
       require("markview").setup(opts)
