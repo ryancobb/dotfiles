@@ -79,8 +79,11 @@ return {
       --   [ ] unchecked   [x] done   [-] in progress   [>] deferred
       -- `scope_hl = false` leaves the line text unstyled; markview's defaults
       -- otherwise strike through `[-]`. Done items fade via the strikethrough
-      -- group. See lua/lib/checkbox.lua + after/ftplugin/markdown.lua for the
-      -- keymaps that set these states.
+      -- group, re-applied at a higher extmark priority in `config` below so that
+      -- links/code inside a done item fade too (markview applies it at the
+      -- default priority, which inline highlights tie and win). See
+      -- lua/lib/checkbox.lua + after/ftplugin/markdown.lua for the keymaps that
+      -- set these states.
       opts.markdown_inline = vim.tbl_deep_extend("force", opts.markdown_inline or {}, {
         checkboxes = {
           enable = true,
@@ -156,6 +159,39 @@ return {
         orig_section(buffer, node, text, range)
         if range.org_end and range.row_end and range.org_end >= range.row_end then
           range.org_end = range.row_end - 1
+        end
+      end
+
+      -- Make a done item's fade win over inline highlights. markview draws the
+      -- checkbox `scope_hl` (the gray strikethrough) as a buffer highlight at
+      -- the default extmark priority (4096); inline highlights (links, inline
+      -- code, emphasis) sit at that same priority and, being drawn last, win the
+      -- tie, so a link inside a done todo keeps its color instead of fading.
+      -- For a checked item, list_item's only buffer (`hl_group`) extmarks are
+      -- the scope fade (markers/indent are conceal + virt_text), so wrap the
+      -- renderer and bump those marks just above the inline priority. This reads
+      -- nothing about markview's column layout, so it can't drift out of sync.
+      local md_render = require("markview.renderers.markdown")
+      if not md_render.__rc_done_fade_patched then
+        md_render.__rc_done_fade_patched = true
+        local orig_list_item = md_render.list_item
+        local set_extmark = vim.api.nvim_buf_set_extmark
+        md_render.list_item = function(buffer, item)
+          if item.checkbox ~= "x" and item.checkbox ~= "X" then
+            return orig_list_item(buffer, item)
+          end
+          -- Raise the priority of the fade extmarks markview creates below.
+          vim.api.nvim_buf_set_extmark = function(buf, ns, row, col, o)
+            if o and o.hl_group and o.priority == nil then
+              o.priority = 4097 -- just above markview's default inline priority
+            end
+            return set_extmark(buf, ns, row, col, o)
+          end
+          local ok, err = pcall(orig_list_item, buffer, item)
+          vim.api.nvim_buf_set_extmark = set_extmark
+          if not ok then
+            error(err)
+          end
         end
       end
 
