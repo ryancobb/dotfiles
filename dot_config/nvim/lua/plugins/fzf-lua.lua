@@ -38,5 +38,19 @@ return {
       desc = "Find Files (Git Root)",
     },
     { "<leader>fR", "<cmd>FzfLua oldfiles<cr>", desc = "Recent (All)" },
+    {
+      "<leader>nf",
+      function()
+        require("fzf-lua").files({ cwd = vim.fn.expand("~/Projects/vaults/work") })
+      end,
+      desc = "Find note (vault)",
+    },
+    {
+      "<leader>ng",
+      function()
+        require("fzf-lua").live_grep({ cwd = vim.fn.expand("~/Projects/vaults/work") })
+      end,
+      desc = "Grep notes (vault)",
+    },
   },
 }
