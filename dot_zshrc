@@ -42,11 +42,6 @@ if [[ -d "$HOMEBREW_PREFIX" ]]; then
 
   # brew version of git autocomplete is bad, remove it (re-run after brew upgrade)
   [[ -e "$HOMEBREW_PREFIX/share/zsh/site-functions/_git" ]] && command rm -f "$HOMEBREW_PREFIX/share/zsh/site-functions/_git"
-
-  if [[ ! -f "$ZSH_CACHE/patina.zsh" ]] || [[ "$HOMEBREW_PREFIX/bin/zsh-patina" -nt "$ZSH_CACHE/patina.zsh" ]]; then
-    "$HOMEBREW_PREFIX/bin/zsh-patina" activate > "$ZSH_CACHE/patina.zsh"
-  fi
-  source "$ZSH_CACHE/patina.zsh"
 fi
 
 path=("$HOME/.local/share/mise/shims" $path)
@@ -94,6 +89,9 @@ zcomet load Aloxaf/fzf-tab
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
 zcomet load zsh-users/zsh-autosuggestions
+
+# syntax highlighting: must load LAST, after all other widget-wrapping plugins
+zcomet load zdharma-continuum/fast-syntax-highlighting
 
 # fzf-tab config (after compinit is fine)
 zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
