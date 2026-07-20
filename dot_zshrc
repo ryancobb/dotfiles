@@ -64,7 +64,7 @@ source ${ZDOTDIR:-${HOME}}/.zcomet/bin/zcomet.zsh
 
 zcomet load zsh-users/zsh-completions
 
-zcomet trigger ssh sunlei/zsh-ssh
+zcomet load sunlei/zsh-ssh # eager, not triggered: a trigger wraps `ssh` in a zcomet function that breaks in non-interactive shell snapshots (e.g. Claude Code)
 zcomet load agkozak/zsh-z # eager, not triggered: installs its hook so dir tracking starts at shell launch
 
 # completion config (before compinit)
