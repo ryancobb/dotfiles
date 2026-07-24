@@ -240,6 +240,51 @@ return {
           vim.schedule(set_heading_hls)
         end,
       })
+
+      -- Re-render on disk reload. markview's own FileChangedShellPost handler
+      -- only re-sets the tree-sitter query (autocmds.file_changed -> set_query);
+      -- it never re-renders. A reload fires no TextChanged, so the old
+      -- decorations stay frozen over stale line ranges (new content is left
+      -- unrendered) until the buffer is next edited. Both events cover the
+      -- reload paths (autoread/checktime -> FileChangedShellPost, explicit :e ->
+      -- BufReadPost); on initial open the buffer isn't attached yet, so the
+      -- guard skips it and markview's own open path renders. render() is
+      -- idempotent, so a double-schedule when both fire is harmless. Scheduled
+      -- so it runs after markview's handler restarts tree-sitter.
+      vim.api.nvim_create_autocmd({ "FileChangedShellPost", "BufReadPost" }, {
+        group = vim.api.nvim_create_augroup("markview_reload_render", { clear = true }),
+        callback = function(args)
+          local ok, mv_state = pcall(require, "markview.state")
+          if not ok or not mv_state.buf_attached(args.buf) then
+            return
+          end
+          vim.schedule(function()
+            -- Re-check state at render time: between the event and this tick
+            -- the buffer can be wiped or detached (e.g. a reload that changes
+            -- the detected filetype triggers markview's own detach+clear, and
+            -- rendering after that would leave permanent stale decorations).
+            if
+              not mv_state.buf_safe(args.buf)
+              or not mv_state.enabled()
+              or not mv_state.buf_attached(args.buf)
+            then
+              return
+            end
+            -- Route like markview's cursor handler (autocmds.cursor): a
+            -- splitview source buffer stays undecorated (the preview window
+            -- is refreshed instead), and outside preview modes markview
+            -- keeps buffers cleared rather than rendered.
+            local mv_actions = require("markview.actions")
+            if args.buf == mv_state.get_splitview_source() then
+              mv_actions.splitview_render()
+            elseif mv_actions.in_preview_mode() then
+              mv_actions.render(args.buf)
+            else
+              mv_actions.clear(args.buf)
+            end
+          end)
+        end,
+      })
     end,
   },
 
