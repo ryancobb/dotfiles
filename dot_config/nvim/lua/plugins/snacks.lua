@@ -19,6 +19,15 @@ return {
       },
     },
     dashboard = { enabled = false },
+    -- Collapse the gutter to one sign slot on the right. The default splits
+    -- marks/diagnostics left and fold/git right, but each slot is padded to two
+    -- cells even when empty, and with a %! statuscolumn nvim sizes the column to
+    -- the rendered content, so the idle left slot costs two columns everywhere.
+    -- First match wins, so a fold or git sign masks a diagnostic on the same line.
+    statuscolumn = {
+      left = {},
+      right = { "fold", "git", "sign", "mark" },
+    },
     picker = {
       matcher = {
         frecency = true,
