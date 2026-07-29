@@ -2,4 +2,13 @@
 # environment (settings, enabledPlugins, hooks, plugin state, caches, transcripts
 # are all rewritten at runtime). Tracking it caused recurring `chezmoi update`
 # conflicts, so the whole directory is left unmanaged.
-.claude
+#
+# Exception: ~/.claude/rules/*.md holds portable, machine-independent instructions
+# that Claude Code loads at user scope. Nothing rewrites them at runtime, so they
+# are safe to track. Re-including a child needs the parent glob (`.claude/*`) and
+# an explicit un-ignore of each directory on the way down; a bare `.claude` ignore
+# cannot be negated.
+.claude/*
+!.claude/rules
+.claude/rules/*
+!.claude/rules/*.md
