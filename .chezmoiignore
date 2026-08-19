@@ -3,12 +3,12 @@
 # are all rewritten at runtime). Tracking it caused recurring `chezmoi update`
 # conflicts, so the whole directory is left unmanaged.
 #
-# Exception: ~/.claude/rules/*.md holds portable, machine-independent instructions
-# that Claude Code loads at user scope. Nothing rewrites them at runtime, so they
-# are safe to track. Re-including a child needs the parent glob (`.claude/*`) and
-# an explicit un-ignore of each directory on the way down; a bare `.claude` ignore
-# cannot be negated.
+# Exception: ~/.claude/output-styles/*.md holds portable, machine-independent
+# output styles that Claude Code loads at user scope. Nothing rewrites them at
+# runtime, so they are safe to track. Re-including a child needs the parent glob
+# (`.claude/*`) and an explicit un-ignore of each directory on the way down; a
+# bare `.claude` ignore cannot be negated.
 .claude/*
-!.claude/rules
-.claude/rules/*
-!.claude/rules/*.md
+!.claude/output-styles
+.claude/output-styles/*
+!.claude/output-styles/*.md
