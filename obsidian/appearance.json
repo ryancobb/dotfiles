@@ -1,0 +1,7 @@
+{
+  "cssTheme": "Obsidian Nord",
+  "enabledCssSnippets": [
+    "active-pane",
+    "ghostty-terminal"
+  ]
+}

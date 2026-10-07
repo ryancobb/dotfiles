@@ -1,0 +1,22 @@
+/* Dim the panes that are not active, as unfocused-split-opacity does in ~/.config/ghostty/config. Only the main
+   area and the Ghostty terminal: the file explorer and other sidebar tabs are not active most of the time. */
+.workspace-split.mod-root .workspace-leaf:not(.mod-active),
+.workspace-leaf:not(.mod-active):has(> .workspace-leaf-content[data-type="ghostty-terminal"]) {
+  opacity: 0.65;
+}
+
+.workspace-leaf {
+  transition: opacity 120ms ease-out;
+}
+
+/* A thin border on the active pane, in split-divider-color from the Ghostty config. It is a layer over the pane,
+   because the note and the terminal fill their panes with solid backgrounds that cover an inset border. */
+.workspace-split.mod-root .workspace-leaf.mod-active::after,
+.workspace-leaf.mod-active:has(> .workspace-leaf-content[data-type="ghostty-terminal"])::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  border: 1px solid rgba(129, 161, 193, 0.6);
+  pointer-events: none;
+}

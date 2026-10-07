@@ -12,3 +12,11 @@
 !.claude/output-styles
 .claude/output-styles/*
 !.claude/output-styles/*.md
+
+# Obsidian rewrites its config at runtime (settings, plugin data, layout), so
+# the real files live in obsidian/ in the source dir and chezmoi never copies
+# them. dot_config/symlink_obsidian-shared.tmpl links ~/.config/obsidian-shared
+# to that folder, and each vault's .obsidian is a symlink to
+# ~/.config/obsidian-shared. Changes made in Obsidian land in this repo.
+obsidian
+obsidian/**

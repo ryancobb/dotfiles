@@ -1,0 +1,14 @@
+{
+  "workspace:split-horizontal": [
+    {
+      "modifiers": ["Mod", "Shift"],
+      "key": "S"
+    }
+  ],
+  "workspace:split-vertical": [
+    {
+      "modifiers": ["Mod", "Shift"],
+      "key": "V"
+    }
+  ]
+}

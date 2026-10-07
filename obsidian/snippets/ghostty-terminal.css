@@ -1,0 +1,27 @@
+/* The Ghostty Terminal plugin paints its container a fixed #1e1e2e, which shows in the padding around the
+   terminal. Use the background from ghostty.config instead; keep the two the same. */
+.workspace-leaf-content[data-type="ghostty-terminal"] .view-content.ghostty-container {
+  background: #2e3440;
+}
+
+/* Each terminal split in a sidebar is a tab group with a full 40px row of tab icons. Shrink the row of a group
+   that holds only terminals. A group with other tabs keeps its row to switch between them, and the top group keeps
+   its row, which lines up with the window's title bar. */
+.mod-sidedock .workspace-tabs:not(.mod-top):not(:has(.workspace-leaf-content:not([data-type="ghostty-terminal"]))) {
+  --header-height: 16px;
+
+  & .workspace-tab-header-container-inner {
+    margin-top: 0;
+    padding-top: 0;
+  }
+
+  & .workspace-tab-header-inner {
+    padding-block: 0;
+  }
+
+  /* the size main-area tabs use, so the icon fits the row */
+  & .workspace-tab-header-inner-icon {
+    --icon-size: var(--icon-xs);
+    --icon-stroke: var(--icon-xs-stroke-width);
+  }
+}
