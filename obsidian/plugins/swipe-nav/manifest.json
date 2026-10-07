@@ -1,0 +1,9 @@
+{
+  "id": "swipe-nav",
+  "name": "Swipe Nav",
+  "version": "0.1.0",
+  "minAppVersion": "1.5.7",
+  "description": "A two-finger trackpad swipe goes back or forward in the pane under the pointer, as in Safari.",
+  "author": "rcobb",
+  "isDesktopOnly": true
+}
