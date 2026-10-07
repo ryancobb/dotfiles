@@ -9,6 +9,13 @@
   transition: opacity 120ms ease-out;
 }
 
+/* A dimmed pane blends with the color behind it. Behind the terminal is the sidebar, in background-secondary, so
+   the terminal gets lighter. Behind a note is the main area, in background-primary, the same color as the note.
+   Put background-secondary behind the notes too, so that a dimmed note gets the same background as the terminal. */
+.workspace-split.mod-root .workspace-tab-container {
+  background-color: var(--background-secondary);
+}
+
 /* A thin border on the active pane, in split-divider-color from the Ghostty config. It is a layer over the pane,
    because the note and the terminal fill their panes with solid backgrounds that cover an inset border. */
 .workspace-split.mod-root .workspace-leaf.mod-active::after,
