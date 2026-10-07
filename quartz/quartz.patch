@@ -1,0 +1,68 @@
+diff --git a/quartz/build.ts b/quartz/build.ts
+index 3d73641..c8d9b2a 100644
+--- a/quartz/build.ts
++++ b/quartz/build.ts
+@@ -354,6 +354,11 @@ async function rebuild(changes: ChangeEvent[], clientRefresh: () => void, buildD
+     )
+     console.log(styleText("green", `Done rebuilding in ${perf.timeSince()}`))
+     changes.splice(0, numChangesInBuild)
++    // Local patch: upstream never clears this map, so each rebuild redoes every
++    // change since the server started, and one failed change fails them all.
++    for (const fp of Object.keys(changesSinceLastBuild)) {
++      delete changesSinceLastBuild[fp as FilePath]
++    }
+     clientRefresh()
+   } finally {
+     release()
+diff --git a/quartz/cli/handlers.js b/quartz/cli/handlers.js
+index 6d4119c..0fd55fe 100644
+--- a/quartz/cli/handlers.js
++++ b/quartz/cli/handlers.js
+@@ -454,6 +454,13 @@ export async function handleBuild(argv) {
+ 
+     await build(clientRefresh)
+     const server = http.createServer(async (req, res) => {
++      // Local patch: a page on another site can point its own name at 127.0.0.1
++      // (DNS rebinding) and read the vault, so serve only the local host names.
++      if (!/^(localhost|127\.0\.0\.1)(:\d+)?$/.test(req.headers.host ?? "")) {
++        res.writeHead(403)
++        res.end()
++        return
++      }
+       if (argv.baseDir && !req.url?.startsWith(argv.baseDir)) {
+         console.log(
+           styleText(
+@@ -562,8 +569,14 @@ export async function handleBuild(argv) {
+       }
+       throw err
+     })
+-    server.listen(argv.port)
+-    const wss = new WebSocketServer({ port: argv.wsPort })
++    // Local patch: listen on 127.0.0.1 only (upstream shares the vault with the
++    // network), and take WebSocket clients from the local site only.
++    server.listen(argv.port, "127.0.0.1")
++    const wss = new WebSocketServer({
++      port: argv.wsPort,
++      host: "127.0.0.1",
++      verifyClient: ({ origin }) => /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin ?? ""),
++    })
+     wss.on("error", (err) => {
+       if (err.code === "EADDRINUSE") {
+         console.error(
+diff --git a/quartz/plugins/emitters/assets.ts b/quartz/plugins/emitters/assets.ts
+index e57707e..60374df 100644
+--- a/quartz/plugins/emitters/assets.ts
++++ b/quartz/plugins/emitters/assets.ts
+@@ -61,7 +61,11 @@ export const Assets: QuartzEmitterPlugin = () => {
+         } else if (changeEvent.type === "delete") {
+           const name = slugifyFilePath(changeEvent.path)
+           const dest = joinSegments(ctx.argv.output, name) as FilePath
+-          await fs.promises.unlink(dest)
++          // Local patch: a delete can come again (or for a file that was never
++          // copied); a missing copy must not fail the rebuild.
++          await fs.promises.unlink(dest).catch((err) => {
++            if (err.code !== "ENOENT") throw err
++          })
+         }
+       }
+     },

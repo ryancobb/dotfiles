@@ -11,7 +11,11 @@ configuration:
   baseUrl: localhost:8080
   ignorePatterns:
     # The file watcher matches whole paths, so a folder needs /** to ignore
-    # the files in it (planner/state.json changes many times a day).
+    # the files in it (planner/state.json changes many times a day). Its
+    # matcher also skips dot segments, so dot files and folders need their own
+    # patterns (cargo writes tools/planner/target/.fingerprint/).
+    - "**/.*"
+    - "**/.*/**"
     - "**/private/**"
     - "**/templates/**"
     - .claude/**
@@ -285,6 +289,10 @@ plugins:
   # mr-diff (~/.local/bin) saves beside each MR working doc. setup.sh links it
   # into the Quartz clone.
   - source: ./mr-diff
+    enabled: true
+  # Local plugin in ~/.config/quartz-vault/graph-vendor/dist: pinned d3 and
+  # pixi.js for the graph, which setup.sh points away from jsdelivr.
+  - source: ./graph-vendor
     enabled: true
   - source: "@quartz-community/obsidian-plugin-excalidraw"
     enabled: false

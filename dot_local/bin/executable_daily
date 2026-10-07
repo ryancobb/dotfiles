@@ -3,7 +3,8 @@
 # local Quartz site renders it. Starts the Quartz server first when it is not
 # running, and `mr-diff --watch`, which fetches the MR diffs that the site
 # draws under the MR working docs. With no date, opens today's plan, or the
-# newest plan when "plan" has not written today's yet.
+# newest plan when "plan" has not written today's yet. "Today" is the
+# planner's day, in America/Los_Angeles.
 #
 #   daily               today's plan in this pane (terminal-browser)
 #   daily 2026-10-06    that day's plan
@@ -13,6 +14,7 @@ set -euo pipefail
 
 vault="${PLANNER_VAULT:-$HOME/Projects/vaults/work}"
 quartz="$HOME/.local/share/quartz"
+patch="$HOME/.config/quartz-vault/quartz.patch"
 port=8080
 log="$HOME/.local/state/quartz-vault.log"
 
@@ -23,18 +25,21 @@ usage() {
 
 print_only=false
 restart=false
-day=$(date +%F)
+day=$(TZ=America/Los_Angeles date +%F)
+asked_day=false
 for arg in "$@"; do
   case "$arg" in
     --url) print_only=true ;;
     --restart) restart=true ;;
-    [0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]) day=$arg ;;
+    [0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]) day=$arg asked_day=true ;;
     *) usage ;;
   esac
 done
 
+# A port probe, not a request: the server holds every request until a rebuild
+# ends, which can take longer than a request timeout.
 server_up() {
-  curl -s -o /dev/null --max-time 1 "http://127.0.0.1:$port/"
+  nc -z 127.0.0.1 "$port" 2>/dev/null
 }
 
 # A server that started before the localhost patch listens on all interfaces
@@ -52,9 +57,13 @@ fi
 
 if ! server_up; then
   # Upstream Quartz listens on all interfaces, which shares the vault with the
-  # network; setup.sh patches it to 127.0.0.1.
-  if ! grep -q 'server.listen(argv.port, "127.0.0.1")' "$quartz/quartz/cli/handlers.js" 2>/dev/null; then
-    echo "daily: Quartz is missing the localhost patch; run ~/.config/quartz-vault/setup.sh" >&2
+  # network; setup.sh applies quartz.patch, which binds it to 127.0.0.1.
+  if ! git -C "$quartz" apply --reverse --check "$patch" 2>/dev/null; then
+    echo "daily: Quartz is missing quartz.patch; run ~/.config/quartz-vault/setup.sh" >&2
+    exit 1
+  fi
+  if grep -q 'cdn\.jsdelivr\.net' "$quartz/node_modules/@quartz-community/graph/dist/index.js" 2>/dev/null; then
+    echo "daily: the graph loads its scripts from jsdelivr; run ~/.config/quartz-vault/setup.sh" >&2
     exit 1
   fi
   echo "daily: starting the Quartz server (about 15 s)..." >&2
@@ -74,6 +83,10 @@ fi
 shopt -s nullglob
 plans=("$vault"/weeklies/*/"$day"-daily-plan.md)
 if ((${#plans[@]} == 0)); then
+  if $asked_day; then
+    echo "daily: no plan for $day" >&2
+    exit 1
+  fi
   all=("$vault"/weeklies/*/*-daily-plan.md)
   ((${#all[@]})) || { echo "daily: no daily plans in $vault/weeklies" >&2; exit 1; }
   plans=("${all[${#all[@]} - 1]}")

@@ -11,8 +11,11 @@ set -euo pipefail
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 quartz="$HOME/.local/share/quartz"
 vault="${PLANNER_VAULT:-$HOME/Projects/vaults/work}"
-# The Quartz commit that this config and the patch below were tested on.
+# The Quartz commit that this config and quartz.patch were tested on.
 pin=97a2d05f80c4c50534959b1d0d41cc4b3895625e
+# Local changes to upstream Quartz; each hunk says why. `daily` refuses to
+# start a server without them.
+patch="$here/quartz.patch"
 
 fail() {
   echo "setup.sh: $*" >&2
@@ -29,10 +32,12 @@ if [[ ! -d $quartz/.git ]]; then
   git clone --quiet https://github.com/jackyzha0/quartz.git "$quartz"
 fi
 cd "$quartz"
+patched=$(git apply --numstat "$patch" | cut -f3)
 if [[ $(git rev-parse HEAD) != "$pin" ]]; then
   git cat-file -e "$pin^{commit}" 2>/dev/null || git fetch --quiet origin
   # Undo the edits that this script and `plugin install` make; both run again below.
-  git checkout --quiet -- package.json package-lock.json quartz/cli/handlers.js quartz/styles/custom.scss
+  # shellcheck disable=SC2086 # one path per word
+  git checkout --quiet -- package.json package-lock.json quartz/styles/custom.scss $patched
   git checkout --quiet "$pin"
 fi
 # npm ci deletes node_modules, so it runs only for a new pin.
@@ -48,21 +53,30 @@ if [[ ! -L content ]]; then
 fi
 ln -sf "$here/quartz.config.yaml" quartz.config.yaml
 ln -sf "$here/custom.scss" quartz/styles/custom.scss
-# The config loads these local plugins as ./vault-keys and ./mr-diff.
+# The config loads these local plugins as ./vault-keys, ./mr-diff, and
+# ./graph-vendor.
 ln -sfn "$here/vault-keys" vault-keys
 ln -sfn "$here/mr-diff" mr-diff
+ln -sfn "$here/graph-vendor" graph-vendor
 npx quartz plugin install --from-config
 
-# Upstream listens on all interfaces, which shares the vault with the network.
-listen='server.listen(argv.port, "127.0.0.1")'
-ws='new WebSocketServer({ port: argv.wsPort, host: "127.0.0.1" })'
+# The graph loads d3 and pixi.js from jsdelivr, at floating versions, into the
+# vault's origin. Point it at the pinned copies that graph-vendor serves.
+graph=node_modules/@quartz-community/graph/dist
 sed -i '' \
-  -e "s/server\.listen(argv\.port)\$/$listen/" \
-  -e "s/new WebSocketServer({ port: argv\.wsPort })/$ws/" \
-  quartz/cli/handlers.js
-grep -qF "$listen" quartz/cli/handlers.js ||
-  fail "could not bind the server to 127.0.0.1; the listen line in quartz/cli/handlers.js changed upstream"
-grep -qF "$ws" quartz/cli/handlers.js ||
-  fail "could not bind the WebSocket server to 127.0.0.1; its line in quartz/cli/handlers.js changed upstream"
+  -e 's#https://cdn\.jsdelivr\.net/npm/d3@7/dist/d3\.min\.js#/static/graph-vendor/d3.min.js#g' \
+  -e 's#https://cdn\.jsdelivr\.net/npm/pixi\.js@8/dist/pixi\.js#/static/graph-vendor/pixi.min.js#g' \
+  "$graph/index.js" "$graph/components/index.js"
+if grep -q 'cdn\.jsdelivr\.net' "$graph/index.js" "$graph/components/index.js" ||
+  ! grep -qF '/static/graph-vendor/pixi.min.js' "$graph/index.js"; then
+  fail "the graph's script loader changed upstream; update the graph lines in setup.sh"
+fi
+
+# An older setup.sh patched these files with sed, so start from upstream.
+if ! git apply --reverse --check "$patch" 2>/dev/null; then
+  # shellcheck disable=SC2086 # one path per word
+  git checkout --quiet -- $patched
+  git apply "$patch" || fail "quartz.patch does not apply to Quartz $pin; update the patch"
+fi
 
 echo "Quartz is ready. Run: daily"
