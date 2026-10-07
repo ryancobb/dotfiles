@@ -1,0 +1,246 @@
+/* The MR diff fold under an MR working doc (client.js), in the nordfox
+   colors of custom.scss. diff2html reads its colors from --d2h-dark-*
+   variables that it sets on :root, so the values here on .mr-diff win. */
+.mr-diff {
+  margin: 2rem 0 1rem;
+  border: 1px solid #444c5e;
+  border-radius: 0.5rem;
+  background: #2e3440;
+
+  --d2h-dark-color: #cdcecf;
+  --d2h-dark-bg-color: #2e3440;
+  --d2h-dark-border-color: #444c5e;
+  --d2h-dark-dim-color: #7e8188;
+  --d2h-dark-line-border-color: #39404f;
+  --d2h-dark-file-header-bg-color: #232831;
+  --d2h-dark-file-header-border-color: #444c5e;
+  --d2h-dark-empty-placeholder-bg-color: #2a2f3a;
+  --d2h-dark-empty-placeholder-border-color: #39404f;
+  --d2h-dark-selected-color: #3e4a5b;
+  /* 20% (lines) and 40% (changed words) of the hue over bg1 */
+  --d2h-dark-ins-bg-color: #45504f;
+  --d2h-dark-ins-border-color: #57645b;
+  --d2h-dark-ins-highlight-bg-color: #5d6b5e;
+  --d2h-dark-ins-label-color: #a3be8c;
+  --d2h-dark-del-bg-color: #4b3d48;
+  --d2h-dark-del-border-color: #61444f;
+  --d2h-dark-del-highlight-bg-color: #684651;
+  --d2h-dark-del-label-color: #d06f79;
+  --d2h-dark-change-del-color: #4b3d48;
+  --d2h-dark-change-ins-color: #45504f;
+  --d2h-dark-info-bg-color: #3e4d5a;
+  --d2h-dark-info-border-color: #4b5a6d;
+  --d2h-dark-change-label-color: #ebcb8b;
+  --d2h-dark-moved-label-color: #b48ead;
+}
+
+.mr-diff > summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.9rem;
+  padding: 0.5rem 0.9rem;
+  cursor: pointer;
+  list-style: none;
+  color: #abb1bb;
+}
+.mr-diff > summary::-webkit-details-marker {
+  display: none;
+}
+.mr-diff > summary::before {
+  content: "▸";
+  color: #88c0d0;
+}
+.mr-diff[open] > summary::before {
+  content: "▾";
+}
+.mr-diff[open] > summary {
+  border-bottom: 1px solid #444c5e;
+}
+.mr-diff-title {
+  font-weight: 600;
+  color: #93ccdc;
+}
+.mr-diff-ins {
+  color: #b1d196;
+}
+.mr-diff-del {
+  color: #d06f79;
+}
+.mr-diff-meta {
+  color: #7e8188;
+  font-size: 0.9em;
+}
+.mr-diff-meta code {
+  font-size: 0.95em;
+  padding: 0 0.2rem;
+  background: #39404f;
+}
+.mr-diff-state {
+  padding: 0 0.5rem;
+  border-radius: 0.75rem;
+  font-size: 0.85em;
+  background: #5d5466;
+  color: #c895bf;
+}
+.mr-diff-closed {
+  background: #61444f;
+  color: #d06f79;
+}
+.mr-diff-note {
+  margin: 0.75rem 0.9rem;
+  color: #7e8188;
+}
+
+.mr-diff-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.9rem 0;
+}
+.mr-diff-formats {
+  display: inline-flex;
+  border: 1px solid #444c5e;
+  border-radius: 0.4rem;
+  overflow: hidden;
+}
+.mr-diff-formats button {
+  padding: 0.15rem 0.7rem;
+  border: 0;
+  background: transparent;
+  color: #abb1bb;
+  font: inherit;
+  font-size: 0.85em;
+  cursor: pointer;
+}
+.mr-diff-formats button + button {
+  border-left: 1px solid #444c5e;
+}
+.mr-diff-formats button.is-active {
+  background: #4b5a6d;
+  color: #e5e9f0;
+}
+.mr-diff-bar a {
+  font-size: 0.85em;
+  color: #81a1c1;
+}
+
+.mr-diff-body {
+  padding: 0.5rem 0.9rem 0.9rem;
+}
+
+/* Quartz's base rules for tables, lists, links, and checkboxes. :where keeps
+   these below diff2html's own class rules. */
+.mr-diff-body :where(table, tbody, tr, td, th, ol, ul, li, p) {
+  margin: 0;
+  border: 0;
+  color: inherit;
+  line-height: inherit;
+}
+.mr-diff-body :where(td, th) {
+  padding: 0;
+  min-width: 0;
+}
+.mr-diff-body .d2h-wrapper {
+  font-size: 0.8rem;
+}
+.mr-diff-body .d2h-file-list-wrapper {
+  margin-bottom: 0.75rem;
+}
+.mr-diff-body .d2h-file-list-header {
+  margin-bottom: 0.25rem;
+}
+.mr-diff-body .d2h-file-list > li {
+  padding: 2px 10px;
+  border-bottom-color: #39404f;
+}
+.mr-diff-body .d2h-file-list a.d2h-file-name {
+  font-weight: 400;
+}
+.mr-diff-body .d2h-file-name,
+.mr-diff-body .d2h-file-list .d2h-file-name {
+  font-family: var(--codeFont);
+  color: #cdcecf;
+}
+.mr-diff-body .d2h-code-line,
+.mr-diff-body .d2h-code-side-line,
+.mr-diff-body .d2h-code-linenumber,
+.mr-diff-body .d2h-code-side-linenumber {
+  font-family: var(--codeFont);
+  font-variant-ligatures: none;
+}
+.mr-diff-body .d2h-file-header {
+  font-family: var(--bodyFont);
+  /* A sticky header slides under the fixed #vault-actions bar (vault-keys). */
+  padding-right: 5rem;
+}
+.mr-diff-body input.d2h-file-collapse-input {
+  margin: 0 0.3rem 0 0;
+  transform: none;
+}
+.mr-diff-body .d2h-file-collapse {
+  color: #abb1bb;
+}
+.mr-diff-body .d2h-tag {
+  background: #39404f;
+  border-color: #444c5e;
+}
+
+/* highlight.js tokens, as Shiki's nord theme colors code blocks */
+.mr-diff-body .hljs-comment,
+.mr-diff-body .hljs-quote {
+  color: #60728a;
+  font-style: italic;
+}
+.mr-diff-body .hljs-keyword,
+.mr-diff-body .hljs-selector-tag,
+.mr-diff-body .hljs-literal,
+.mr-diff-body .hljs-doctag {
+  color: #81a1c1;
+}
+.mr-diff-body .hljs-string,
+.mr-diff-body .hljs-regexp,
+.mr-diff-body .hljs-template-tag {
+  color: #a3be8c;
+}
+.mr-diff-body .hljs-number {
+  color: #b48ead;
+}
+.mr-diff-body .hljs-symbol,
+.mr-diff-body .hljs-attr,
+.mr-diff-body .hljs-attribute,
+.mr-diff-body .hljs-property {
+  color: #8fbcbb;
+}
+.mr-diff-body .hljs-title,
+.mr-diff-body .hljs-title.function_,
+.mr-diff-body .hljs-section {
+  color: #88c0d0;
+}
+.mr-diff-body .hljs-title.class_,
+.mr-diff-body .hljs-type,
+.mr-diff-body .hljs-built_in {
+  color: #8fbcbb;
+}
+.mr-diff-body .hljs-variable,
+.mr-diff-body .hljs-params,
+.mr-diff-body .hljs-subst,
+.mr-diff-body .hljs-template-variable {
+  color: #d8dee9;
+}
+.mr-diff-body .hljs-meta,
+.mr-diff-body .hljs-meta .hljs-keyword {
+  color: #5e81ac;
+}
+.mr-diff-body .hljs-tag,
+.mr-diff-body .hljs-name,
+.mr-diff-body .hljs-selector-class,
+.mr-diff-body .hljs-selector-id {
+  color: #81a1c1;
+}
+.mr-diff-body .hljs-punctuation,
+.mr-diff-body .hljs-operator {
+  color: #eceff4;
+}

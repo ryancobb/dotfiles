@@ -1,0 +1,10 @@
+{
+  "name": "mr-diff",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Draws each MR's merge-base diff under its working doc on the local Quartz site",
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.js"
+  }
+}

@@ -277,6 +277,11 @@ plugins:
   # into the Quartz clone.
   - source: ./vault-keys
     enabled: true
+  # Local plugin in ~/.config/quartz-vault/mr-diff/dist: draws the MR diff that
+  # mr-diff (~/.local/bin) saves beside each MR working doc. setup.sh links it
+  # into the Quartz clone.
+  - source: ./mr-diff
+    enabled: true
   - source: "@quartz-community/obsidian-plugin-excalidraw"
     enabled: false
     options:

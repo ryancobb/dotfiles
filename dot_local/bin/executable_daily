@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Open a daily plan from the work vault in the current terminal pane, as the
 # local Quartz site renders it. Starts the Quartz server first when it is not
-# running. With no date, opens today's plan, or the newest plan when "plan"
-# has not written today's yet.
+# running, and `mr-diff --watch`, which fetches the MR diffs that the site
+# draws under the MR working docs. With no date, opens today's plan, or the
+# newest plan when "plan" has not written today's yet.
 #
 #   daily               today's plan in this pane (terminal-browser)
 #   daily 2026-10-06    that day's plan
@@ -61,6 +62,13 @@ if ! server_up; then
   (cd "$quartz" && nohup npx quartz build --serve --port "$port" >"$log" 2>&1 &)
   for _ in $(seq 1 120); do server_up && break; sleep 0.5; done
   server_up || { echo "daily: the server did not start; see $log" >&2; exit 1; }
+fi
+
+# Keep the MR diffs under the working docs current. mr-diff exits at once when
+# a watcher already runs, and the watcher stops after the server stops.
+if command -v mr-diff >/dev/null; then
+  mkdir -p "$(dirname "$log")"
+  (nohup mr-diff --watch >>"$(dirname "$log")/mr-diff.log" 2>&1 &)
 fi
 
 shopt -s nullglob

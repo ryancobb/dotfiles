@@ -1,0 +1,194 @@
+#!/usr/bin/env bash
+# Fetch the diff of each MR that has a working doc in the work vault, for the
+# local Quartz site: the mr-diff plugin draws it under the working doc. The
+# diff is GitLab's raw_diffs, the MR head against its merge base, as the
+# MR's Changes tab shows it. It lands in mr-diff.json in the MR folder, which
+# the vault git-ignores.
+#
+#   mr-diff             one pass over every MR working doc
+#   mr-diff DIR|URL     fetch one MR now (its folder, its working.md, or its URL)
+#   mr-diff --watch     a pass every 10 minutes while the Quartz server runs
+#                       (daily starts it; MR_DIFF_INTERVAL sets the seconds)
+#
+# A pass reads each open or closed MR (one API call; a closed MR can be
+# reopened) and fetches the diff only when the head or the merge base moved,
+# so the open page reloads only for a new diff. A merged MR keeps its last
+# diff and costs no call, as does an MR that GitLab answers with a 404. Both
+# are read again when the working doc's link changes, or with mr-diff DIR|URL.
+set -euo pipefail
+
+vault="${PLANNER_VAULT:-$HOME/Projects/vaults/work}"
+interval="${MR_DIFF_INTERVAL:-600}"
+port=8080
+lockfile="$HOME/.local/state/mr-diff.lock"
+
+work=$(mktemp -d "${TMPDIR:-/tmp}/mr-diff.XXXXXX")
+trap 'rm -rf "$work"' EXIT
+
+log() {
+  printf '%s mr-diff: %s\n' "$(date '+%F %T')" "$*" >&2
+}
+
+usage() {
+  echo "usage: mr-diff [--watch | DIR | URL]" >&2
+  exit 2
+}
+
+# Without --hostname, glab sends the request to the GitLab host of the git
+# repo in the current directory.
+api() {
+  glab api --hostname gitlab.com "$@"
+}
+
+# The `link:` property of a working doc: the MR URL that the planner writes.
+doc_link() {
+  awk 'NR == 1 && $0 != "---" { exit }
+       NR > 1 && $0 == "---" { exit }
+       /^link: / { sub(/^link: */, ""); gsub(/"/, ""); print; exit }' "$1"
+}
+
+# Run a command that prints JSON, and move the output to the file $1. Call it
+# with `|| return`: a failure, such as an MR folder that the planner moved
+# away during the pass, is logged and skips the MR.
+write_json() {
+  local dest=$1
+  shift
+  if "$@" >"$work/out.json" && mv "$work/out.json" "$dest"; then
+    return 0
+  fi
+  log "cannot write $dest"
+  return 1
+}
+
+# Write mr-diff.json for the MR folder $1. With $2 = force, fetch even when
+# the saved diff is current. A failure logs why and skips the MR.
+fetch_one() {
+  local dir=$1 force=${2:-} url project iid out path mr state head base start
+  local old_state="" old_head="" old_base=""
+  url=$(doc_link "$dir/working.md" 2>/dev/null) || return 0
+  [[ $url =~ ^https://gitlab\.com/(.+)/-/merge_requests/([0-9]+)$ ]] || return 0
+  project=${BASH_REMATCH[1]}
+  iid=${BASH_REMATCH[2]}
+  out="$dir/mr-diff.json"
+
+  # A record for another URL (the link changed) counts as no record.
+  if [[ -f $out && $(jq -r '.url // ""' "$out" 2>/dev/null || true) == "$url" ]]; then
+    old_state=$(jq -r '.state // ""' "$out" 2>/dev/null || true)
+    old_head=$(jq -r '.head_sha // ""' "$out" 2>/dev/null || true)
+    old_base=$(jq -r '.base_sha // ""' "$out" 2>/dev/null || true)
+  fi
+  if [[ $force != force && ($old_state == merged || $old_state == not_found) ]]; then
+    return 0
+  fi
+
+  path="projects/${project//\//%2F}/merge_requests/$iid"
+  if ! mr=$(api "$path" 2>"$work/err"); then
+    log "cannot read $url: $(head -c 200 "$work/err")"
+    # A deleted MR, or a project you cannot see: later passes skip it.
+    if grep -q 'HTTP 404' "$work/err"; then
+      write_json "$out" jq -n --arg url "$url" '{url: $url, state: "not_found"}' || return 0
+    fi
+    return 0
+  fi
+  if ! state=$(jq -er '.state' <<<"$mr" 2>/dev/null); then
+    log "cannot read $url: the reply has no state"
+    return 0
+  fi
+  head=$(jq -r '.diff_refs.head_sha // ""' <<<"$mr")
+  base=$(jq -r '.diff_refs.base_sha // ""' <<<"$mr")
+  start=$(jq -r '.diff_refs.start_sha // ""' <<<"$mr")
+
+  if [[ $force != force && -n $old_state && $head == "$old_head" && $base == "$old_base" ]]; then
+    # The same diff. Save a merge, a close, or a reopen.
+    if [[ $state != "$old_state" ]]; then
+      write_json "$out" jq --arg state "$state" '.state = $state' "$out" || return 0
+    fi
+    return 0
+  fi
+
+  if ! api "$path/raw_diffs" >"$work/diff" 2>"$work/err"; then
+    log "cannot fetch the diff of $url: $(head -c 200 "$work/err")"
+    return 0
+  fi
+  write_json "$out" jq -n \
+    --arg url "$url" --arg project "$project" --argjson iid "$iid" --arg state "$state" \
+    --arg head "$head" --arg base "$base" --arg start "$start" --arg at "$(date -u +%FT%TZ)" \
+    --rawfile diff "$work/diff" \
+    '{url: $url, project: $project, iid: $iid, state: $state, head_sha: $head,
+      base_sha: $base, start_sha: $start, fetched_at: $at, diff: $diff}' || return 0
+  log "fetched $project!$iid at ${head:0:8}"
+}
+
+pass() {
+  local doc
+  # notes/<project>/mr/<folder>/working.md; notes/archive sits one level deeper.
+  for doc in "$vault"/notes/*/mr/*/working.md; do
+    if [[ -f $doc ]]; then
+      fetch_one "$(dirname "$doc")"
+    fi
+  done
+}
+
+server_up() {
+  curl -s -o /dev/null --max-time 2 "http://127.0.0.1:$port/"
+}
+
+watch() {
+  # One watcher at a time. lockf holds the lock while the watcher runs, and
+  # the kernel drops it when the process ends, so a crash leaves no stale
+  # lock. With -t 0, a second watcher exits at once.
+  if [[ -z ${MR_DIFF_LOCKED:-} ]]; then
+    mkdir -p "$(dirname "$lockfile")"
+    rm -rf "$work"
+    export MR_DIFF_LOCKED=1
+    exec lockf -k -s -t 0 "$lockfile" "$0" --watch
+  fi
+  log "watching every ${interval}s"
+  while :; do
+    if ! server_up; then
+      # daily --restart stops the server for about 15 s.
+      sleep 60
+      server_up || { log "the Quartz server is down; stopping"; exit 0; }
+    fi
+    # A pass runs in its own process, so a failure in it cannot end the watcher.
+    "$0" || log "the pass failed (exit $?)"
+    sleep "$interval"
+  done
+}
+
+# Git ignores mr-diff.json through the vault's info/exclude, not .gitignore:
+# Quartz skips every file that a .gitignore names, so it would not serve them.
+exclude=$(git -C "$vault" rev-parse --path-format=absolute --git-path info/exclude)
+if ! grep -qxF 'mr-diff.json' "$exclude" 2>/dev/null; then
+  mkdir -p "$(dirname "$exclude")"
+  # Start on a new line when the file does not end with one.
+  if [[ -s $exclude && -n $(tail -c 1 "$exclude") ]]; then
+    echo >>"$exclude"
+  fi
+  printf '# MR diffs for the Quartz site (mr-diff fetches them again)\nmr-diff.json\n' >>"$exclude"
+fi
+
+case "${1:-}" in
+  "") pass ;;
+  --watch) watch ;;
+  -*) usage ;;
+  http*)
+    dir=""
+    for doc in "$vault"/notes/*/mr/*/working.md; do
+      if [[ $(doc_link "$doc") == "$1" ]]; then
+        dir=$(dirname "$doc")
+        break
+      fi
+    done
+    [[ -n $dir ]] || { echo "mr-diff: no working doc links to $1" >&2; exit 1; }
+    fetch_one "$dir" force
+    ;;
+  *)
+    dir=$1
+    if [[ -f $dir ]]; then
+      dir=$(dirname "$dir")
+    fi
+    [[ -f $dir/working.md ]] || { echo "mr-diff: no working.md in $dir" >&2; exit 1; }
+    fetch_one "$(cd "$dir" && pwd)" force
+    ;;
+esac

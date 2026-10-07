@@ -48,8 +48,9 @@ if [[ ! -L content ]]; then
 fi
 ln -sf "$here/quartz.config.yaml" quartz.config.yaml
 ln -sf "$here/custom.scss" quartz/styles/custom.scss
-# The config loads this local plugin as ./vault-keys.
+# The config loads these local plugins as ./vault-keys and ./mr-diff.
 ln -sfn "$here/vault-keys" vault-keys
+ln -sfn "$here/mr-diff" mr-diff
 npx quartz plugin install --from-config
 
 # Upstream listens on all interfaces, which shares the vault with the network.
