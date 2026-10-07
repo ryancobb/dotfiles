@@ -1,4 +1,5 @@
-// Vim keys and a zen toggle for the vault site. Press ? on a page for the list.
+// Vim keys, a zen toggle, and a jump to today's plan for the vault site. Press
+// ? on a page for the list.
 ;(() => {
   if (window.__vaultKeys) return
   window.__vaultKeys = true
@@ -29,22 +30,77 @@
     applyZen()
   })
 
-  // The SPA router replaces the body on each navigation, so the button goes
-  // back in on every "nav" event.
-  const ensureButton = () => {
-    if (document.getElementById("zen-toggle")) return
+  // Today's daily plan, found as the `daily` command finds it: the plan named
+  // for today, else the newest plan when "plan" has not written today's yet.
+  // fetchData is the content index that Quartz loads once per page, and the
+  // watcher reloads the page on every vault write, so a new plan shows up.
+  const PLAN = /^weeklies\/[^/]+\/(\d{4}-\d{2}-\d{2})-daily-plan$/
+  // The planner names plans by its own time zone, not the machine's
+  // (tools/planner/src/time.rs).
+  const PLANNER_ZONE = "America/Los_Angeles"
+  const plannerDay = (now = new Date()) => {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: PLANNER_ZONE,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).formatToParts(now)
+    const part = (type) => parts.find((p) => p.type === type).value
+    return `${part("year")}-${part("month")}-${part("day")}`
+  }
+  // fetchData stays rejected for the life of the page when the page loads
+  // during a server restart, so a failed load fetches the index again.
+  const loadIndex = () => fetchData.catch(() => fetch("/static/contentIndex.json").then((res) => res.json()))
+  const openToday = async () => {
+    let index
+    try {
+      index = await loadIndex()
+    } catch (err) {
+      return console.warn("vault-keys: cannot load the content index", err)
+    }
+    const plans = Object.keys(index)
+      .map((slug) => ({ slug, day: PLAN.exec(slug)?.[1] }))
+      .filter((plan) => plan.day)
+      .sort((a, b) => a.day.localeCompare(b.day))
+    if (!plans.length) return
+    const today = plannerDay()
+    const { slug } = plans.find((plan) => plan.day === today) ?? plans[plans.length - 1]
+    // Navigating to the open page adds it to history again, and H then stays on it.
+    if (slug === document.body.dataset.slug) return
+    const url = new URL(`/${slug}`, location.origin)
+    if (window.spaNavigate) window.spaNavigate(url)
+    else location.assign(url)
+  }
+
+  const ICONS = {
+    today:
+      '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/><rect x="7" y="13" width="4" height="4" rx="0.5"/></svg>',
+    zen: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="9" y1="4" x2="9" y2="20"/><line x1="15" y1="4" x2="15" y2="20"/></svg>',
+  }
+  const makeButton = (id, icon, label, key, onClick) => {
     const button = document.createElement("button")
-    button.id = "zen-toggle"
+    button.id = id
     button.type = "button"
-    button.title = "Toggle sidebars (z)"
-    button.setAttribute("aria-label", "Toggle sidebars")
-    button.innerHTML =
-      '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="9" y1="4" x2="9" y2="20"/><line x1="15" y1="4" x2="15" y2="20"/></svg>'
+    button.title = `${label} (${key})`
+    button.setAttribute("aria-label", label)
+    button.innerHTML = ICONS[icon]
     button.addEventListener("click", () => {
-      toggleZen()
+      onClick()
       button.blur()
     })
-    document.body.appendChild(button)
+    return button
+  }
+  // The SPA router replaces the body on each navigation, so the buttons go
+  // back in on every "nav" event.
+  const ensureButtons = () => {
+    if (document.getElementById("vault-actions")) return
+    const bar = document.createElement("div")
+    bar.id = "vault-actions"
+    bar.append(
+      makeButton("today-plan", "today", "Today's plan", "t", openToday),
+      makeButton("zen-toggle", "zen", "Toggle sidebars", "z", toggleZen),
+    )
+    document.body.appendChild(bar)
   }
 
   // Link hints, as in Vimium: f labels every visible link, typing a label
@@ -56,7 +112,7 @@
   // sidebars, which keep a size but are clipped or hidden. Returns the index of
   // that line in getClientRects(), or -1.
   const hintLine = (el) => {
-    if (el.id === "zen-toggle" || el.closest(".search-container")) return -1
+    if (el.closest("#vault-actions, .search-container")) return -1
     if (getComputedStyle(el).opacity === "0") return -1
     const rects = el.getClientRects()
     for (let i = 0; i < rects.length; i++) {
@@ -151,6 +207,7 @@
     ["gg / G", "top / bottom"],
     ["H / L", "back / forward"],
     ["f", "link hints"],
+    ["t", "today's daily plan"],
     ["/", "search"],
     ["z", "toggle sidebars (zen)"],
     ["?", "this help"],
@@ -195,6 +252,7 @@
         H: () => history.back(),
         L: () => history.forward(),
         f: showHints,
+        t: openToday,
         "/": () => document.querySelector(".search-button")?.click(),
         z: toggleZen,
         "?": toggleHelp,
@@ -211,7 +269,7 @@
     closeHints()
     document.getElementById("vault-keys-help")?.remove()
     applyZen()
-    ensureButton()
+    ensureButtons()
   })
   window.addEventListener("scroll", placeHints, { passive: true })
   window.addEventListener("resize", closeHints)

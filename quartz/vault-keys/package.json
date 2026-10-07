@@ -2,7 +2,7 @@
   "name": "vault-keys",
   "version": "1.0.0",
   "private": true,
-  "description": "Vim keys and a zen (no sidebars) toggle for the local Quartz site",
+  "description": "Vim keys, a zen (no sidebars) toggle, and a jump to today's plan for the local Quartz site",
   "type": "module",
   "exports": {
     ".": "./dist/index.js"

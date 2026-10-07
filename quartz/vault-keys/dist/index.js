@@ -9,7 +9,7 @@ const read = (name) => fs.readFileSync(new URL(name, import.meta.url), "utf-8")
 export const manifest = {
   name: "vault-keys",
   displayName: "Vault keys",
-  description: "Vim keys and a zen (no sidebars) toggle",
+  description: "Vim keys, a zen (no sidebars) toggle, and a jump to today's plan",
   version: "1.0.0",
   category: "transformer",
 }

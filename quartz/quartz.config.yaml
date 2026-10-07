@@ -273,7 +273,8 @@ plugins:
       priority: 15
       display: all
   # Local plugin in ~/.config/quartz-vault/vault-keys/dist: vim keys (? lists
-  # them) and the zen toggle. setup.sh links it into the Quartz clone.
+  # them), the zen toggle, and the jump to today's plan (t). setup.sh links it
+  # into the Quartz clone.
   - source: ./vault-keys
     enabled: true
   - source: "@quartz-community/obsidian-plugin-excalidraw"

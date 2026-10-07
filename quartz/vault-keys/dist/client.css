@@ -24,11 +24,15 @@
   margin-top: 2.5rem;
 }
 
-#zen-toggle {
+#vault-actions {
   position: fixed;
   top: 0.6rem;
   right: 0.6rem;
   z-index: 900;
+  display: flex;
+  gap: 0.4rem;
+}
+#vault-actions button {
   display: flex;
   padding: 0.35rem;
   border: 1px solid var(--lightgray);
@@ -38,16 +42,23 @@
   opacity: 0.55;
   cursor: pointer;
 }
-#zen-toggle:hover {
+#vault-actions button:hover {
   opacity: 1;
   color: var(--secondary);
 }
 :root[data-zen] #zen-toggle {
   color: var(--tertiary);
 }
-/* The search overlay sits in a sidebar stacking context below this button. */
-body:has(.search-container.active) #zen-toggle {
+/* The search overlay sits in a sidebar stacking context below these buttons. */
+body:has(.search-container.active) #vault-actions {
   display: none;
+}
+/* Below Quartz's mobile breakpoint the left sidebar is the header row, and its
+   search box ends under these buttons. The padding keeps the row clear of them. */
+@media all and (max-width: 800px) {
+  .page > #quartz-body > .sidebar.left {
+    padding-right: 4.5rem;
+  }
 }
 
 #vault-hints {
