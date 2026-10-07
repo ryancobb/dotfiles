@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# kitty (open_url_with in kitty.conf) and Claude Code (BROWSER in
+# ~/.claude/settings.json) run this for each link they open. A web link opens
+# as a new tab in the terminal-browser of the focused kitty tab. Any other link
+# (file://, mailto:), or a kitty tab with no browser, goes to `open`, which uses
+# the default app.
+set -uo pipefail
+
+url=${1:-}
+# kitty can start this with the PATH of a Dock launch.
+PATH="/opt/homebrew/bin:/Applications/kitty.app/Contents/MacOS:/usr/bin:/bin:$PATH"
+
+fallback() {
+  exec open "$url"
+}
+
+case $url in
+  http://* | https://*) ;;
+  *) fallback ;;
+esac
+
+# kitty can also start this without its window environment, so find the
+# socket of the running kitty (listen_on unix:/tmp/mykitty adds -<pid>).
+sock=${KITTY_LISTEN_ON:-}
+if [[ -z $sock ]]; then
+  for s in /tmp/mykitty-*; do
+    [[ -S $s ]] && kill -0 "${s##*-}" 2>/dev/null && sock="unix:$s"
+  done
+fi
+[[ -n $sock ]] || fallback
+
+panes=$(kitten @ --to "$sock" ls 2>/dev/null |
+  jq -c '[.[] | select(.is_focused) | .tabs[] | select(.is_focused) | .windows[].id | tostring]') || fallback
+# terminal-browser finds the pane of each browser through kitty remote control,
+# and it tries that only when TERM names kitty.
+key=$(TERM=xterm-kitty KITTY_LISTEN_ON=$sock terminal-browser ls --all --json 2>/dev/null |
+  jq -r --argjson panes "$panes" \
+    '[.browsers[] | select(.pane.pane as $p | $panes | any(. == $p))][0].key // empty') || fallback
+[[ -n $key ]] || fallback
+terminal-browser new-tab --browser "$key" "$url" >/dev/null 2>&1 || fallback
