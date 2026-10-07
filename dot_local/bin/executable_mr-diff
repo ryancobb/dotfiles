@@ -7,8 +7,9 @@
 #
 #   mr-diff             one pass over every MR working doc
 #   mr-diff DIR|URL     fetch one MR now (its folder, its working.md, or its URL)
-#   mr-diff --watch     a pass every 10 minutes while the Quartz server runs
-#                       (daily starts it; MR_DIFF_INTERVAL sets the seconds)
+#   mr-diff --watch     a pass every 10 minutes while the Quartz server runs,
+#                       and stop once it is down for 60 s (daily starts it;
+#                       MR_DIFF_INTERVAL sets the seconds)
 #
 # A pass reads each open or closed MR (one API call; a closed MR can be
 # reopened) and fetches the diff only when the head or the merge base moved,
@@ -40,11 +41,20 @@ api() {
   glab api --hostname gitlab.com "$@"
 }
 
+# The MR URL without a #fragment, a ?query, a trailing /diffs, or a slash, as
+# a link copied from the browser can have.
+canon() {
+  local url=${1%%#*}
+  url=${url%%\?*}
+  url=${url%/}
+  echo "${url%/diffs}"
+}
+
 # The `link:` property of a working doc: the MR URL that the planner writes.
 doc_link() {
-  awk 'NR == 1 && $0 != "---" { exit }
+  canon "$(awk 'NR == 1 && $0 != "---" { exit }
        NR > 1 && $0 == "---" { exit }
-       /^link: / { sub(/^link: */, ""); gsub(/"/, ""); print; exit }' "$1"
+       /^link: / { sub(/^link: */, ""); gsub(/["\047]/, ""); sub(/ +$/, ""); print; exit }' "$1")"
 }
 
 # Run a command that prints JSON, and move the output to the file $1. Call it
@@ -66,7 +76,11 @@ fetch_one() {
   local dir=$1 force=${2:-} url project iid out path mr state head base start
   local old_state="" old_head="" old_base=""
   url=$(doc_link "$dir/working.md" 2>/dev/null) || return 0
-  [[ $url =~ ^https://gitlab\.com/(.+)/-/merge_requests/([0-9]+)$ ]] || return 0
+  [[ -n $url ]] || return 0
+  if [[ ! $url =~ ^https://gitlab\.com/(.+)/-/merge_requests/([0-9]+)$ ]]; then
+    log "skipping $dir: its link is not a gitlab.com MR URL: $url"
+    return 0
+  fi
   project=${BASH_REMATCH[1]}
   iid=${BASH_REMATCH[2]}
   out="$dir/mr-diff.json"
@@ -129,30 +143,44 @@ pass() {
   done
 }
 
+# A port probe, not a request: the server holds every request until a rebuild
+# ends.
 server_up() {
-  curl -s -o /dev/null --max-time 2 "http://127.0.0.1:$port/"
+  nc -z 127.0.0.1 "$port" 2>/dev/null
 }
 
 watch() {
-  # One watcher at a time. lockf holds the lock while the watcher runs, and
-  # the kernel drops it when the process ends, so a crash leaves no stale
-  # lock. With -t 0, a second watcher exits at once.
-  if [[ -z ${MR_DIFF_LOCKED:-} ]]; then
-    mkdir -p "$(dirname "$lockfile")"
-    rm -rf "$work"
-    export MR_DIFF_LOCKED=1
-    exec lockf -k -s -t 0 "$lockfile" "$0" --watch
+  # One watcher at a time. The watcher holds a flock on fd 9 for its whole
+  # life: perl takes it on the open file that fd 9 shares, and it stays while
+  # this shell keeps fd 9 open. The kernel drops it when the watcher ends,
+  # however it ends, so a crash or a kill leaves no stale lock. A child that
+  # can outlive the watcher (a pass, a sleep) gets 9>&-, so it never keeps the
+  # lock. A second watcher exits with 75, as lockf -t 0 does.
+  mkdir -p "$(dirname "$lockfile")"
+  exec 9>>"$lockfile"
+  if ! perl -MFcntl=:flock -e 'open(my $fh, ">&=", 9) or exit 2; flock($fh, LOCK_EX | LOCK_NB) or exit 75'; then
+    log "another watcher runs"
+    exit 75
   fi
+  server_up || { log "the Quartz server is down; not watching"; exit 0; }
   log "watching every ${interval}s"
+  local step=30 waited down
+  ((interval < step)) && step=$interval
   while :; do
-    if ! server_up; then
-      # daily --restart stops the server for about 15 s.
-      sleep 60
-      server_up || { log "the Quartz server is down; stopping"; exit 0; }
-    fi
     # A pass runs in its own process, so a failure in it cannot end the watcher.
-    "$0" || log "the pass failed (exit $?)"
-    sleep "$interval"
+    "$0" 9>&- || log "the pass failed (exit $?)"
+    # Stop once the server is down for 60 s; daily --restart stops it for
+    # about 15 s.
+    waited=0 down=0
+    while ((waited < interval)); do
+      sleep "$step" 9>&-
+      waited=$((waited + step))
+      if server_up; then down=0; else down=$((down + step)); fi
+      if ((down >= 60)); then
+        log "the Quartz server is down; stopping"
+        exit 0
+      fi
+    done
   done
 }
 
@@ -174,8 +202,9 @@ case "${1:-}" in
   -*) usage ;;
   http*)
     dir=""
+    want=$(canon "$1")
     for doc in "$vault"/notes/*/mr/*/working.md; do
-      if [[ $(doc_link "$doc") == "$1" ]]; then
+      if [[ $(doc_link "$doc") == "$want" ]]; then
         dir=$(dirname "$doc")
         break
       fi
