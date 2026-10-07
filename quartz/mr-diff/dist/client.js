@@ -12,17 +12,19 @@
   // Meeting and planner times are Pacific everywhere in the vault.
   const ZONE = "America/Los_Angeles"
 
-  const load = (key, storage = localStorage) => {
+  // The storage name, not the object: a blocked storage throws on access,
+  // and that must happen inside the try.
+  const load = (key, storage = "localStorage") => {
     try {
-      return storage.getItem(key)
+      return window[storage].getItem(key)
     } catch {
       return null
     }
   }
-  const save = (key, value, storage = localStorage) => {
+  const save = (key, value, storage = "localStorage") => {
     try {
-      if (value === null) storage.removeItem(key)
-      else storage.setItem(key, value)
+      if (value === null) window[storage].removeItem(key)
+      else window[storage].setItem(key, value)
     } catch {}
   }
 
@@ -220,14 +222,22 @@
     },
     { passive: true },
   )
-  window.addEventListener("pagehide", () => {
+  // Save now, not after the debounce, when the reader leaves: an SPA
+  // navigation (prenav comes before Quartz changes the page or the URL) or a
+  // full unload.
+  const leave = () => {
     clearTimeout(timer)
     keepSpot()
-  })
+  }
+  document.addEventListener("prenav", leave)
+  window.addEventListener("pagehide", leave)
+  // The page is at the top when the spot is in a fold that did not draw. An
+  // MR page restores no scroll of its own (scrollRestoration is manual), so
+  // without this a Back keeps the previous page's offset.
   const restoreScroll = (spot) => {
     const top = foldTop()
-    const y = spot.fold !== undefined && top !== null ? top + spot.fold : spot.page
-    if (y > 0) window.scrollTo({ top: y, behavior: "instant" })
+    const y = spot.fold === undefined ? spot.page : top === null ? 0 : top + spot.fold
+    window.scrollTo({ top: Math.max(0, y || 0), behavior: "instant" })
   }
   // Quartz's Explorer saves its own scroll only before an SPA navigation.
   // Without a saved value, a full load calls scrollIntoView on the active
@@ -235,7 +245,7 @@
   // This fixes every page, not only MR pages; it can move to vault-keys.
   window.addEventListener("pagehide", () => {
     const list = document.querySelector(".explorer-ul")
-    if (list) save("explorerScrollTop", String(list.scrollTop), sessionStorage)
+    if (list) save("explorerScrollTop", String(list.scrollTop), "sessionStorage")
   })
   let navId = 0
   document.addEventListener("nav", async () => {
@@ -265,5 +275,8 @@
     }
     if (spot) restoreScroll(spot)
     tracked = path
+    // An entry gets a spot even when the reader never scrolls, so Back to a
+    // page left at the top (or at a #heading) returns there.
+    keepSpot()
   })
 })()

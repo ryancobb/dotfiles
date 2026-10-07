@@ -42,21 +42,27 @@
       localStorage.removeItem("note-properties-collapsed")
     } catch {}
     const d = document.querySelector("details.note-properties")
-    if (!d) return
-    const page = location.pathname
-    d.open = !!openPages()[page]
-    if (d.dataset.vaultProps) return
-    d.dataset.vaultProps = "1"
-    d.addEventListener("toggle", () => {
+    if (d) d.open = !!openPages()[location.pathname]
+  }
+  // One listener for all pages, in the capture phase because toggle does not
+  // bubble. An SPA navigation patches the same details element in place, so a
+  // listener on the element would keep the page that added it. The browser
+  // fires toggle after the navigation ends, with the final state, so the path
+  // here is the new page's.
+  document.addEventListener(
+    "toggle",
+    (e) => {
+      if (!(e.target instanceof HTMLDetailsElement) || !e.target.matches(".note-properties")) return
       const pages = openPages()
-      if (d.open) pages[page] = true
-      else delete pages[page]
+      if (e.target.open) pages[location.pathname] = true
+      else delete pages[location.pathname]
       try {
         sessionStorage.setItem(PROPS_KEY, JSON.stringify(pages))
         localStorage.removeItem("note-properties-collapsed")
       } catch {}
-    })
-  }
+    },
+    true,
+  )
   window.addEventListener("storage", (e) => {
     if (e.key !== ZEN_KEY) return
     zen = e.newValue === "on"
