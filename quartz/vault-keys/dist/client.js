@@ -24,6 +24,39 @@
     } catch {}
   }
   applyZen()
+
+  // Properties fold on every page. The note-properties plugin keeps one global
+  // open state in localStorage, so one click would open them everywhere.
+  // Instead each page keeps its own state for the tab session, so a page
+  // opened by a click stays open through the watcher's reload on a vault write.
+  const PROPS_KEY = "vault-props-open"
+  const openPages = () => {
+    try {
+      return JSON.parse(sessionStorage.getItem(PROPS_KEY) || "{}")
+    } catch {
+      return {}
+    }
+  }
+  const foldProperties = () => {
+    try {
+      localStorage.removeItem("note-properties-collapsed")
+    } catch {}
+    const d = document.querySelector("details.note-properties")
+    if (!d) return
+    const page = location.pathname
+    d.open = !!openPages()[page]
+    if (d.dataset.vaultProps) return
+    d.dataset.vaultProps = "1"
+    d.addEventListener("toggle", () => {
+      const pages = openPages()
+      if (d.open) pages[page] = true
+      else delete pages[page]
+      try {
+        sessionStorage.setItem(PROPS_KEY, JSON.stringify(pages))
+        localStorage.removeItem("note-properties-collapsed")
+      } catch {}
+    })
+  }
   window.addEventListener("storage", (e) => {
     if (e.key !== ZEN_KEY) return
     zen = e.newValue === "on"
@@ -269,6 +302,7 @@
     closeHints()
     document.getElementById("vault-keys-help")?.remove()
     applyZen()
+    foldProperties()
     ensureButtons()
   })
   window.addEventListener("scroll", placeHints, { passive: true })

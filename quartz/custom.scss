@@ -244,6 +244,40 @@ html .callout {
   }
 }
 
+// A folded callout is reference: no tint and a dim title, with the hue left
+// only on its edge and icon. Open callouts (Today, ▶ Now) keep full color, so
+// color marks what is for you now.
+html .callout.is-collapsible {
+  --bg: transparent;
+  --border: #{$bg3};
+  & > .callout-title,
+  & > .callout-title > .callout-title-inner > p {
+    color: $fg2;
+    font-weight: normal;
+  }
+}
+
+// A callout's content is a grid, so its blocks' margins add up instead of
+// collapsing: 32px between blocks, against 16px outside a callout. One bottom
+// margin per block gives the page's gap, and a bold label sits on its list.
+// Only open callouts: Quartz's rules sit in a cascade layer, which any rule
+// here outranks, so a folded callout would keep these margins under its title.
+html .callout:not(.is-collapsed) > .callout-content > * {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+html .callout:not(.is-collapsed) > .callout-content > p:has(> strong:only-child):has(+ ol, + ul) {
+  margin-bottom: 0.25rem;
+}
+
+// One title per page: when the body opens with its own H1 (working docs and
+// daily plans do), hide the title Quartz adds from the file name or the
+// `title` property. The child chain matches the page's own article only, never
+// a hover popover's.
+html body:has(.center > article > .markdown-preview-view > h1:first-child) h1.article-title {
+  display: none;
+}
+
 // Code blocks sit on the darker bg0, like nvim floats.
 html pre,
 html pre > code {

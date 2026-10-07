@@ -265,6 +265,10 @@ plugins:
       excludedProperties:
         - title
       hidePropertiesView: false
+      # folded on each page, so a working doc opens on its ▶ Now; the
+      # plugin remembers one open state for every page, so the vault-keys
+      # client keeps a state per page instead
+      collapsed: true
       delimiters: ---
       language: yaml
     order: 5
