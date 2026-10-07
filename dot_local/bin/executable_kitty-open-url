@@ -4,13 +4,27 @@
 # as a new tab in the terminal-browser of the focused kitty tab. Any other link
 # (file://, mailto:), or a kitty tab with no browser, goes to `open`, which uses
 # the default app.
+#
+# Only a link that a person clicked goes to terminal-browser. BROWSER also
+# reaches every program that Claude Code runs (glab and gh logins, Python's
+# webbrowser), and a sign-in needs the default browser, which has the SSO
+# session. Both kitty and Claude Code start this with no shell between, so the
+# parent process tells a click from a program. Claude Code also opens its own
+# and MCP sign-in pages this way, so an OAuth sign-in URL goes to `open` too.
+#
+# KITTY_OPEN_URL_DRY_RUN=1 prints the route instead of opening the link.
 set -uo pipefail
 
 url=${1:-}
 # kitty can start this with the PATH of a Dock launch.
 PATH="/opt/homebrew/bin:/Applications/kitty.app/Contents/MacOS:/usr/bin:/bin:$PATH"
+dry_run=${KITTY_OPEN_URL_DRY_RUN:-}
 
 fallback() {
+  if [[ -n $dry_run ]]; then
+    echo "open $url"
+    exit 0
+  fi
   exec open "$url"
 }
 
@@ -19,12 +33,33 @@ case $url in
   *) fallback ;;
 esac
 
-# kitty can also start this without its window environment, so find the
-# socket of the running kitty (listen_on unix:/tmp/mykitty adds -<pid>).
-sock=${KITTY_LISTEN_ON:-}
-if [[ -z $sock ]]; then
-  for s in /tmp/mykitty-*; do
-    [[ -S $s ]] && kill -0 "${s##*-}" 2>/dev/null && sock="unix:$s"
+parent=$(ps -o comm= -p "$PPID" 2>/dev/null)
+case ${parent##*/} in
+  kitty | claude) ;;
+  *) fallback ;;
+esac
+
+# An OAuth authorization request names its response type and the address to
+# return to; PKCE adds a code challenge.
+case $url in
+  *[?\&]response_type=* | *[?\&]redirect_uri=* | *[?\&]code_challenge=*) fallback ;;
+esac
+
+# The socket of a running kitty (listen_on unix:/tmp/mykitty adds -<pid>).
+live_socket() {
+  [[ -S $1 && $(ps -o comm= -p "${1##*-}" 2>/dev/null) == */kitty ]]
+}
+
+# kitty sets KITTY_LISTEN_ON for this and for the programs in its windows; a
+# program that outlived a kitty restart (tmux) can hold an old one, so fall
+# back to the newest socket of a kitty that runs.
+sock=
+if [[ ${KITTY_LISTEN_ON:-} == unix:* ]] && live_socket "${KITTY_LISTEN_ON#unix:}"; then
+  sock=$KITTY_LISTEN_ON
+else
+  # shellcheck disable=SC2045 # socket names have no spaces
+  for s in $(ls -t /tmp/mykitty-* 2>/dev/null); do
+    live_socket "$s" && { sock="unix:$s"; break; }
   done
 fi
 [[ -n $sock ]] || fallback
@@ -37,4 +72,8 @@ key=$(TERM=xterm-kitty KITTY_LISTEN_ON=$sock terminal-browser ls --all --json 2>
   jq -r --argjson panes "$panes" \
     '[.browsers[] | select(.pane.pane as $p | $panes | any(. == $p))][0].key // empty') || fallback
 [[ -n $key ]] || fallback
+if [[ -n $dry_run ]]; then
+  echo "terminal-browser $key $url"
+  exit 0
+fi
 terminal-browser new-tab --browser "$key" "$url" >/dev/null 2>&1 || fallback
