@@ -1,0 +1,334 @@
+// Nordfox (nightfox.nvim) accents for the work vault. quartz.config.yaml sets
+// the base palette for both color modes; this file adds the hues. Heading
+// colors and tints match the markview.nvim setup in the nvim config: each
+// band is 35% of the hue over bg1, with the bright hue as the text.
+// The `html` prefix outranks Quartz's own rules.
+
+$bg0: #232831;
+$bg1: #2e3440;
+$bg2: #39404f;
+$bg3: #444c5e;
+$bg4: #5a657d;
+$fg1: #cdcecf;
+$fg2: #abb1bb;
+$fg3: #7e8188;
+$white: #e5e9f0;
+$comment: #60728a;
+$sel0: #3e4a5b;
+$sel1: #4f6074;
+
+$red: #bf616a;
+$orange: #c9826b;
+$yellow: #ebcb8b;
+$green: #a3be8c;
+$blue: #81a1c1;
+$magenta: #b48ead;
+$cyan: #88c0d0;
+$pink: #bf88bc;
+
+$red-bright: #d06f79;
+$orange-bright: #d89079;
+$yellow-bright: #f0d399;
+$green-bright: #b1d196;
+$blue-bright: #8cafd2;
+$magenta-bright: #c895bf;
+$cyan-bright: #93ccdc;
+
+// 35% hue over bg1 (bands), and 18% (soft fills).
+$red-band: #61444f;
+$orange-band: #644f4f;
+$yellow-band: #70695a;
+$green-band: #57645b;
+$blue-band: #4b5a6d;
+$magenta-band: #5d5466;
+$cyan-soft: #3e4d5a;
+
+// Headings: h1-h3 are bands, h4-h6 are pills, as in markview.
+@mixin heading($band, $fg) {
+  background-color: $band;
+  color: $fg;
+  border-radius: 0.5rem;
+}
+
+html article {
+  h1 {
+    @include heading($red-band, $red-bright);
+    padding: 0.2em 0.6em;
+  }
+  h2 {
+    @include heading($orange-band, $orange-bright);
+    padding: 0.2em 0.6em;
+  }
+  h3 {
+    @include heading($yellow-band, $yellow-bright);
+    padding: 0.15em 0.6em;
+  }
+  h4,
+  h5,
+  h6 {
+    width: fit-content;
+    padding: 0.1em 0.8em;
+    border-radius: 999px;
+  }
+  h4 {
+    @include heading($green-band, $green-bright);
+    border-radius: 999px;
+  }
+  h5 {
+    @include heading($blue-band, $blue-bright);
+    border-radius: 999px;
+  }
+  h6 {
+    @include heading($magenta-band, $magenta-bright);
+    border-radius: 999px;
+  }
+  // The hover-only section link icon wraps onto its own line inside a band.
+  :is(h1, h2, h3, h4, h5, h6) a[role="anchor"] {
+    display: none;
+  }
+}
+
+// The page's file name sits above the doc's own H1, so show it as a label.
+html h1.article-title {
+  background: none;
+  padding: 0;
+  font-family: var(--codeFont);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: $comment;
+}
+
+html .content-meta {
+  color: $comment;
+}
+
+// Links: vault pages are cyan chips; GitLab and other external links are blue.
+html a.internal {
+  color: $cyan;
+  background-color: $cyan-soft;
+  border-radius: 4px;
+  padding: 0 0.2em;
+  &:hover {
+    color: $cyan-bright;
+  }
+}
+
+html a.external {
+  color: $blue-bright;
+  font-weight: 500;
+  text-decoration: underline dotted $bg4;
+  text-underline-offset: 3px;
+  &:hover {
+    color: $cyan-bright;
+    text-decoration-color: $cyan;
+  }
+  .external-icon {
+    fill: currentColor;
+  }
+}
+
+html article {
+  strong {
+    color: $white;
+  }
+  // A bold line right before a list is a group label (the daily plan's
+  // "oncall", "admin", ...).
+  p:has(+ ol, + ul) > strong:only-child {
+    color: $yellow;
+  }
+  :not(pre) > code {
+    color: $green;
+    background-color: $bg2;
+    border-radius: 4px;
+  }
+  ol > li::marker {
+    color: $orange;
+  }
+  ul > li::marker {
+    color: $blue;
+  }
+  ul ul > li::marker,
+  ol ul > li::marker {
+    color: $magenta;
+  }
+  input[type="checkbox"] {
+    accent-color: $green;
+  }
+  blockquote:not(.callout) {
+    border-left: 3px solid $magenta;
+    color: $fg2;
+  }
+  hr {
+    border-color: $bg3;
+  }
+}
+
+// Tables, including the Bases dashboard.
+html table {
+  th {
+    background-color: $bg2;
+    color: $cyan;
+    border-bottom: 2px solid $sel1;
+  }
+  td {
+    border-color: $bg3;
+  }
+  tbody tr:nth-child(even) {
+    background-color: #343a48;
+  }
+  tbody tr:hover {
+    background-color: $sel0;
+  }
+}
+
+// Properties box.
+html .note-properties {
+  border-color: $bg3;
+  .note-properties-title {
+    color: $magenta;
+  }
+  .note-properties-count {
+    color: $fg3;
+  }
+  .note-properties-key {
+    color: $orange;
+  }
+  .note-properties-value {
+    color: $fg1;
+  }
+}
+
+// Callouts: nordfox hue per type, with a solid left edge.
+@mixin nordfox-callout($color) {
+  --color: #{$color};
+  --border: #{$color}66;
+  --bg: #{$color}1f;
+}
+
+html .callout {
+  border-left: 4px solid var(--color);
+  &[data-callout] {
+    @include nordfox-callout($blue);
+  }
+  &[data-callout="abstract"] {
+    @include nordfox-callout($magenta);
+  }
+  &[data-callout="info"] {
+    @include nordfox-callout($cyan);
+  }
+  &[data-callout="todo"] {
+    @include nordfox-callout($blue-bright);
+  }
+  &[data-callout="tip"] {
+    @include nordfox-callout($cyan-bright);
+  }
+  &[data-callout="success"] {
+    @include nordfox-callout($green);
+  }
+  &[data-callout="question"] {
+    @include nordfox-callout($yellow);
+  }
+  &[data-callout="warning"] {
+    @include nordfox-callout($orange);
+  }
+  &[data-callout="failure"],
+  &[data-callout="danger"],
+  &[data-callout="bug"] {
+    @include nordfox-callout($red);
+  }
+  &[data-callout="example"] {
+    @include nordfox-callout($pink);
+  }
+  &[data-callout="quote"] {
+    @include nordfox-callout($fg3);
+  }
+}
+
+// Code blocks sit on the darker bg0, like nvim floats.
+html pre,
+html pre > code {
+  background-color: $bg0;
+}
+
+html ::selection {
+  background-color: $sel1;
+}
+
+// Sidebar.
+html .page-title a {
+  background: linear-gradient(90deg, $yellow, $orange);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+html .explorer {
+  .title-button h2 {
+    color: $fg3;
+  }
+  .folder-button,
+  .folder-title {
+    color: $blue;
+  }
+  .folder-icon {
+    color: $bg4;
+  }
+  li > a:not(.folder-button) {
+    color: $fg2;
+    font-weight: 400;
+    &:hover {
+      color: $cyan;
+    }
+    &.active {
+      color: $green;
+      font-weight: 600;
+    }
+  }
+}
+
+html .breadcrumb-container {
+  a {
+    color: $fg3;
+    font-weight: 500;
+    &:hover {
+      color: $cyan;
+    }
+  }
+  p {
+    color: $bg4;
+  }
+}
+
+// Table of contents: the edge color follows the heading level.
+html .toc {
+  .toc-header h3 {
+    color: $fg3;
+  }
+  li > a {
+    color: $fg2;
+    font-weight: 400;
+    border-left: 2px solid transparent;
+    padding-left: 0.5em;
+    &.in-view {
+      color: $white;
+      font-weight: 600;
+    }
+  }
+  li.depth-0 > a {
+    border-left-color: $red;
+  }
+  li.depth-1 > a {
+    border-left-color: $orange;
+  }
+  li.depth-2 > a {
+    border-left-color: $yellow;
+  }
+  li.depth-3 > a {
+    border-left-color: $green;
+  }
+}
+
+html .backlinks h3,
+html .graph h3 {
+  color: $fg3;
+}

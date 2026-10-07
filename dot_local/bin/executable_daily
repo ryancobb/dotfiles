@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+# Open a daily plan from the work vault in the current terminal pane, as the
+# local Quartz site renders it. Starts the Quartz server first when it is not
+# running. With no date, opens today's plan, or the newest plan when "plan"
+# has not written today's yet.
+#
+#   daily               today's plan in this pane (terminal-browser)
+#   daily 2026-10-06    that day's plan
+#   daily --url         print the URL only
+#   daily --restart     restart the Quartz server (after a config or style edit)
+set -euo pipefail
+
+vault="${PLANNER_VAULT:-$HOME/Projects/vaults/work}"
+quartz="$HOME/.local/share/quartz"
+port=8080
+log="$HOME/.local/state/quartz-vault.log"
+
+usage() {
+  echo "usage: daily [--url] [--restart] [YYYY-MM-DD]" >&2
+  exit 2
+}
+
+print_only=false
+restart=false
+day=$(date +%F)
+for arg in "$@"; do
+  case "$arg" in
+    --url) print_only=true ;;
+    --restart) restart=true ;;
+    [0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]) day=$arg ;;
+    *) usage ;;
+  esac
+done
+
+server_up() {
+  curl -s -o /dev/null --max-time 1 "http://127.0.0.1:$port/"
+}
+
+# A server that started before the localhost patch listens on all interfaces
+# (lsof shows *:port), so it runs again on the patched code.
+pids=$(pgrep -f "quartz build --serve" | paste -sd, - || true)
+if [[ -n $pids ]] && lsof -nP -a -p "$pids" -iTCP -sTCP:LISTEN 2>/dev/null | grep -Eq 'TCP (\*|\[::\]):'; then
+  echo "daily: the Quartz server listens on all interfaces; restarting it" >&2
+  restart=true
+fi
+
+if $restart; then
+  pkill -f "quartz build --serve" || true
+  for _ in $(seq 1 20); do server_up || break; sleep 0.25; done
+fi
+
+if ! server_up; then
+  # Upstream Quartz listens on all interfaces, which shares the vault with the
+  # network; setup.sh patches it to 127.0.0.1.
+  if ! grep -q 'server.listen(argv.port, "127.0.0.1")' "$quartz/quartz/cli/handlers.js" 2>/dev/null; then
+    echo "daily: Quartz is missing the localhost patch; run ~/.config/quartz-vault/setup.sh" >&2
+    exit 1
+  fi
+  echo "daily: starting the Quartz server (about 15 s)..." >&2
+  mkdir -p "$(dirname "$log")"
+  (cd "$quartz" && nohup npx quartz build --serve --port "$port" >"$log" 2>&1 &)
+  for _ in $(seq 1 120); do server_up && break; sleep 0.5; done
+  server_up || { echo "daily: the server did not start; see $log" >&2; exit 1; }
+fi
+
+shopt -s nullglob
+plans=("$vault"/weeklies/*/"$day"-daily-plan.md)
+if ((${#plans[@]} == 0)); then
+  all=("$vault"/weeklies/*/*-daily-plan.md)
+  ((${#all[@]})) || { echo "daily: no daily plans in $vault/weeklies" >&2; exit 1; }
+  plans=("${all[${#all[@]} - 1]}")
+  echo "daily: no plan for $day yet; opening $(basename "${plans[0]}" .md)" >&2
+fi
+
+rel=${plans[${#plans[@]} - 1]#"$vault"/}
+url="http://localhost:$port/${rel%.md}"
+
+if $print_only; then
+  echo "$url"
+else
+  exec terminal-browser open "$url"
+fi

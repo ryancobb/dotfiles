@@ -1,0 +1,10 @@
+{
+  "name": "vault-keys",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Vim keys and a zen (no sidebars) toggle for the local Quartz site",
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.js"
+  }
+}

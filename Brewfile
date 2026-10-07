@@ -18,3 +18,4 @@ brew "zsh-patina"
 
 cask "font-jetbrains-mono"
 cask "kitty"
+cask "terminal-browser"

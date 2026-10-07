@@ -1,0 +1,98 @@
+/* Zen: no sidebars, and the page body takes the full width (up to 64rem). */
+:root[data-zen] .page > #quartz-body {
+  grid-template: "grid-header" "grid-center" "grid-footer" / minmax(0, 1fr);
+  max-width: 64rem;
+  margin: 0 auto;
+}
+/* Collapse the sidebars instead of display: none, because the search overlay
+   lives in the left one. A fixed overlay escapes the clip, and it stays
+   visible inside a hidden parent. */
+:root[data-zen] .page > #quartz-body > .sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  padding: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
+:root[data-zen] .page > #quartz-body > .sidebar .search-container.active {
+  visibility: visible;
+}
+:root[data-zen] .page > #quartz-body .page-header {
+  margin-top: 2.5rem;
+}
+
+#zen-toggle {
+  position: fixed;
+  top: 0.6rem;
+  right: 0.6rem;
+  z-index: 900;
+  display: flex;
+  padding: 0.35rem;
+  border: 1px solid var(--lightgray);
+  border-radius: 6px;
+  background: var(--light);
+  color: var(--darkgray);
+  opacity: 0.55;
+  cursor: pointer;
+}
+#zen-toggle:hover {
+  opacity: 1;
+  color: var(--secondary);
+}
+:root[data-zen] #zen-toggle {
+  color: var(--tertiary);
+}
+/* The search overlay sits in a sidebar stacking context below this button. */
+body:has(.search-container.active) #zen-toggle {
+  display: none;
+}
+
+#vault-hints {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+}
+.vault-hint {
+  position: absolute;
+  padding: 0 0.25rem;
+  border-radius: 3px;
+  background: #ebcb8b;
+  color: #2e3440;
+  font: 600 0.75rem/1.2 var(--codeFont);
+  text-transform: uppercase;
+  transform: translate(-0.3rem, -0.5rem);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+.vault-hint b {
+  color: #bf616a;
+}
+
+#vault-keys-help {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 1000;
+  transform: translate(-50%, -50%);
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--gray);
+  border-radius: 8px;
+  background: var(--light);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+#vault-keys-help table {
+  margin: 0;
+  border-collapse: collapse;
+}
+#vault-keys-help td {
+  padding: 0.2rem 0.75rem;
+  border: none;
+  color: var(--darkgray);
+}
+#vault-keys-help kbd {
+  color: var(--secondary);
+  font-family: var(--codeFont);
+}

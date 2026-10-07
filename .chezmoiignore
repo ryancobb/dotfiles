@@ -20,3 +20,11 @@
 # ~/.config/obsidian-shared. Changes made in Obsidian land in this repo.
 obsidian
 obsidian/**
+
+# The Quartz site that renders the work vault (the `daily` command) reads its
+# config and styles from quartz/ in the source dir. dot_config/
+# symlink_quartz-vault.tmpl links ~/.config/quartz-vault to that folder, and
+# quartz/setup.sh links the files into the Quartz clone at
+# ~/.local/share/quartz.
+quartz
+quartz/**
