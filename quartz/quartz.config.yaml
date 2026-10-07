@@ -14,7 +14,6 @@ configuration:
     # the files in it (planner/state.json changes many times a day).
     - "**/private/**"
     - "**/templates/**"
-    - .obsidian/**
     - .claude/**
     - tools/**
     - planner/**

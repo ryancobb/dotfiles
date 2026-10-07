@@ -1,9 +1,0 @@
-{
-  "id": "pane-nav",
-  "name": "Pane Nav",
-  "version": "0.1.0",
-  "minAppVersion": "1.5.7",
-  "description": "Ctrl+h/j/k/l moves to the next pane, sidebars included, and the Ghostty terminal takes focus when its pane becomes active.",
-  "author": "rcobb",
-  "isDesktopOnly": true
-}

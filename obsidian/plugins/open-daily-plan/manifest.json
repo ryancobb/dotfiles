@@ -1,9 +1,0 @@
-{
-  "id": "open-daily-plan",
-  "name": "Open Daily Plan",
-  "version": "0.1.0",
-  "minAppVersion": "1.5.7",
-  "description": "Opens today's planner daily plan under weeklies/<Monday>/.",
-  "author": "rcobb",
-  "isDesktopOnly": false
-}

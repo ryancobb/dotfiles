@@ -1,10 +1,2 @@
-# Obsidian's per-machine layout and macOS folder metadata.
-obsidian/workspace.json
-obsidian/workspace-mobile.json
+# macOS folder metadata.
 .DS_Store
-
-# This repo is public, and every vault writes its .obsidian files into obsidian/. These files hold vault content
-# (note paths, search queries, property names), not config. Check any other new file under obsidian/ before a commit.
-obsidian/bookmarks.json
-obsidian/graph.json
-obsidian/types.json
