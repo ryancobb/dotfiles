@@ -15,10 +15,38 @@ index 3d73641..c8d9b2a 100644
    } finally {
      release()
 diff --git a/quartz/cli/handlers.js b/quartz/cli/handlers.js
-index 6d4119c..0fd55fe 100644
+index 6d4119c..d84e097 100644
 --- a/quartz/cli/handlers.js
 +++ b/quartz/cli/handlers.js
-@@ -454,6 +454,13 @@ export async function handleBuild(argv) {
+@@ -11,6 +11,7 @@ import prettyBytes from "pretty-bytes"
+ import { execSync, spawnSync } from "child_process"
+ import http from "http"
+ import serveHandler from "serve-handler"
++import { Readable } from "stream"
+ import { WebSocketServer } from "ws"
+ import { randomUUID } from "crypto"
+ import { Mutex } from "async-mutex"
+@@ -445,8 +446,17 @@ export async function handleBuild(argv) {
+ 
+   let clientRefresh = () => {}
+   if (argv.serve) {
+-    const connections = []
+-    clientRefresh = () => connections.forEach((conn) => conn.send("rebuild"))
++    // Local patch: each build gets a new token, so that a page can tell whether
++    // it missed one (see quartz/plugins/index.ts). The server sends the token on
++    // each rebuild, to a socket that asks for it when it opens, and in a
++    // Server-Timing header on each response. Upstream keeps every socket that
++    // ever connected; wss.clients drops each one when it closes.
++    let wss
++    let buildToken
++    clientRefresh = () => {
++      buildToken = randomUUID()
++      wss?.clients.forEach((conn) => conn.send(buildToken))
++    }
+ 
+     if (argv.baseDir !== "" && !argv.baseDir.startsWith("/")) {
+       argv.baseDir = "/" + argv.baseDir
+@@ -454,6 +464,13 @@ export async function handleBuild(argv) {
  
      await build(clientRefresh)
      const server = http.createServer(async (req, res) => {
@@ -32,16 +60,111 @@ index 6d4119c..0fd55fe 100644
        if (argv.baseDir && !req.url?.startsWith(argv.baseDir)) {
          console.log(
            styleText(
-@@ -562,8 +569,14 @@ export async function handleBuild(argv) {
+@@ -471,32 +488,70 @@ export async function handleBuild(argv) {
+ 
+       const serve = async () => {
+         const release = await buildMutex.acquire()
+-        await serveHandler(req, res, {
+-          public: argv.output,
+-          directoryListing: false,
+-          headers: [
+-            {
+-              source: "**/*.*",
+-              headers: [{ key: "Content-Disposition", value: "inline" }],
+-            },
++        // Local patch: release the lock and answer 500 when serveHandler throws.
++        // Upstream skips the release, so every later request and rebuild waited
++        // forever, and the unhandled rejection ended the server.
++        try {
++          // Local patch: the token of the last build that succeeded. A failed
++          // rebuild keeps the old token, so open pages wait for the next good
++          // one. A hard rebuild (a Quartz source edit) changes the token just
++          // after it releases the lock, which costs a page loaded in between one
++          // more reload.
++          res.setHeader("Server-Timing", `build;desc="${buildToken}"`)
++          // Local patch: without this, Chromium caches a page for a time it guesses
++          // from Last-Modified, so a link click can show a page from before a rebuild.
++          res.setHeader("Cache-Control", "no-cache")
++          await serveHandler(
++            req,
++            res,
+             {
+-              source: "**/*.webp",
+-              headers: [{ key: "Content-Type", value: "image/webp" }],
++              public: argv.output,
++              directoryListing: false,
++              headers: [
++                {
++                  source: "**/*.*",
++                  headers: [{ key: "Content-Disposition", value: "inline" }],
++                },
++                {
++                  source: "**/*.webp",
++                  headers: [{ key: "Content-Type", value: "image/webp" }],
++                },
++                // fixes bug where avif images are displayed as text instead of images (future proof)
++                {
++                  source: "**/*.avif",
++                  headers: [{ key: "Content-Type", value: "image/avif" }],
++                },
++              ],
+             },
+-            // fixes bug where avif images are displayed as text instead of images (future proof)
+             {
+-              source: "**/*.avif",
+-              headers: [{ key: "Content-Type", value: "image/avif" }],
++              // Local patch: serve() releases the lock once serveHandler returns,
++              // which is when the stream starts, before the file is read. So a
++              // rebuild could rewrite the file while it streams and cut the page
++              // short. Read it all under the lock. This returns a promise, which
++              // serve-handler's etag option cannot take (it calls this without
++              // await), so keep etag off or make this synchronous.
++              createReadStream: async (file, { start = 0, end } = {}) =>
++                Readable.from(
++                  (await promises.readFile(file)).subarray(
++                    start,
++                    end === undefined ? end : end + 1,
++                  ),
++                ),
+             },
+-          ],
+-        })
+-        const status = res.statusCode
+-        const statusString =
+-          status >= 200 && status < 300
+-            ? styleText("green", `[${status}]`)
+-            : styleText("red", `[${status}]`)
+-        console.log(statusString + styleText("gray", ` ${argv.baseDir}${req.url}`))
+-        release()
++          )
++          const status = res.statusCode
++          const statusString =
++            status >= 200 && status < 300
++              ? styleText("green", `[${status}]`)
++              : styleText("red", `[${status}]`)
++          console.log(statusString + styleText("gray", ` ${argv.baseDir}${req.url}`))
++        } catch (err) {
++          console.log(styleText("red", `[500] ${argv.baseDir}${req.url}: ${err.message ?? err}`))
++          if (!res.headersSent) res.writeHead(500)
++          res.end()
++        } finally {
++          release()
++        }
+       }
+ 
+       const redirect = (newFp) => {
+@@ -562,8 +617,16 @@ export async function handleBuild(argv) {
        }
        throw err
      })
 -    server.listen(argv.port)
 -    const wss = new WebSocketServer({ port: argv.wsPort })
 +    // Local patch: listen on 127.0.0.1 only (upstream shares the vault with the
-+    // network), and take WebSocket clients from the local site only.
++    // network), and take WebSocket clients from the local site only. Start the
++    // WebSocket server after the HTTP server, so that a page that reconnects
++    // during a restart reloads only once the page can load.
 +    server.listen(argv.port, "127.0.0.1")
-+    const wss = new WebSocketServer({
++    wss = new WebSocketServer({
 +      port: argv.wsPort,
 +      host: "127.0.0.1",
 +      verifyClient: ({ origin }) => /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin ?? ""),
@@ -49,6 +172,21 @@ index 6d4119c..0fd55fe 100644
      wss.on("error", (err) => {
        if (err.code === "EADDRINUSE") {
          console.error(
+@@ -573,7 +636,13 @@ export async function handleBuild(argv) {
+       }
+       throw err
+     })
+-    wss.on("connection", (ws) => connections.push(ws))
++    wss.on("connection", (ws, req) => {
++      // Local patch: without a listener, one bad frame from a client ends the
++      // server. Upstream's page reloads on any message, so send the token only
++      // to a page that asks for it.
++      ws.on("error", () => ws.terminate())
++      if (req.url === "/?build") ws.send(buildToken)
++    })
+     console.log(
+       styleText(
+         "cyan",
 diff --git a/quartz/plugins/emitters/assets.ts b/quartz/plugins/emitters/assets.ts
 index e57707e..60374df 100644
 --- a/quartz/plugins/emitters/assets.ts
@@ -66,3 +204,46 @@ index e57707e..60374df 100644
          }
        }
      },
+diff --git a/quartz/plugins/index.ts b/quartz/plugins/index.ts
+index ccb8a22..17b7923 100644
+--- a/quartz/plugins/index.ts
++++ b/quartz/plugins/index.ts
+@@ -25,15 +25,34 @@ export function getStaticResourcesFromPlugins(ctx: BuildCtx) {
+   if (ctx.argv.serve) {
+     const wsUrl = ctx.argv.remoteDevHost
+       ? `wss://${ctx.argv.remoteDevHost}:${ctx.argv.wsPort}`
+-      : `ws://localhost:${ctx.argv.wsPort}`
++      : // Local patch: the server listens on 127.0.0.1 only, and "localhost"
++        // tries ::1 first, where another program can listen.
++        `ws://127.0.0.1:${ctx.argv.wsPort}`
+ 
++    // Local patch: Chromium closes the socket when the Mac sleeps, and upstream
++    // never opens a new one, so the page stopped reloading. Reconnect, and reload
++    // when the server's build token differs from the one that served the page
++    // (its Server-Timing header; see quartz/cli/handlers.js). A rebuild sends a
++    // new token, and a socket that opens gets the current one. Only a UUID-shaped
++    // message becomes the baseline, for a page with no token; any other message
++    // that differs (upstream's server sends "rebuild") reloads the page.
+     staticResources.js.push({
+       loadTime: "afterDOMReady",
+       contentType: "inline",
+       script: `
+-        const socket = new WebSocket('${wsUrl}')
+-        // reload(true) ensures resources like images and scripts are fetched again in firefox
+-        socket.addEventListener('message', () => document.location.reload(true))
++        let loadedBuild = performance
++          .getEntriesByType('navigation')[0]
++          ?.serverTiming?.find((entry) => entry.name === 'build')?.description
++        const connect = () => {
++          const socket = new WebSocket('${wsUrl}/?build')
++          socket.addEventListener('message', ({ data }) => {
++            if (/^[0-9a-f-]{36}$/.test(data)) loadedBuild ??= data
++            // reload(true) ensures resources like images and scripts are fetched again in firefox
++            if (data !== loadedBuild) document.location.reload(true)
++          })
++          socket.addEventListener('close', () => setTimeout(connect, 2000))
++        }
++        connect()
+       `,
+     })
+   }
