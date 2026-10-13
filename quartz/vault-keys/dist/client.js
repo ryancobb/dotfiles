@@ -1,29 +1,50 @@
-// Vim keys, a zen toggle, and a jump to today's plan for the vault site. Press
-// ? on a page for the list.
+// Vim keys, zen and wide toggles, and a jump to today's plan for the vault
+// site. Press ? on a page for the list.
 ;(() => {
   if (window.__vaultKeys) return
   window.__vaultKeys = true
 
   const root = document.documentElement
   const ZEN_KEY = "vault-zen"
+  const WIDE_KEY = "vault-wide"
   const HINT_CHARS = "asdfjklghweio"
   const LINE = 80
 
-  // Zen hides both sidebars. localStorage keeps it across reloads; the Quartz
+  // Zen hides both sidebars. Wide hides them too and drops the width limit,
+  // for side by side diffs. The two flags are apart, so w turns wide off to
+  // the layout from before. localStorage keeps both across reloads; the Quartz
   // watcher reloads the page on every vault write.
   let zen = false
-  try {
-    zen = localStorage.getItem(ZEN_KEY) === "on"
-  } catch {}
-  const applyZen = () => root.toggleAttribute("data-zen", zen)
-  const toggleZen = () => {
-    zen = !zen
-    applyZen()
+  let wide = false
+  const readModes = () => {
     try {
-      localStorage.setItem(ZEN_KEY, zen ? "on" : "off")
+      zen = localStorage.getItem(ZEN_KEY) === "on"
+      wide = localStorage.getItem(WIDE_KEY) === "on"
     } catch {}
   }
-  applyZen()
+  const applyModes = () => {
+    root.toggleAttribute("data-zen", zen || wide)
+    root.toggleAttribute("data-wide", wide)
+  }
+  const saveModes = () => {
+    applyModes()
+    try {
+      localStorage.setItem(ZEN_KEY, zen ? "on" : "off")
+      localStorage.setItem(WIDE_KEY, wide ? "on" : "off")
+    } catch {}
+  }
+  // z in wide brings the sidebars back, so it ends both modes.
+  const toggleZen = () => {
+    zen = !(zen || wide)
+    wide = false
+    saveModes()
+  }
+  const toggleWide = () => {
+    wide = !wide
+    saveModes()
+  }
+  readModes()
+  applyModes()
 
   // Properties fold on every page. The note-properties plugin keeps one global
   // open state in localStorage, so one click would open them everywhere.
@@ -64,9 +85,10 @@
     true,
   )
   window.addEventListener("storage", (e) => {
-    if (e.key !== ZEN_KEY) return
-    zen = e.newValue === "on"
-    applyZen()
+    // A null key means that another tab cleared the storage.
+    if (e.key !== null && e.key !== ZEN_KEY && e.key !== WIDE_KEY) return
+    readModes()
+    applyModes()
   })
 
   // Today's daily plan, found as the `daily` command finds it: the plan named
@@ -115,6 +137,7 @@
     today:
       '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/><rect x="7" y="13" width="4" height="4" rx="0.5"/></svg>',
     zen: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="9" y1="4" x2="9" y2="20"/><line x1="15" y1="4" x2="15" y2="20"/></svg>',
+    wide: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="4" x2="3" y2="20"/><line x1="21" y1="4" x2="21" y2="20"/><line x1="7" y1="12" x2="17" y2="12"/><polyline points="10 9 7 12 10 15"/><polyline points="14 9 17 12 14 15"/></svg>',
   }
   const makeButton = (id, icon, label, key, onClick) => {
     const button = document.createElement("button")
@@ -138,6 +161,7 @@
     bar.append(
       makeButton("today-plan", "today", "Today's plan", "t", openToday),
       makeButton("zen-toggle", "zen", "Toggle sidebars", "z", toggleZen),
+      makeButton("wide-toggle", "wide", "Toggle full width", "w", toggleWide),
     )
     document.body.appendChild(bar)
   }
@@ -249,6 +273,7 @@
     ["t", "today's daily plan"],
     ["/", "search"],
     ["z", "toggle sidebars (zen)"],
+    ["w", "toggle full width (wide)"],
     ["?", "this help"],
     ["Esc", "close"],
   ]
@@ -264,6 +289,12 @@
   }
 
   const scroll = (top, e) => window.scrollBy({ top, behavior: e.repeat ? "instant" : "smooth" })
+  // Only the scroll keys repeat when held. The repeats of any other action key
+  // are dropped, also after its first press opened the hints or put the focus
+  // in the search box. Each new press clears `held`, so a lost keyup cannot
+  // block a later key.
+  const REPEATS = new Set(["j", "k", "d", "u"])
+  let held = null
   const typing = (el) =>
     el instanceof HTMLElement && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName))
   let pendingG = 0
@@ -271,6 +302,8 @@
   document.addEventListener(
     "keydown",
     (e) => {
+      if (!e.repeat) held = null
+      else if (e.key === held) return e.preventDefault()
       if (hints) return hintKey(e)
       if (e.ctrlKey || e.metaKey || e.altKey || e.isComposing) return
       if (typing(e.target) || document.querySelector(".search-container.active")) return
@@ -294,11 +327,13 @@
         t: openToday,
         "/": () => document.querySelector(".search-button")?.click(),
         z: toggleZen,
+        w: toggleWide,
         "?": toggleHelp,
       }
       const action = actions[e.key]
       if (!action) return
       e.preventDefault()
+      if (!REPEATS.has(e.key)) held = e.key
       action()
     },
     true,
@@ -307,7 +342,7 @@
   document.addEventListener("nav", () => {
     closeHints()
     document.getElementById("vault-keys-help")?.remove()
-    applyZen()
+    applyModes()
     foldProperties()
     ensureButtons()
   })

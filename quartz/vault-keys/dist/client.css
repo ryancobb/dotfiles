@@ -1,3 +1,10 @@
+/* How far the #vault-actions bar reaches in from the right edge: three buttons
+   (an 18px icon, 0.35rem padding, and a 1px border at each side), two 0.4rem
+   gaps, and the 0.6rem offset. mr-diff reads it too. */
+:root {
+  --vault-actions-width: calc(3 * (18px + 0.7rem + 2px) + 2 * 0.4rem + 0.6rem);
+}
+
 /* Zen: no sidebars, and the page body takes the full width (up to 64rem). */
 :root[data-zen] .page > #quartz-body {
   grid-template: "grid-header" "grid-center" "grid-footer" / minmax(0, 1fr);
@@ -23,6 +30,15 @@
 :root[data-zen] .page > #quartz-body .page-header {
   margin-top: 2.5rem;
 }
+/* Wide: zen with no width limit. Quartz caps .page at 1500px too. The padding
+   is Quartz's own below 1200px, so wide is never narrower than zen. */
+:root[data-wide] .page,
+:root[data-wide] .page > #quartz-body {
+  max-width: none;
+}
+:root[data-wide] .page > #quartz-body {
+  padding: 0 1rem;
+}
 
 #vault-actions {
   position: fixed;
@@ -46,7 +62,8 @@
   opacity: 1;
   color: var(--secondary);
 }
-:root[data-zen] #zen-toggle {
+:root[data-zen] #zen-toggle,
+:root[data-wide] #wide-toggle {
   color: var(--tertiary);
 }
 /* The search overlay sits in a sidebar stacking context below these buttons. */
@@ -54,10 +71,11 @@ body:has(.search-container.active) #vault-actions {
   display: none;
 }
 /* Below Quartz's mobile breakpoint the left sidebar is the header row, and its
-   search box ends under these buttons. The padding keeps the row clear of them. */
+   search box ends under these buttons. The padding keeps the row clear of them:
+   #quartz-body pads 1rem already, and the box ends 0.5rem before the bar. */
 @media all and (max-width: 800px) {
   .page > #quartz-body > .sidebar.left {
-    padding-right: 4.5rem;
+    padding-right: calc(var(--vault-actions-width) - 0.5rem);
   }
 }
 

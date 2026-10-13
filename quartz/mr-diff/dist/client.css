@@ -173,8 +173,9 @@
 }
 .mr-diff-body .d2h-file-header {
   font-family: var(--bodyFont);
-  /* A sticky header slides under the fixed #vault-actions bar (vault-keys). */
-  padding-right: 5rem;
+  /* A sticky header slides under the fixed #vault-actions bar, so its content
+     stops as far from its right edge as the bar reaches (vault-keys). */
+  padding-right: var(--vault-actions-width, 10px);
 }
 .mr-diff-body input.d2h-file-collapse-input {
   margin: 0 0.3rem 0 0;
