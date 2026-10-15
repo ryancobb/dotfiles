@@ -1,9 +1,17 @@
 return {
   {
-    "mrjones2014/smart-splits.nvim",
+    "smart-splits-nvim/smart-splits.nvim",
     lazy = false,
+    dependencies = {
+      {
+        "smart-splits-nvim/backend-kitty",
+        main = "smart-splits-backend-kitty",
+        opts = {},
+      },
+    },
     opts = {
-      at_edge = "stop",
+      move = { at_edge = "stop" },
+      mux = { backend = "smart-splits-backend-kitty" },
     },
     keys = {
       {
