@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/manaflow-ai/cmux/main/web/data/cmux.schema.json",
+  "schemaVersion": 1,
+
+  // The cmux settings that differ from the defaults. A setting in this file wins over its value in cmux Settings,
+  // and a change in Settings is written here, so `chezmoi diff` shows it: copy it into this template.
+  // `cmux config get <key>` shows where each value comes from, and `cmux config validate` checks this file.
+  // Terminal behavior (font, theme, keys) stays in ~/.config/ghostty/config, which cmux also reads.
+  "app": {
+    // the workspace title bar hides and its controls move into the sidebar
+    "minimalMode": true,
+    "confirmQuit": "never",
+    "accentColor": "#ebcb8b"
+  },
+
+  "integrations": {
+    "claudeCode": {
+      "customClaudePath": "{{ .chezmoi.homeDir }}/.local/bin/claude"
+    }
+  }
+}
