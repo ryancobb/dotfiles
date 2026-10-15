@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 # Open a daily plan from the work vault in the current terminal pane, as the
-# local Quartz site renders it. Starts the Quartz server first when it is not
+# local Quartz site renders it (in cmux, in a browser split beside the pane
+# instead). Starts the Quartz server first when it is not
 # running, and `mr-diff --watch`, which fetches the MR diffs that the site
 # draws under the MR working docs. With no date, opens today's plan, or the
 # newest plan when "plan" has not written today's yet. "Today" is the
 # planner's day, in America/Los_Angeles.
 #
-#   daily               today's plan in this pane (terminal-browser)
+#   daily               today's plan in this pane (terminal-browser; cmux: a split)
 #   daily 2026-10-06    that day's plan
 #   daily --url         print the URL only
 #   daily --restart     restart the Quartz server (after a config or style edit)
@@ -98,6 +99,23 @@ url="http://localhost:$port/${rel%.md}"
 
 if $print_only; then
   echo "$url"
-else
-  exec terminal-browser open "$url"
+  exit 0
 fi
+
+# In a cmux terminal outside herdr, the plan opens in a cmux browser split
+# beside this pane; a second run moves the split that already shows the site
+# and brings it to the front. When cmux fails, terminal-browser takes over.
+if [[ ${HERDR_ENV:-} != 1 && -n ${CMUX_WORKSPACE_ID:-} ]] && command -v cmux >/dev/null; then
+  surface=$(cmux tree --workspace "$CMUX_WORKSPACE_ID" --json 2>/dev/null |
+    jq -r --arg site "http://localhost:$port/" 'first(.windows[]?.workspaces[]?.panes[]?.surfaces[]?
+      | select(.type == "browser" and (.url // "" | startswith($site))) | .ref) // empty' 2>/dev/null) || surface=""
+  if [[ -n $surface ]] && cmux browser --surface "$surface" goto "$url" >/dev/null 2>&1; then
+    cmux focus-panel --panel "$surface" >/dev/null 2>&1 || true
+    exit 0
+  fi
+  if cmux browser open "$url" --focus true >/dev/null 2>&1; then
+    exit 0
+  fi
+  echo "daily: cmux did not open a browser split; trying terminal-browser" >&2
+fi
+exec terminal-browser open "$url"
