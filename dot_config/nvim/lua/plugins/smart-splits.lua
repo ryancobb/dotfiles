@@ -8,10 +8,17 @@ return {
         main = "smart-splits-backend-kitty",
         opts = {},
       },
+      -- cmux too: it embeds Ghostty. Needs the nvim/ key table in ~/.config/ghostty/config.
+      {
+        "smart-splits-nvim/backend-ghostty",
+        main = "smart-splits-backend-ghostty",
+        opts = {},
+      },
     },
     opts = {
       move = { at_edge = "stop" },
-      mux = { backend = "smart-splits-backend-kitty" },
+      -- the first backend that detects its terminal wins
+      mux = { backend = { "smart-splits-backend-kitty", "smart-splits-backend-ghostty" } },
     },
     keys = {
       {

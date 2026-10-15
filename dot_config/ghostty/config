@@ -11,15 +11,34 @@ window-padding-y = 4
 keybind = cmd+shift+v=new_split:right
 keybind = cmd+shift+s=new_split:down
 
-keybind = performable:ctrl+h=goto_split:left
-keybind = performable:ctrl+j=goto_split:down
-keybind = performable:ctrl+k=goto_split:up
-keybind = performable:ctrl+l=goto_split:right
+# Pane keys match kitty and nvim smart-splits. Like kitty, they take the key even at an edge,
+# so ctrl+j never reaches the shell as Enter. In nvim, smart-splits-backend-ghostty turns on the
+# nvim/ table, which passes the keys to nvim, and moves to the next pane at an nvim edge.
+# Tab moves are in cmux.json.
+keybind = ctrl+h=goto_split:left
+keybind = ctrl+j=goto_split:down
+keybind = ctrl+k=goto_split:up
+keybind = ctrl+l=goto_split:right
 
-keybind = cmd+ctrl+h=resize_split:left,20
-keybind = cmd+ctrl+j=resize_split:down,20
-keybind = cmd+ctrl+k=resize_split:up,20
-keybind = cmd+ctrl+l=resize_split:right,20
+keybind = ctrl+shift+h=resize_split:left,30
+keybind = ctrl+shift+j=resize_split:down,30
+keybind = ctrl+shift+k=resize_split:up,30
+keybind = ctrl+shift+l=resize_split:right,30
+
+keybind = nvim/
+keybind = nvim/ctrl+h=text:\x08
+keybind = nvim/ctrl+j=text:\x0a
+keybind = nvim/ctrl+k=text:\x0b
+keybind = nvim/ctrl+l=text:\x0c
+# CSI u, the encoding nvim reads as <C-S-h> and so on
+keybind = nvim/ctrl+shift+h=csi:104;6u
+keybind = nvim/ctrl+shift+j=csi:106;6u
+keybind = nvim/ctrl+shift+k=csi:107;6u
+keybind = nvim/ctrl+shift+l=csi:108;6u
+
+# clears the nvim/ table when nvim crashed or exited without turning it off
+keybind = cmd+ctrl+escape=deactivate_all_key_tables
+
 keybind = cmd+ctrl+e=equalize_splits
 keybind = cmd+ctrl+z=toggle_split_zoom
 

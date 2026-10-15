@@ -5,7 +5,7 @@
   // The cmux settings that differ from the defaults. A setting in this file wins over its value in cmux Settings,
   // and a change in Settings is written here, so `chezmoi diff` shows it: copy it into this template.
   // `cmux config get <key>` shows where each value comes from, and `cmux config validate` checks this file.
-  // Terminal behavior (font, theme, keys) stays in ~/.config/ghostty/config, which cmux also reads.
+  // Terminal behavior (font, theme, pane keys) stays in ~/.config/ghostty/config, which cmux also reads.
   "app": {
     // the workspace title bar hides and its controls move into the sidebar
     "minimalMode": true,
@@ -16,6 +16,36 @@
   "integrations": {
     "claudeCode": {
       "customClaudePath": "{{ .chezmoi.homeDir }}/.local/bin/claude"
+    }
+  },
+
+  // In a terminal, pane focus (ctrl+hjkl) and resize (ctrl+shift+hjkl) are Ghostty keybinds, so that
+  // smart-splits-backend-ghostty can hand them to nvim; a cmux shortcut would take the key first. ctrl+opt+shift+hjkl
+  // move the tab to the pane in that direction, opt+cmd+jk select workspaces, and ctrl+opt+cmd+jk move them. Each
+  // binding replaces its cmux default: opt+cmd+shift+arrows, ctrl+cmd+[ ], and ctrl+opt+cmd+[ ].
+  "shortcuts": {
+    "bindings": {
+      "moveSurfaceToPaneLeft": "ctrl+opt+shift+h",
+      "moveSurfaceToPaneDown": "ctrl+opt+shift+j",
+      "moveSurfaceToPaneUp": "ctrl+opt+shift+k",
+      "moveSurfaceToPaneRight": "ctrl+opt+shift+l",
+
+      "nextSidebarTab": "cmd+opt+j",
+      "prevSidebarTab": "cmd+opt+k",
+      "moveWorkspaceDown": "cmd+opt+ctrl+j",
+      "moveWorkspaceUp": "cmd+opt+ctrl+k"
+    },
+    "when": {
+      // the cmux default ctrl+shift+hjkl resizes browser and markdown panes; Ghostty resizes terminals
+      "resize-pane-left": "!terminalFocus",
+      "resize-pane-down": "!terminalFocus",
+      "resize-pane-up": "!terminalFocus",
+      "resize-pane-right": "!terminalFocus",
+      // like kitty's `--when-focus-on var:IS_NVIM`: a full-screen app (nvim, less, lazygit) gets the tab-move keys
+      "moveSurfaceToPaneLeft": "!terminalAlternateScreen",
+      "moveSurfaceToPaneDown": "!terminalAlternateScreen",
+      "moveSurfaceToPaneUp": "!terminalAlternateScreen",
+      "moveSurfaceToPaneRight": "!terminalAlternateScreen"
     }
   }
 }
