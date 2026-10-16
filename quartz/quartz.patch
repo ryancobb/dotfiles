@@ -15,7 +15,7 @@ index 3d73641..c8d9b2a 100644
    } finally {
      release()
 diff --git a/quartz/cli/handlers.js b/quartz/cli/handlers.js
-index 6d4119c..d84e097 100644
+index 6d4119c..025d6f7 100644
 --- a/quartz/cli/handlers.js
 +++ b/quartz/cli/handlers.js
 @@ -11,6 +11,7 @@ import prettyBytes from "pretty-bytes"
@@ -26,7 +26,7 @@ index 6d4119c..d84e097 100644
  import { WebSocketServer } from "ws"
  import { randomUUID } from "crypto"
  import { Mutex } from "async-mutex"
-@@ -445,8 +446,17 @@ export async function handleBuild(argv) {
+@@ -445,15 +446,51 @@ export async function handleBuild(argv) {
  
    let clientRefresh = () => {}
    if (argv.serve) {
@@ -46,8 +46,28 @@ index 6d4119c..d84e097 100644
  
      if (argv.baseDir !== "" && !argv.baseDir.startsWith("/")) {
        argv.baseDir = "/" + argv.baseDir
-@@ -454,6 +464,13 @@ export async function handleBuild(argv) {
+     }
  
++    // Local patch: the path of today's daily plan in the build output, found as
++    // the `daily` command finds it: the plan named for today, else the newest
++    // plan when "plan" has not written today's yet. "Today" is the planner's
++    // day in America/Los_Angeles, not the machine's.
++    const todaysPlan = async () => {
++      const parts = new Intl.DateTimeFormat("en-US", {
++        timeZone: "America/Los_Angeles",
++        year: "numeric",
++        month: "2-digit",
++        day: "2-digit",
++      }).formatToParts(new Date())
++      const part = (type) => parts.find((p) => p.type === type).value
++      const today = `${part("year")}-${part("month")}-${part("day")}-daily-plan.html`
++      const plans = (await globby("weeklies/*/*-daily-plan.html", { cwd: argv.output })).sort(
++        (a, b) => path.posix.basename(a).localeCompare(path.posix.basename(b)),
++      )
++      const plan = plans.find((p) => path.posix.basename(p) === today) ?? plans.at(-1)
++      return plan && "/" + plan.slice(0, -".html".length)
++    }
++
      await build(clientRefresh)
      const server = http.createServer(async (req, res) => {
 +      // Local patch: a page on another site can point its own name at 127.0.0.1
@@ -60,7 +80,7 @@ index 6d4119c..d84e097 100644
        if (argv.baseDir && !req.url?.startsWith(argv.baseDir)) {
          console.log(
            styleText(
-@@ -471,32 +488,70 @@ export async function handleBuild(argv) {
+@@ -471,32 +508,70 @@ export async function handleBuild(argv) {
  
        const serve = async () => {
          const release = await buildMutex.acquire()
@@ -153,7 +173,28 @@ index 6d4119c..d84e097 100644
        }
  
        const redirect = (newFp) => {
-@@ -562,8 +617,16 @@ export async function handleBuild(argv) {
+@@ -513,6 +588,20 @@ export async function handleBuild(argv) {
+ 
+       let fp = req.url?.split("?")[0] ?? "/"
+ 
++      // Local patch: the vault has no index.md, so the site root goes to today's
++      // daily plan. The lookup holds the build lock, so that it sees the output
++      // of the last build, as the page that the redirect loads does.
++      if (fp === "/") {
++        const release = await buildMutex.acquire()
++        let plan
++        try {
++          plan = await todaysPlan()
++        } finally {
++          release()
++        }
++        if (plan) return redirect(plan)
++      }
++
+       // handle redirects
+       if (fp.endsWith("/")) {
+         // /trailing/
+@@ -562,8 +651,16 @@ export async function handleBuild(argv) {
        }
        throw err
      })
@@ -172,7 +213,7 @@ index 6d4119c..d84e097 100644
      wss.on("error", (err) => {
        if (err.code === "EADDRINUSE") {
          console.error(
-@@ -573,7 +636,13 @@ export async function handleBuild(argv) {
+@@ -573,7 +670,13 @@ export async function handleBuild(argv) {
        }
        throw err
      })
@@ -187,6 +228,25 @@ index 6d4119c..d84e097 100644
      console.log(
        styleText(
          "cyan",
+diff --git a/quartz/components/scripts/spa.inline.ts b/quartz/components/scripts/spa.inline.ts
+index 8c9cfec..7b6d830 100644
+--- a/quartz/components/scripts/spa.inline.ts
++++ b/quartz/components/scripts/spa.inline.ts
+@@ -70,6 +70,14 @@ async function _navigate(url: URL, isBack: boolean = false) {
+   p = p || new DOMParser()
+   const contents = await fetchCanonical(url)
+     .then((res) => {
++      // Local patch: take the URL that a server redirect lands on (the site root
++      // goes to today's plan), so that the relative links and the address bar
++      // belong to the page that loads. A redirect keeps the link's fragment.
++      if (res.redirected) {
++        const hash = url.hash
++        url = new URL(res.url)
++        url.hash = hash
++      }
+       const contentType = res.headers.get("content-type")
+       if (contentType?.startsWith("text/html")) {
+         return res.text()
 diff --git a/quartz/plugins/emitters/assets.ts b/quartz/plugins/emitters/assets.ts
 index e57707e..60374df 100644
 --- a/quartz/plugins/emitters/assets.ts

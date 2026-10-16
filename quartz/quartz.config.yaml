@@ -64,8 +64,10 @@ plugins:
   - source: "@quartz-community/syntax-highlighting"
     enabled: true
     options:
+      # The light slot holds the Claude theme's palette, not a light mode:
+      # custom.scss picks the slot by vault theme (the vault-keys button).
       theme:
-        light: nord
+        light: kanagawa-dragon
         dark: nord
       keepBackground: false
     order: 20

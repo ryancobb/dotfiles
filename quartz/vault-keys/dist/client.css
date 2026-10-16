@@ -1,8 +1,8 @@
-/* How far the #vault-actions bar reaches in from the right edge: three buttons
-   (an 18px icon, 0.35rem padding, and a 1px border at each side), two 0.4rem
+/* How far the #vault-actions bar reaches in from the right edge: four buttons
+   (an 18px icon, 0.35rem padding, and a 1px border at each side), three 0.4rem
    gaps, and the 0.6rem offset. mr-diff reads it too. */
 :root {
-  --vault-actions-width: calc(3 * (18px + 0.7rem + 2px) + 2 * 0.4rem + 0.6rem);
+  --vault-actions-width: calc(4 * (18px + 0.7rem + 2px) + 3 * 0.4rem + 0.6rem);
 }
 
 /* Zen: no sidebars, and the page body takes the full width (up to 64rem). */
@@ -38,6 +38,25 @@
 }
 :root[data-wide] .page > #quartz-body {
   padding: 0 1rem;
+}
+
+/* Sections: index.js marks each top-level block with its depth, and each depth
+   indents one step more. The page's top section headings stay flush, and a
+   heading's own blocks sit one step in from it. */
+.markdown-preview-view > [data-vault-depth="1"] {
+  margin-left: 1.25rem;
+}
+.markdown-preview-view > [data-vault-depth="2"] {
+  margin-left: 2.5rem;
+}
+.markdown-preview-view > [data-vault-depth="3"] {
+  margin-left: 3.75rem;
+}
+.markdown-preview-view > [data-vault-depth="4"] {
+  margin-left: 5rem;
+}
+.markdown-preview-view > [data-vault-depth="5"] {
+  margin-left: 6.25rem;
 }
 
 #vault-actions {
@@ -89,15 +108,15 @@ body:has(.search-container.active) #vault-actions {
   position: absolute;
   padding: 0 0.25rem;
   border-radius: 3px;
-  background: #ebcb8b;
-  color: #2e3440;
+  background: var(--vt-yellow, #ebcb8b);
+  color: var(--vt-bg1, #2e3440);
   font: 600 0.75rem/1.2 var(--codeFont);
   text-transform: uppercase;
   transform: translate(-0.3rem, -0.5rem);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 .vault-hint b {
-  color: #bf616a;
+  color: var(--vt-red, #bf616a);
 }
 
 #vault-keys-help {

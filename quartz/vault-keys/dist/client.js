@@ -1,5 +1,5 @@
-// Vim keys, zen and wide toggles, and a jump to today's plan for the vault
-// site. Press ? on a page for the list.
+// Vim keys, zen and wide toggles, a theme button, and a jump to today's plan
+// for the vault site. Press ? on a page for the list of keys.
 ;(() => {
   if (window.__vaultKeys) return
   window.__vaultKeys = true
@@ -46,6 +46,44 @@
   readModes()
   applyModes()
 
+  // Three color themes: nordfox (the default), Claude, and Claude Code. The
+  // top-right button cycles them; it has no key. custom.scss keys each theme's
+  // colors on data-vault-theme, and localStorage keeps the choice. This runs
+  // before DOM ready, so a page never draws in the wrong theme.
+  const THEME_KEY = "vault-theme"
+  const THEMES = ["nordfox", "claude", "claude-code"]
+  const THEME_NAMES = { nordfox: "Nordfox", claude: "Claude", "claude-code": "Claude Code" }
+  const nextTheme = () => THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length]
+  let theme = THEMES[0]
+  const readTheme = () => {
+    theme = THEMES[0]
+    try {
+      const saved = localStorage.getItem(THEME_KEY)
+      if (THEMES.includes(saved)) theme = saved
+    } catch {}
+  }
+  const applyTheme = () => {
+    root.dataset.vaultTheme = theme
+    const button = document.getElementById("theme-toggle")
+    if (button) button.title = `Theme: ${THEME_NAMES[theme]} (click for ${THEME_NAMES[nextTheme()]})`
+  }
+  // The graph and Mermaid draw with the colors of the moment and redraw on
+  // themechange, which Quartz's darkmode plugin sends when it changes them.
+  const announceTheme = () =>
+    document.dispatchEvent(
+      new CustomEvent("themechange", { detail: { theme: root.getAttribute("saved-theme") ?? "dark" } }),
+    )
+  const switchTheme = () => {
+    theme = nextTheme()
+    applyTheme()
+    try {
+      localStorage.setItem(THEME_KEY, theme)
+    } catch {}
+    announceTheme()
+  }
+  readTheme()
+  applyTheme()
+
   // Properties fold on every page. The note-properties plugin keeps one global
   // open state in localStorage, so one click would open them everywhere.
   // Instead each page keeps its own state for the tab session, so a page
@@ -86,9 +124,16 @@
   )
   window.addEventListener("storage", (e) => {
     // A null key means that another tab cleared the storage.
-    if (e.key !== null && e.key !== ZEN_KEY && e.key !== WIDE_KEY) return
-    readModes()
-    applyModes()
+    if (e.key === null || e.key === ZEN_KEY || e.key === WIDE_KEY) {
+      readModes()
+      applyModes()
+    }
+    if (e.key === null || e.key === THEME_KEY) {
+      const before = theme
+      readTheme()
+      applyTheme()
+      if (theme !== before) announceTheme()
+    }
   })
 
   // Today's daily plan, found as the `daily` command finds it: the plan named
@@ -138,12 +183,14 @@
       '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/><rect x="7" y="13" width="4" height="4" rx="0.5"/></svg>',
     zen: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="9" y1="4" x2="9" y2="20"/><line x1="15" y1="4" x2="15" y2="20"/></svg>',
     wide: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="4" x2="3" y2="20"/><line x1="21" y1="4" x2="21" y2="20"/><line x1="7" y1="12" x2="17" y2="12"/><polyline points="10 9 7 12 10 15"/><polyline points="14 9 17 12 14 15"/></svg>',
+    theme:
+      '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg>',
   }
   const makeButton = (id, icon, label, key, onClick) => {
     const button = document.createElement("button")
     button.id = id
     button.type = "button"
-    button.title = `${label} (${key})`
+    button.title = key ? `${label} (${key})` : label
     button.setAttribute("aria-label", label)
     button.innerHTML = ICONS[icon]
     button.addEventListener("click", () => {
@@ -162,8 +209,10 @@
       makeButton("today-plan", "today", "Today's plan", "t", openToday),
       makeButton("zen-toggle", "zen", "Toggle sidebars", "z", toggleZen),
       makeButton("wide-toggle", "wide", "Toggle full width", "w", toggleWide),
+      makeButton("theme-toggle", "theme", "Switch theme", null, switchTheme),
     )
     document.body.appendChild(bar)
+    applyTheme()
   }
 
   // Link hints, as in Vimium: f labels every visible link, typing a label
@@ -343,6 +392,7 @@
     closeHints()
     document.getElementById("vault-keys-help")?.remove()
     applyModes()
+    applyTheme()
     foldProperties()
     ensureButtons()
   })
