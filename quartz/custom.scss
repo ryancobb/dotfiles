@@ -1,6 +1,6 @@
 // Three color themes for the work vault: nordfox (nightfox.nvim, the
 // default), Claude (dark claude.ai: warm charcoal, clay, and kraft), and Claude
-// Code (the CLI's dark theme, in a monospace font). vault-keys sets
+// Code (a cozy cabin: walnut, firelight, and pine). vault-keys sets
 // data-vault-theme on <html>, and its top-right button cycles the themes. Each
 // theme sets the same --vt-* tokens, and the rules below read them through the
 // $ names. quartz.config.yaml sets Quartz's base palette for nordfox; the
@@ -142,69 +142,67 @@
   --titleFont: "Source Serif 4", Georgia, serif;
 }
 
-// Claude Code: the CLI's dark theme as cozy, warm pastels (rcobb asked) on an
-// espresso-brown terminal: a peach Claude orange (#d77757 in the CLI) as the
-// accent, and its status hues for error, warning, success, permission, plan
-// mode, auto-accept, and bash as rose, honey, sage, mauve, and sea green.
-// Monospace throughout. Shiki has no third slot, so code blocks color the
-// token types (below).
+// Claude Code: a cozy cabin at night (rcobb asked), in muted, easy colors.
+// Smoked walnut for the surfaces, candlelit cream for the text, and the room's
+// hues faded with age: dim ember (the Claude orange, #d77757 in the CLI) as
+// the accent, worn flannel, lamp honey, dusty moss, pine, dusk smoke, and
+// heather wool. Soft serif headings (Fraunces, from vault-keys) over the sans
+// body. Shiki has no third slot, so code blocks color the token types (below).
 :root[data-vault-theme="claude-code"] {
-  --vt-bg0: #15120f;
-  --vt-bg1: #1c1815;
-  --vt-bg2: #26211d;
-  --vt-bg3: #332c27;
-  --vt-bg4: #5c534b;
-  --vt-fg1: #e9dfd3;
-  --vt-fg2: #bfb3a6;
-  --vt-fg3: #998d80;
-  --vt-white: #f7efe6;
-  --vt-comment: #8f8478;
-  --vt-sel0: #2a2420;
-  --vt-sel1: #5c4337;
+  --vt-bg0: #1b1815;
+  --vt-bg1: #221e1b;
+  --vt-bg2: #2b2622;
+  --vt-bg3: #37312c;
+  --vt-bg4: #625850;
+  --vt-fg1: #dcd0c0;
+  --vt-fg2: #b5a998;
+  --vt-fg3: #8f8476;
+  --vt-white: #ebe1d3;
+  --vt-comment: #857a6d;
+  --vt-sel0: #2b2521;
+  --vt-sel1: #4d3d33;
 
-  --vt-red: #e8a0a0;
-  --vt-orange: #f0a987;
-  --vt-yellow: #ecc98f;
-  --vt-green: #b5c99a;
-  --vt-blue: #c4b5dd;
-  --vt-magenta: #dca7c3;
-  --vt-cyan: #a7cbb8;
-  --vt-pink: #eab0c4;
+  --vt-red: #c48b80;
+  --vt-orange: #cf9c78;
+  --vt-yellow: #cdb282;
+  --vt-green: #a4ab85;
+  --vt-blue: #95a3ad;
+  --vt-magenta: #b09aa6;
+  --vt-cyan: #8fa89a;
+  --vt-pink: #c79a9c;
 
-  --vt-red-bright: #f0b9b7;
-  --vt-orange-bright: #f6c3a8;
-  --vt-yellow-bright: #f4dcae;
-  --vt-green-bright: #cad9b3;
-  --vt-blue-bright: #d8cce8;
-  --vt-magenta-bright: #e8c0d4;
-  --vt-cyan-bright: #c1dccd;
+  --vt-red-bright: #d4a197;
+  --vt-orange-bright: #ddb292;
+  --vt-yellow-bright: #dbc59b;
+  --vt-green-bright: #b8bd9c;
+  --vt-blue-bright: #aab6bf;
+  --vt-magenta-bright: #c2aeb8;
+  --vt-cyan-bright: #a6bbae;
 
   --vt-link: var(--vt-orange);
   --vt-link-hover: var(--vt-orange-bright);
   --vt-title-from: var(--vt-orange);
-  --vt-title-to: var(--vt-orange-bright);
+  --vt-title-to: var(--vt-yellow);
 
-  // The Claude orange leads, and error red stays for failures. Working docs
-  // have many h2s, so h2 takes the calm permission mauve, not the honey.
+  // Ember leads, and worn flannel red stays for failures. Working docs have
+  // many h2s, so h2 takes the calm pine, not the lamp honey.
   --vt-h1: var(--vt-orange);
   --vt-h1-text: var(--vt-orange-bright);
-  --vt-h2: var(--vt-blue);
-  --vt-h2-text: var(--vt-blue-bright);
+  --vt-h2: var(--vt-cyan);
+  --vt-h2-text: var(--vt-cyan-bright);
   --vt-h3: var(--vt-yellow);
   --vt-h3-text: var(--vt-yellow-bright);
-  --vt-h5: var(--vt-cyan);
-  --vt-h5-text: var(--vt-cyan-bright);
 
-  --vt-syn-comment: #8f8478;
-  --vt-syn-keyword: #f0a987;
-  --vt-syn-string: #b5c99a;
-  --vt-syn-number: #ecc98f;
-  --vt-syn-attr: #a7cbb8;
-  --vt-syn-title: #c4b5dd;
-  --vt-syn-type: #dca7c3;
-  --vt-syn-variable: #e9dfd3;
-  --vt-syn-meta: #eab0c4;
-  --vt-syn-punct: #a39689;
+  --vt-syn-comment: #857a6d;
+  --vt-syn-keyword: #cf9c78;
+  --vt-syn-string: #a4ab85;
+  --vt-syn-number: #cdb282;
+  --vt-syn-attr: #8fa89a;
+  --vt-syn-title: #95a3ad;
+  --vt-syn-type: #b09aa6;
+  --vt-syn-variable: #dcd0c0;
+  --vt-syn-meta: #c79a9c;
+  --vt-syn-punct: #9a8e80;
 
   --light: var(--vt-bg1);
   --lightgray: var(--vt-bg2);
@@ -213,12 +211,21 @@
   --dark: var(--vt-white);
   --secondary: var(--vt-orange);
   --tertiary: var(--vt-green);
-  --highlight: rgba(240, 169, 135, 0.14);
-  --textHighlight: #ecc98f40;
+  --highlight: rgba(207, 156, 120, 0.12);
+  --textHighlight: #cdb28238;
 
-  --headerFont: var(--codeFont);
-  --titleFont: var(--codeFont);
-  --bodyFont: var(--codeFont);
+  --headerFont: "Fraunces", Georgia, serif;
+  --titleFont: "Fraunces", Georgia, serif;
+}
+
+// The hearth: a faint ember glow from the bottom of the page.
+html[data-vault-theme="claude-code"] body {
+  background-image: radial-gradient(
+    ellipse 90% 45% at 50% 100%,
+    rgba(207, 156, 120, 0.05),
+    transparent
+  );
+  background-attachment: fixed;
 }
 
 // The quartz-fonts plugin names the header font on the headings themselves,

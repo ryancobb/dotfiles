@@ -1,5 +1,5 @@
 // A Quartz plugin with no build step: it ships client.js and client.css to
-// every page, the serif font of the Claude theme (custom.scss), and a rehype
+// every page, the serif fonts of the Claude themes (custom.scss), and a rehype
 // step that marks each block with the depth of its section. quartz.config.yaml
 // loads it as a local source (./vault-keys), and setup.sh links that path into
 // the Quartz clone. The files sit in dist/ because `plugin install` runs npm
@@ -53,7 +53,11 @@ export default function VaultKeys() {
         css: [
           { content: read("client.css"), inline: true },
           // The browser fetches the font files only when a rule uses the font.
-          { content: "https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&display=swap" },
+          // Fraunces comes with its SOFT axis at 100, the rounded cuts.
+          {
+            content:
+              "https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Fraunces:opsz,wght,SOFT@9..144,400..700,100&display=swap",
+          },
         ],
         // Before DOM ready, so a page in zen mode never draws its sidebars.
         js: [{ script: read("client.js"), loadTime: "beforeDOMReady", contentType: "inline", spaPreserve: true }],
