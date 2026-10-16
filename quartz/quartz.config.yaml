@@ -21,6 +21,8 @@ configuration:
     - .claude/**
     - tools/**
     - planner/**
+    # audit and review evidence folders: scripts and raw outputs, not pages to read
+    - notes/planner/*-evidence/**
     - .playwright-mcp/**
   theme:
     fontOrigin: googleFonts
