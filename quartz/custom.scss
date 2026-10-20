@@ -148,6 +148,10 @@
 // the accent, worn flannel, lamp honey, dusty moss, pine, dusk smoke, and
 // heather wool. Soft serif headings (Fraunces, from vault-keys) over the sans
 // body. Shiki has no third slot, so code blocks color the token types (below).
+// The --vt-* tokens below are the source of the cozycabin palette; the copies
+// in dot_config/ghostty/themes/cozycabin.ghostty,
+// dot_config/nvim/lua/nightfox/palette/cozycabin.lua, and
+// dot_claude/themes/cozycabin.json follow them, so edit all four together.
 :root[data-vault-theme="claude-code"] {
   --vt-bg0: #1b1815;
   --vt-bg1: #221e1b;

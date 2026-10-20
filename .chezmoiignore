@@ -3,15 +3,21 @@
 # are all rewritten at runtime). Tracking it caused recurring `chezmoi update`
 # conflicts, so the whole directory is left unmanaged.
 #
-# Exception: ~/.claude/output-styles/*.md holds portable, machine-independent
-# output styles that Claude Code loads at user scope. Nothing rewrites them at
-# runtime, so they are safe to track. Re-including a child needs the parent glob
-# (`.claude/*`) and an explicit un-ignore of each directory on the way down; a
-# bare `.claude` ignore cannot be negated.
+# Exceptions: ~/.claude/output-styles/*.md holds portable, machine-independent
+# output styles that Claude Code loads at user scope, and ~/.claude/themes/*.json
+# holds the custom themes (cozycabin is the Quartz claude-code palette; see
+# quartz/custom.scss). Nothing rewrites the output styles at runtime. Only the
+# `/theme` editor (Ctrl+E on a custom theme) rewrites a theme file, so edit the
+# source here, or `chezmoi re-add` the file after using the editor. Re-including
+# a child needs the parent glob (`.claude/*`) and an explicit un-ignore of each
+# directory on the way down; a bare `.claude` ignore cannot be negated.
 .claude/*
 !.claude/output-styles
 .claude/output-styles/*
 !.claude/output-styles/*.md
+!.claude/themes
+.claude/themes/*
+!.claude/themes/*.json
 
 # The Quartz site that renders the work vault (the `daily` command) reads its
 # config and styles from quartz/ in the source dir. dot_config/

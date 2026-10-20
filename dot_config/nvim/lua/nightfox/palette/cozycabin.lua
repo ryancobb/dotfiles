@@ -1,6 +1,7 @@
 -- Cozy cabin: the Quartz claude-code theme (chezmoi quartz/custom.scss) as a
 -- nightfox palette. The Ghostty theme dot_config/ghostty/themes/cozycabin.ghostty
--- is the same set, so edit both.
+-- and the Claude Code theme dot_claude/themes/cozycabin.json are the same set,
+-- so edit all three.
 local C = require("nightfox.lib.color")
 local Shade = require("nightfox.lib.shade")
 
