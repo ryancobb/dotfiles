@@ -53,6 +53,9 @@ if [[ ! -L content ]]; then
 fi
 ln -sf "$here/quartz.config.yaml" quartz.config.yaml
 ln -sf "$here/custom.scss" quartz/styles/custom.scss
+# custom.scss imports _cozycabin.scss, the palette tokens that cozycabin-apply
+# renders from .chezmoidata/cozycabin.yaml; git does not hold the rendered file.
+cozycabin-apply --render
 # The config loads these local plugins as ./vault-keys, ./mr-diff, and
 # ./graph-vendor.
 ln -sfn "$here/vault-keys" vault-keys

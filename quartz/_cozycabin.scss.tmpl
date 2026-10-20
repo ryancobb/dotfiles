@@ -1,0 +1,38 @@
+// The cozy cabin palette as the Quartz --vt-* tokens. cozycabin-apply renders
+// _cozycabin.scss from this template and .chezmoidata/cozycabin.yaml (the one
+// source of the palette) with `chezmoi execute-template`; edit the data file,
+// not the rendered copy. custom.scss includes the mixin in its claude-code
+// theme block and maps the roles (links, headings, syntax) on top. The hues
+// come from the `quartz:` map, the muted first cut; the surfaces are shared.
+@mixin tokens {
+  --vt-bg0: {{ .cozycabin.bg0 }};
+  --vt-bg1: {{ .cozycabin.bg1 }};
+  --vt-bg2: {{ .cozycabin.bg2 }};
+  --vt-bg3: {{ .cozycabin.bg3 }};
+  --vt-bg4: {{ .cozycabin.bg4 }};
+  --vt-fg1: {{ .cozycabin.fg1 }};
+  --vt-fg2: {{ .cozycabin.fg2 }};
+  --vt-fg3: {{ .cozycabin.fg3 }};
+  --vt-white: {{ .cozycabin.white }};
+  --vt-comment: {{ .cozycabin.comment }};
+  --vt-punct: {{ .cozycabin.punct }};
+  --vt-sel0: {{ .cozycabin.sel_faint }};
+  --vt-sel1: {{ .cozycabin.sel }};
+
+  --vt-red: {{ .cozycabin.quartz.red }};
+  --vt-orange: {{ .cozycabin.quartz.orange }};
+  --vt-yellow: {{ .cozycabin.quartz.yellow }};
+  --vt-green: {{ .cozycabin.quartz.green }};
+  --vt-blue: {{ .cozycabin.quartz.blue }};
+  --vt-magenta: {{ .cozycabin.quartz.magenta }};
+  --vt-cyan: {{ .cozycabin.quartz.cyan }};
+  --vt-pink: {{ .cozycabin.quartz.pink }};
+
+  --vt-red-bright: {{ .cozycabin.quartz.red_bright }};
+  --vt-orange-bright: {{ .cozycabin.quartz.orange_bright }};
+  --vt-yellow-bright: {{ .cozycabin.quartz.yellow_bright }};
+  --vt-green-bright: {{ .cozycabin.quartz.green_bright }};
+  --vt-blue-bright: {{ .cozycabin.quartz.blue_bright }};
+  --vt-magenta-bright: {{ .cozycabin.quartz.magenta_bright }};
+  --vt-cyan-bright: {{ .cozycabin.quartz.cyan_bright }};
+}

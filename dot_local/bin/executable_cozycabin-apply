@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+# cozycabin-apply: push the cozy cabin palette to every consumer.
+#
+# The palette lives in .chezmoidata/cozycabin.yaml in the chezmoi source.
+# Every chezmoi template that reads .cozycabin.* (today the Ghostty theme and
+# config, the nvim nightfox palette, the Claude Code theme, and the cmux
+# config) is found by a grep of the source and applied. Quartz reads its
+# styles from quartz/ in the source, which chezmoi ignores, so this script
+# renders the token partial quartz/_cozycabin.scss itself; `--render` does
+# only that (setup.sh runs it on a new machine; the partial is not in git).
+# Then it reloads cmux and, when the partial changed, restarts a running
+# Quartz server, whose watcher sees only vault files. Claude Code reloads an
+# edited theme file on its own.
+#
+#   cozycabin-apply            render, apply, reload cmux, restart Quartz
+#   cozycabin-apply --render   render quartz/_cozycabin.scss only
+set -euo pipefail
+
+render_only=false
+case "${1:-}" in
+  "") ;;
+  --render) render_only=true ;;
+  *) echo "usage: cozycabin-apply [--render]" >&2; exit 2 ;;
+esac
+
+src=$(chezmoi source-path)
+partial="$src/quartz/_cozycabin.scss"
+chezmoi execute-template --file "$partial.tmpl" >"$partial.new"
+if cmp -s "$partial.new" "$partial" 2>/dev/null; then
+  rm "$partial.new"
+  partial_changed=false
+else
+  mv "$partial.new" "$partial"
+  partial_changed=true
+fi
+$render_only && exit 0
+
+# The targets of the templates that read the palette. A managed parent
+# directory goes in too: applying a file under a directory that does not
+# exist yet fails (~/.claude/themes on a new machine).
+managed_dirs=$(chezmoi managed --include=dirs --path-style=absolute)
+targets=()
+while IFS= read -r source; do
+  target=$(chezmoi target-path "$source")
+  if grep -qxF "$(dirname "$target")" <<<"$managed_dirs"; then
+    targets+=("$(dirname "$target")")
+  fi
+  targets+=("$target")
+done < <(grep -rl --include='*.tmpl' '\.cozycabin\.' "$src" --exclude-dir=.git --exclude-dir=quartz | sort -u)
+# --force: a theme file that the Claude Code /theme editor rewrote is
+# overwritten, not asked about (the prompt needs a TTY).
+chezmoi apply --force --no-pager "${targets[@]}" </dev/null
+
+if cmux reload-config >/dev/null 2>&1; then
+  echo "cozycabin-apply: cmux reloaded its config" >&2
+else
+  echo "cozycabin-apply: cmux is not running; it reads the new config at start" >&2
+fi
+
+if $partial_changed; then
+  # daily's output goes to a file, not a pipe: a server it starts inherits the
+  # descriptors, and a pipe would never close.
+  errors=$(mktemp)
+  if daily --restart --if-running --url >/dev/null 2>"$errors"; then
+    tail -n 1 "$errors" >&2
+  else
+    cat "$errors" >&2
+    rm -f "$errors"
+    exit 1
+  fi
+  rm -f "$errors"
+else
+  echo "cozycabin-apply: the Quartz tokens did not change; no restart" >&2
+fi

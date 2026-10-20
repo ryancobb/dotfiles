@@ -1,7 +1,7 @@
--- Cozy cabin: the Quartz claude-code theme (chezmoi quartz/custom.scss) as a
--- nightfox palette. The Ghostty theme dot_config/ghostty/themes/cozycabin.ghostty
--- and the Claude Code theme dot_claude/themes/cozycabin.json are the same set,
--- so edit all three.
+-- Cozy cabin as a nightfox palette. chezmoi renders this file from
+-- .chezmoidata/cozycabin.yaml in the dotfiles, the one source of the palette
+-- (Quartz, Ghostty, Claude Code, and cmux read the same file). Edit the data
+-- file and run cozycabin-apply; an edit here is lost on the next apply.
 local C = require("nightfox.lib.color")
 local Shade = require("nightfox.lib.shade")
 
@@ -19,38 +19,38 @@ local meta = {
   light = false,
 }
 
--- Base and bright are the Quartz --vt-* tokens; a dim of -0.15 is nightfox's
--- own step (carbonfox uses it). The Quartz sel0 sits 3 points off bg1, which
--- no terminal can see, so Visual takes the Quartz sel1, and search and popup
--- selections take an ember-tinted step above it.
+-- Base and bright are the palette's hues; a dim of -0.15 is nightfox's own
+-- step (carbonfox uses it). The palette's sel_faint (the Quartz sel0) sits 3
+-- points off bg1, which no terminal can see, so Visual takes sel, and search
+-- and popup selections take sel_search, an ember-tinted step above it.
 -- stylua: ignore
 local palette = {
-  black   = Shade.new("#37312c", "#625850", "#2b2622"), -- bg3, bg4, bg2
-  red     = Shade.new("#c48b80", "#d4a197", -0.15), -- worn flannel
-  green   = Shade.new("#a4ab85", "#b8bd9c", -0.15), -- dusty moss
-  yellow  = Shade.new("#cdb282", "#dbc59b", -0.15), -- lamp honey
-  blue    = Shade.new("#95a3ad", "#aab6bf", -0.15), -- dusk smoke
-  magenta = Shade.new("#b09aa6", "#c2aeb8", -0.15), -- heather
-  cyan    = Shade.new("#8fa89a", "#a6bbae", -0.15), -- pine
-  white   = Shade.new("#dcd0c0", "#ebe1d3", -0.15), -- cream, then --vt-white
-  orange  = Shade.new("#cf9c78", "#ddb292", -0.15), -- dim ember (the accent)
-  pink    = Shade.new("#c79a9c", 0.15, -0.15),
+  black   = Shade.new("{{ .cozycabin.bg3 }}", "{{ .cozycabin.bg4 }}", "{{ .cozycabin.bg2 }}"), -- bg3, bg4, bg2
+  red     = Shade.new("{{ .cozycabin.red }}", "{{ .cozycabin.red_bright }}", -0.15), -- worn flannel
+  green   = Shade.new("{{ .cozycabin.green }}", "{{ .cozycabin.green_bright }}", -0.15), -- dusty moss
+  yellow  = Shade.new("{{ .cozycabin.yellow }}", "{{ .cozycabin.yellow_bright }}", -0.15), -- lamp honey
+  blue    = Shade.new("{{ .cozycabin.blue }}", "{{ .cozycabin.blue_bright }}", -0.15), -- dusk smoke
+  magenta = Shade.new("{{ .cozycabin.magenta }}", "{{ .cozycabin.magenta_bright }}", -0.15), -- heather
+  cyan    = Shade.new("{{ .cozycabin.cyan }}", "{{ .cozycabin.cyan_bright }}", -0.15), -- pine
+  white   = Shade.new("{{ .cozycabin.fg1 }}", "{{ .cozycabin.white }}", -0.15), -- cream, then --vt-white
+  orange  = Shade.new("{{ .cozycabin.orange }}", "{{ .cozycabin.orange_bright }}", -0.15), -- dim ember (the accent)
+  pink    = Shade.new("{{ .cozycabin.pink }}", "{{ .cozycabin.pink_bright }}", -0.15),
 
-  comment = "#857a6d",
+  comment = "{{ .cozycabin.comment }}",
 
-  bg0     = "#1b1815", -- Dark bg (status line and float)
-  bg1     = "#221e1b", -- Default bg: smoked walnut
-  bg2     = "#2b2622", -- Lighter bg (colorcolm folds)
-  bg3     = "#37312c", -- Lighter bg (cursor line)
-  bg4     = "#625850", -- Conceal, border fg
+  bg0     = "{{ .cozycabin.bg0 }}", -- Dark bg (status line and float)
+  bg1     = "{{ .cozycabin.bg1 }}", -- Default bg: smoked walnut
+  bg2     = "{{ .cozycabin.bg2 }}", -- Lighter bg (colorcolm folds)
+  bg3     = "{{ .cozycabin.bg3 }}", -- Lighter bg (cursor line)
+  bg4     = "{{ .cozycabin.bg4 }}", -- Conceal, border fg
 
-  fg0     = "#e4d9ca", -- Lighter fg (between fg1 and white; Quartz has no fg0)
-  fg1     = "#dcd0c0", -- Default fg: cream
-  fg2     = "#b5a998", -- Darker fg (status line)
-  fg3     = "#8f8476", -- Darker fg (line numbers, fold colums)
+  fg0     = "{{ .cozycabin.fg0 }}", -- Lighter fg (between fg1 and white)
+  fg1     = "{{ .cozycabin.fg1 }}", -- Default fg: cream
+  fg2     = "{{ .cozycabin.fg2 }}", -- Darker fg (status line)
+  fg3     = "{{ .cozycabin.fg3 }}", -- Darker fg (line numbers, fold colums)
 
-  sel0    = "#4d3d33", -- Popup bg, visual selection bg (the Quartz sel1)
-  sel1    = "#675041", -- Popup sel bg, search bg
+  sel0    = "{{ .cozycabin.sel }}", -- Popup bg, visual selection bg
+  sel1    = "{{ .cozycabin.sel_search }}", -- Popup sel bg, search bg
 }
 
 local function generate_spec(pal)

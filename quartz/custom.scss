@@ -7,7 +7,9 @@
 // other theme blocks set it again. Heading colors and tints match the
 // markview.nvim setup in the nvim config: each band is 35% of the hue over
 // bg1, with the bright hue as the text. The `html` prefix outranks Quartz's
-// own rules.
+// own rules. The claude-code palette comes from _cozycabin.scss, which
+// cozycabin-apply renders from .chezmoidata/cozycabin.yaml; the roles stay here.
+@use "cozycabin";
 
 :root {
   --vt-bg0: #232831;
@@ -148,40 +150,12 @@
 // the accent, worn flannel, lamp honey, dusty moss, pine, dusk smoke, and
 // heather wool. Soft serif headings (Fraunces, from vault-keys) over the sans
 // body. Shiki has no third slot, so code blocks color the token types (below).
-// The --vt-* tokens below are the source of the cozycabin palette; the copies
-// in dot_config/ghostty/themes/cozycabin.ghostty,
-// dot_config/nvim/lua/nightfox/palette/cozycabin.lua, and
-// dot_claude/themes/cozycabin.json follow them, so edit all four together.
+// The --vt-* tokens come from _cozycabin.scss, which cozycabin-apply renders
+// from .chezmoidata/cozycabin.yaml (the shared surfaces and the `quartz:`
+// hues); the terminal, nvim, and Claude Code read the same data file. The
+// roles below (links, headings, syntax) are the site's own.
 :root[data-vault-theme="claude-code"] {
-  --vt-bg0: #1b1815;
-  --vt-bg1: #221e1b;
-  --vt-bg2: #2b2622;
-  --vt-bg3: #37312c;
-  --vt-bg4: #625850;
-  --vt-fg1: #dcd0c0;
-  --vt-fg2: #b5a998;
-  --vt-fg3: #8f8476;
-  --vt-white: #ebe1d3;
-  --vt-comment: #857a6d;
-  --vt-sel0: #2b2521;
-  --vt-sel1: #4d3d33;
-
-  --vt-red: #c48b80;
-  --vt-orange: #cf9c78;
-  --vt-yellow: #cdb282;
-  --vt-green: #a4ab85;
-  --vt-blue: #95a3ad;
-  --vt-magenta: #b09aa6;
-  --vt-cyan: #8fa89a;
-  --vt-pink: #c79a9c;
-
-  --vt-red-bright: #d4a197;
-  --vt-orange-bright: #ddb292;
-  --vt-yellow-bright: #dbc59b;
-  --vt-green-bright: #b8bd9c;
-  --vt-blue-bright: #aab6bf;
-  --vt-magenta-bright: #c2aeb8;
-  --vt-cyan-bright: #a6bbae;
+  @include cozycabin.tokens; // the palette, from .chezmoidata/cozycabin.yaml
 
   --vt-link: var(--vt-orange);
   --vt-link-hover: var(--vt-orange-bright);
@@ -197,16 +171,16 @@
   --vt-h3: var(--vt-yellow);
   --vt-h3-text: var(--vt-yellow-bright);
 
-  --vt-syn-comment: #857a6d;
-  --vt-syn-keyword: #cf9c78;
-  --vt-syn-string: #a4ab85;
-  --vt-syn-number: #cdb282;
-  --vt-syn-attr: #8fa89a;
-  --vt-syn-title: #95a3ad;
-  --vt-syn-type: #b09aa6;
-  --vt-syn-variable: #dcd0c0;
-  --vt-syn-meta: #c79a9c;
-  --vt-syn-punct: #9a8e80;
+  --vt-syn-comment: var(--vt-comment);
+  --vt-syn-keyword: var(--vt-orange);
+  --vt-syn-string: var(--vt-green);
+  --vt-syn-number: var(--vt-yellow);
+  --vt-syn-attr: var(--vt-cyan);
+  --vt-syn-title: var(--vt-blue);
+  --vt-syn-type: var(--vt-magenta);
+  --vt-syn-variable: var(--vt-fg1);
+  --vt-syn-meta: var(--vt-pink);
+  --vt-syn-punct: var(--vt-punct);
 
   --light: var(--vt-bg1);
   --lightgray: var(--vt-bg2);
@@ -215,8 +189,8 @@
   --dark: var(--vt-white);
   --secondary: var(--vt-orange);
   --tertiary: var(--vt-green);
-  --highlight: rgba(207, 156, 120, 0.12);
-  --textHighlight: #cdb28238;
+  --highlight: color-mix(in srgb, var(--vt-orange) 12%, transparent);
+  --textHighlight: color-mix(in srgb, var(--vt-yellow) 22%, transparent);
 
   --headerFont: "Fraunces", Georgia, serif;
   --titleFont: "Fraunces", Georgia, serif;
@@ -226,7 +200,7 @@
 html[data-vault-theme="claude-code"] body {
   background-image: radial-gradient(
     ellipse 90% 45% at 50% 100%,
-    rgba(207, 156, 120, 0.05),
+    color-mix(in srgb, var(--vt-orange) 5%, transparent),
     transparent
   );
   background-attachment: fixed;

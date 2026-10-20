@@ -2,8 +2,9 @@ return {
   {
     "EdenEast/nightfox.nvim",
     opts = function()
-      -- Cozy cabin (lua/nightfox/palette/cozycabin.lua) is the Quartz
-      -- claude-code theme as a nightfox palette. Requiring it registers the
+      -- Cozy cabin (lua/nightfox/palette/cozycabin.lua, which chezmoi renders
+      -- from the palette data file .chezmoidata/cozycabin.yaml) is the shared
+      -- cabin palette as a nightfox palette. Requiring it registers the
       -- name, and setup compiles every registered fox. Nightfox keys its
       -- compile cache by a hash of these options, so the palette file's mtime
       -- rides along: an edit there recompiles instead of showing the stale

@@ -1,0 +1,34 @@
+# Cozy cabin colors for Ghostty (cmux reads this config too)
+## name: cozycabin
+## source: chezmoi renders this file from .chezmoidata/cozycabin.yaml in the
+## dotfiles, the one source of the palette (Quartz, nvim, Claude Code, and cmux
+## read the same file). Edit the data file and run cozycabin-apply.
+
+background = {{ .cozycabin.bg1 }}
+foreground = {{ .cozycabin.fg1 }}
+selection-background = {{ .cozycabin.sel }}
+selection-foreground = {{ .cozycabin.fg1 }}
+cursor-color = {{ .cozycabin.fg1 }}
+
+# normal
+palette = 0={{ .cozycabin.bg3 }}
+palette = 1={{ .cozycabin.red }}
+palette = 2={{ .cozycabin.green }}
+palette = 3={{ .cozycabin.yellow }}
+palette = 4={{ .cozycabin.blue }}
+palette = 5={{ .cozycabin.magenta }}
+palette = 6={{ .cozycabin.cyan }}
+palette = 7={{ .cozycabin.fg1 }}
+
+# bright
+palette = 8={{ .cozycabin.bg4 }}
+palette = 9={{ .cozycabin.red_bright }}
+palette = 10={{ .cozycabin.green_bright }}
+palette = 11={{ .cozycabin.yellow_bright }}
+palette = 12={{ .cozycabin.blue_bright }}
+palette = 13={{ .cozycabin.magenta_bright }}
+palette = 14={{ .cozycabin.cyan_bright }}
+palette = 15={{ .cozycabin.white }}
+
+# extended colors
+palette = 16={{ .cozycabin.orange }}

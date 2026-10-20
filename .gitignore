@@ -1,2 +1,4 @@
 # macOS folder metadata.
 .DS_Store
+# Rendered by cozycabin-apply from _cozycabin.scss.tmpl and the palette data.
+quartz/_cozycabin.scss

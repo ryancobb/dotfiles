@@ -10,31 +10,37 @@
 #   daily 2026-10-06    that day's plan
 #   daily --url         print the URL only
 #   daily --restart     restart the Quartz server (after a config or style edit)
+#   daily --restart --if-running
+#                       the same, but do nothing when the server is down
 set -euo pipefail
 
 vault="${PLANNER_VAULT:-$HOME/Projects/vaults/work}"
 quartz="$HOME/.local/share/quartz"
 patch="$HOME/.config/quartz-vault/quartz.patch"
+tokens="$HOME/.config/quartz-vault/_cozycabin.scss"
 port=8080
 log="$HOME/.local/state/quartz-vault.log"
 
 usage() {
-  echo "usage: daily [--url] [--restart] [YYYY-MM-DD]" >&2
+  echo "usage: daily [--url] [--restart [--if-running]] [YYYY-MM-DD]" >&2
   exit 2
 }
 
 print_only=false
 restart=false
+if_running=false
 day=$(TZ=America/Los_Angeles date +%F)
 asked_day=false
 for arg in "$@"; do
   case "$arg" in
     --url) print_only=true ;;
     --restart) restart=true ;;
+    --if-running) if_running=true ;;
     [0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]) day=$arg asked_day=true ;;
     *) usage ;;
   esac
 done
+if $if_running && ! $restart; then usage; fi
 
 # A port probe, not a request: the server holds every request until a rebuild
 # ends, which can take longer than a request timeout.
@@ -50,7 +56,13 @@ if [[ -n $pids ]] && lsof -nP -a -p "$pids" -iTCP -sTCP:LISTEN 2>/dev/null | gre
   restart=true
 fi
 
+if $if_running && ! server_up; then
+  echo "daily: the Quartz server is not running; nothing to restart" >&2
+  exit 0
+fi
+
 if $restart; then
+  echo "daily: restarting the Quartz server" >&2
   pkill -f "quartz build --serve" || true
   for _ in $(seq 1 20); do server_up || break; sleep 0.25; done
 fi
@@ -64,6 +76,12 @@ if ! server_up; then
   fi
   if grep -q 'cdn\.jsdelivr\.net' "$quartz/node_modules/@quartz-community/graph/dist/index.js" 2>/dev/null; then
     echo "daily: the graph loads its scripts from jsdelivr; run ~/.config/quartz-vault/setup.sh" >&2
+    exit 1
+  fi
+  # custom.scss imports the palette tokens, which cozycabin-apply renders and
+  # git does not hold.
+  if [[ ! -f $tokens ]]; then
+    echo "daily: the Quartz styles are missing $tokens; run cozycabin-apply --render" >&2
     exit 1
   fi
   echo "daily: starting the Quartz server (about 15 s)..." >&2

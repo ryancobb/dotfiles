@@ -5,12 +5,13 @@
 #
 # Exceptions: ~/.claude/output-styles/*.md holds portable, machine-independent
 # output styles that Claude Code loads at user scope, and ~/.claude/themes/*.json
-# holds the custom themes (cozycabin is the Quartz claude-code palette; see
-# quartz/custom.scss). Nothing rewrites the output styles at runtime. Only the
-# `/theme` editor (Ctrl+E on a custom theme) rewrites a theme file, so edit the
-# source here, or `chezmoi re-add` the file after using the editor. Re-including
-# a child needs the parent glob (`.claude/*`) and an explicit un-ignore of each
-# directory on the way down; a bare `.claude` ignore cannot be negated.
+# holds the custom themes. cozycabin.json is a template of the palette in
+# .chezmoidata/cozycabin.yaml, so an edit from the `/theme` editor (Ctrl+E on a
+# custom theme) cannot come back with `chezmoi re-add`, which skips templates:
+# copy the color into the data file and run cozycabin-apply. Nothing rewrites
+# the output styles at runtime. Re-including a child needs the parent glob
+# (`.claude/*`) and an explicit un-ignore of each directory on the way down; a
+# bare `.claude` ignore cannot be negated.
 .claude/*
 !.claude/output-styles
 .claude/output-styles/*

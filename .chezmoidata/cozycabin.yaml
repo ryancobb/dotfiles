@@ -1,0 +1,85 @@
+# The cozy cabin palette: the one source for the Quartz claude-code theme, the
+# Ghostty theme that cmux reads, the nvim nightfox palette, the Claude Code
+# theme, and the cmux accent. Edit a color here, then run `cozycabin-apply`:
+# it renders quartz/_cozycabin.scss, applies the chezmoi templates that read
+# .cozycabin.*, reloads cmux, and restarts a running Quartz server.
+cozycabin:
+  # Surfaces: smoked walnut, darkest first. Warmer browns (+0.010 and +0.016
+  # OKLCH chroma on the ember's hue) were tried on 2026-10-20 and rejected.
+  bg0: "#1b1815" # status line, floats, the Claude Code composer sidebar
+  bg1: "#221e1b" # the background
+  bg2: "#2b2622" # folds, the Claude Code user message
+  bg3: "#37312c" # cursor line; terminal black
+  bg4: "#625850" # borders, conceal; terminal bright black
+
+  # Text: cream.
+  fg0: "#e4d9ca" # nvim only, between fg1 and white (Quartz has no fg0)
+  fg1: "#dcd0c0" # the foreground
+  fg2: "#b5a998" # status line text
+  fg3: "#8f8476" # line numbers, inactive text
+  white: "#ebe1d3" # terminal bright white
+  comment: "#857a6d"
+  punct: "#9a8e80" # Quartz code punctuation and operators
+
+  # Selections.
+  sel_faint: "#2b2521" # Quartz --vt-sel0: 3 points off bg1, too faint for a terminal
+  sel: "#4d3d33" # Quartz --vt-sel1; the terminal selection, nvim Visual, Claude Code selectionBg
+  sel_search: "#675041" # nvim popup selection and search: an ember step above sel
+
+  # Hues, base and bright: the terminal's normal and bright colors, nightfox's
+  # base and bright shades, and the Claude Code accents. 2026-10-20: OKLCH
+  # chroma pulled 55% of the way to 0.12 at the same lightness and hue (the
+  # first cut read as grey in Claude Code); the Quartz site keeps the first
+  # cut under `quartz:` below.
+  red: "#d18475" # worn flannel
+  red_bright: "#e5998a"
+  orange: "#d99868" # dim ember: the accent
+  orange_bright: "#ebad7d"
+  yellow: "#d6b06b" # lamp honey
+  yellow_bright: "#e5c380"
+  green: "#a3ae6b" # dusty moss
+  green_bright: "#b8c07f"
+  blue: "#74a8cb" # dusk smoke
+  blue_bright: "#89bbdf"
+  magenta: "#c58dae" # heather
+  magenta_bright: "#daa1bf"
+  cyan: "#72b190" # pine
+  cyan_bright: "#89c5a2"
+  pink: "#da9094"
+  pink_bright: "#e59ea3"
+
+  # The Quartz site keeps the muted first cut of the hues: it shows color in
+  # wide heading bands and link chips, where the terminal's stronger hues read
+  # as too saturated (rcobb, 2026-10-20). Only _cozycabin.scss reads these.
+  quartz:
+    red: "#c48b80"
+    red_bright: "#d4a197"
+    orange: "#cf9c78"
+    orange_bright: "#ddb292"
+    yellow: "#cdb282"
+    yellow_bright: "#dbc59b"
+    green: "#a4ab85"
+    green_bright: "#b8bd9c"
+    blue: "#95a3ad"
+    blue_bright: "#aab6bf"
+    magenta: "#b09aa6"
+    magenta_bright: "#c2aeb8"
+    cyan: "#8fa89a"
+    cyan_bright: "#a6bbae"
+    pink: "#c79a9c"
+
+  # Claude Code colors no other consumer uses. The diff backgrounds are their
+  # own greens and reds (OKLCH L 0.39/0.38 C 0.075/0.085 at hues 142/22; dimmed
+  # L 0.32/0.31, word marks L 0.50/0.48 C 0.10/0.11): blends of the pastel
+  # hues over bg1 came out as two browns (2026-10-20). The message backgrounds
+  # are faint tints of pink (bash) and magenta (memory) over bg1, picked at 12%;
+  # they are values of their own, and a small hue edit does not move them.
+  claude_code:
+    diff_added: "#2c4f28"
+    diff_removed: "#682d2d"
+    diff_added_dimmed: "#243922"
+    diff_removed_dimmed: "#482424"
+    diff_added_word: "#3f713a"
+    diff_removed_word: "#924141"
+    bash_message_bg: "#382c2a"
+    memory_bg: "#362b2d"
