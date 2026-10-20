@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
 # Open a daily plan from the work vault in the current terminal pane, as the
-# local Quartz site renders it (in cmux, in a browser split beside the pane
-# instead). Starts the Quartz server first when it is not
-# running, and `mr-diff --watch`, which fetches the MR diffs that the site
-# draws under the MR working docs. With no date, opens today's plan, or the
-# newest plan when "plan" has not written today's yet. "Today" is the
-# planner's day, in America/Los_Angeles.
+# local Quartz site renders it (in cmux, as a browser tab in the same pane).
+# Starts the Quartz server first when it is not running, and `mr-diff --watch`,
+# which fetches the MR diffs that the site draws under the MR working docs.
+# With no date, opens today's plan, or the newest plan when "plan" has not
+# written today's yet. "Today" is the planner's day, in America/Los_Angeles.
 #
-#   daily               today's plan in this pane (terminal-browser; cmux: a split)
+#   daily               today's plan in this pane (a browser tab in cmux)
 #   daily 2026-10-06    that day's plan
 #   daily --url         print the URL only
 #   daily --restart     restart the Quartz server (after a config or style edit)
@@ -102,20 +101,45 @@ if $print_only; then
   exit 0
 fi
 
-# In a cmux terminal outside herdr, the plan opens in a cmux browser split
-# beside this pane; a second run moves the split that already shows the site
-# and brings it to the front. When cmux fails, terminal-browser takes over.
+# In a cmux terminal outside herdr, the plan opens as a browser tab in this
+# pane (the tree's `caller` names the pane); a second run moves the tab that
+# already shows the site, in this pane first, else elsewhere in this
+# workspace, and brings it to the front. The tree is unfiltered: a terminal
+# tab moved to another workspace keeps its old CMUX_WORKSPACE_ID. Without a
+# caller pane (a scrubbed environment, a tmux or zellij server, a stale
+# CMUX_SURFACE_ID) a split beside this pane is still cmux. When cmux fails,
+# terminal-browser takes over.
 if [[ ${HERDR_ENV:-} != 1 && -n ${CMUX_WORKSPACE_ID:-} ]] && command -v cmux >/dev/null; then
-  surface=$(cmux tree --workspace "$CMUX_WORKSPACE_ID" --json 2>/dev/null |
-    jq -r --arg site "http://localhost:$port/" 'first(.windows[]?.workspaces[]?.panes[]?.surfaces[]?
-      | select(.type == "browser" and (.url // "" | startswith($site))) | .ref) // empty' 2>/dev/null) || surface=""
+  tree=$(cmux tree --all --json 2>/dev/null) || tree=""
+  pane="" surface=""
+  { read -r pane && read -r surface; } < <(jq -r --arg site "http://localhost:$port/" '
+    .caller as $c
+    | [.windows[]?.workspaces[]? | select(.ref == $c.workspace_ref) | .panes[]?.surfaces[]?
+       | select(.type == "browser" and (.url // "" | startswith($site)))] as $tabs
+    | ($c.pane_ref // ""),
+      ((first(($tabs[] | select(.pane_ref == $c.pane_ref)), $tabs[]) | .ref) // "")
+  ' <<<"$tree" 2>/dev/null) || true
   if [[ -n $surface ]] && cmux browser --surface "$surface" goto "$url" >/dev/null 2>&1; then
     cmux focus-panel --panel "$surface" >/dev/null 2>&1 || true
     exit 0
   fi
+  if [[ -n $pane ]] && out=$(cmux new-surface --type browser --pane "$pane" --url "$url" --focus true 2>/dev/null); then
+    # `--focus true` focuses the pane but leaves the terminal tab selected
+    # (cmux 0.65.2); focus-panel on the new surface ("OK surface:N ...") shows it.
+    surface=$(sed -nE 's/^OK (surface:[^ ]+).*/\1/p' <<<"$out" | head -n 1)
+    if [[ -z $surface ]] || ! cmux focus-panel --panel "$surface" >/dev/null 2>&1; then
+      echo "daily: opened the plan as a tab in $pane but could not show it (${surface:-no surface ref in: $out})" >&2
+    fi
+    exit 0
+  fi
+  if [[ -z $pane ]]; then
+    echo "daily: the cmux tree did not name this pane; opening a split instead" >&2
+  else
+    echo "daily: cmux did not open a tab in $pane; opening a split instead" >&2
+  fi
   if cmux browser open "$url" --focus true >/dev/null 2>&1; then
     exit 0
   fi
-  echo "daily: cmux did not open a browser split; trying terminal-browser" >&2
+  echo "daily: cmux did not open the plan; trying terminal-browser" >&2
 fi
 exec terminal-browser open "$url"
