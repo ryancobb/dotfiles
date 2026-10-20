@@ -1,7 +1,7 @@
-theme = nordfox.ghostty
+theme = cozycabin.ghostty
 macos-titlebar-style = tabs
 unfocused-split-opacity = 0.65
-split-divider-color = #81a1c1
+split-divider-color = #95a3ad
 
 font-size = 13
 macos-option-as-alt = true

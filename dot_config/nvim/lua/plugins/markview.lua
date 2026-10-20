@@ -198,22 +198,27 @@ return {
       require("markview").setup(opts)
 
       -- Source six distinct, vivid heading colors from the active nightfox
-      -- palette (nordfox). markview ignores its own `highlight_groups` option
-      -- in this version, so set the groups directly and re-apply on reload.
+      -- palette. markview ignores its own `highlight_groups` option in this
+      -- version, so set the groups directly and re-apply on reload.
+      -- The hue of each heading level. cozycabin mirrors the Quartz theme:
+      -- ember leads, and h2 takes the calm pine because working docs have
+      -- many h2s.
+      local hue_order = {
+        default = { "red", "orange", "yellow", "green", "blue", "magenta" },
+        cozycabin = { "orange", "cyan", "yellow", "green", "blue", "magenta" },
+      }
       local function set_heading_hls()
-        local foxes = {
-          carbonfox = true, dawnfox = true, dayfox = true, duskfox = true,
-          nightfox = true, nordfox = true, terafox = true,
-        }
         local fox = vim.g.colors_name
         local ok_p, palette = pcall(require, "nightfox.palette")
         local ok_c, Color = pcall(require, "nightfox.lib.color")
 
-        if ok_p and ok_c and fox and foxes[fox] then
+        -- `foxes` holds nightfox's own styles plus cozycabin, which
+        -- plugins/colorscheme.lua adds.
+        if ok_p and ok_c and fox and vim.tbl_contains(palette.foxes, fox) then
           local pal = palette.load(fox)
           local light = pal.meta and pal.meta.light
-          local hues = { pal.red, pal.orange, pal.yellow, pal.green, pal.blue, pal.magenta }
-          for i, hue in ipairs(hues) do
+          for i, name in ipairs(hue_order[fox] or hue_order.default) do
+            local hue = pal[name]
             -- ~35% hue over the editor bg: a clearly visible but tasteful tint.
             local tint = Color.from_hex(hue.base):blend(Color.from_hex(pal.bg1), 0.65):to_css()
             -- Dark hue on light themes, bright hue on dark themes, for contrast.

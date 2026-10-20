@@ -1,0 +1,33 @@
+# Cozy cabin colors for Ghostty (cmux reads this config too)
+## name: cozycabin
+## source: the Quartz claude-code theme in quartz/custom.scss; the nvim palette
+## dot_config/nvim/lua/nightfox/palette/cozycabin.lua is the same set, so edit both
+
+background = #221e1b
+foreground = #dcd0c0
+selection-background = #4d3d33
+selection-foreground = #dcd0c0
+cursor-color = #dcd0c0
+
+# normal
+palette = 0=#37312c
+palette = 1=#c48b80
+palette = 2=#a4ab85
+palette = 3=#cdb282
+palette = 4=#95a3ad
+palette = 5=#b09aa6
+palette = 6=#8fa89a
+palette = 7=#dcd0c0
+
+# bright
+palette = 8=#625850
+palette = 9=#d4a197
+palette = 10=#b8bd9c
+palette = 11=#dbc59b
+palette = 12=#aab6bf
+palette = 13=#c2aeb8
+palette = 14=#a6bbae
+palette = 15=#ebe1d3
+
+# extended colors
+palette = 16=#cf9c78
