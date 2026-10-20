@@ -28,25 +28,26 @@ cozycabin:
 
   # Hues, base and bright: the terminal's normal and bright colors, nightfox's
   # base and bright shades, and the Claude Code accents. 2026-10-20: OKLCH
-  # chroma pulled 55% of the way to 0.12 at the same lightness and hue (the
-  # first cut read as grey in Claude Code); the Quartz site keeps the first
-  # cut under `quartz:` below.
-  red: "#d18475" # worn flannel
-  red_bright: "#e5998a"
-  orange: "#d99868" # dim ember: the accent
-  orange_bright: "#ebad7d"
-  yellow: "#d6b06b" # lamp honey
-  yellow_bright: "#e5c380"
-  green: "#a3ae6b" # dusty moss
-  green_bright: "#b8c07f"
-  blue: "#74a8cb" # dusk smoke
-  blue_bright: "#89bbdf"
-  magenta: "#c58dae" # heather
-  magenta_bright: "#daa1bf"
-  cyan: "#72b190" # pine
-  cyan_bright: "#89c5a2"
-  pink: "#da9094"
-  pink_bright: "#e59ea3"
+  # chroma halfway between the first cut and a 55% pull toward 0.12, at the
+  # same lightness and hue (the first cut read as grey in Claude Code; the
+  # 55% pull was too saturated in the terminal and nvim); the Quartz site
+  # keeps the first cut under `quartz:` below.
+  red: "#cb887a" # worn flannel
+  red_bright: "#dd9d91"
+  orange: "#d49a70" # dim ember: the accent
+  orange_bright: "#e4b088"
+  yellow: "#d2b177" # lamp honey
+  yellow_bright: "#e0c48e"
+  green: "#a4ad79" # dusty moss
+  green_bright: "#b8bf8e"
+  blue: "#86a6bc" # dusk smoke
+  blue_bright: "#9ab9cf"
+  magenta: "#bb94aa" # heather
+  magenta_bright: "#cea8bc"
+  cyan: "#81ad95" # pine
+  cyan_bright: "#98c0a8"
+  pink: "#d19598"
+  pink_bright: "#dca3a6"
 
   # The Quartz site keeps the muted first cut of the hues: it shows color in
   # wide heading bands and link chips, where the terminal's stronger hues read
@@ -81,5 +82,5 @@ cozycabin:
     diff_removed_dimmed: "#482424"
     diff_added_word: "#3f713a"
     diff_removed_word: "#924141"
-    bash_message_bg: "#382c2a"
-    memory_bg: "#362b2d"
+    bash_message_bg: "#372c2a"
+    memory_bg: "#342c2c"
