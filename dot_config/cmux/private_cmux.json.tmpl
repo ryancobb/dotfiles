@@ -21,8 +21,9 @@
 
   // In a terminal, pane focus (ctrl+hjkl) and resize (ctrl+shift+hjkl) are Ghostty keybinds, so that
   // smart-splits-backend-ghostty can hand them to nvim; a cmux shortcut would take the key first. ctrl+opt+shift+hjkl
-  // move the tab to the pane in that direction, opt+cmd+jk select workspaces, and ctrl+opt+cmd+jk move them. Each
-  // binding replaces its cmux default: opt+cmd+shift+arrows, ctrl+cmd+[ ], and ctrl+opt+cmd+[ ].
+  // move the tab to the pane in that direction, ctrl+opt+jk select workspaces (herdr's agent chord, so herdr inside
+  // cmux loses it), and ctrl+opt+cmd+jk move them. Each binding replaces its cmux default: opt+cmd+shift+arrows,
+  // ctrl+cmd+[ ], and ctrl+opt+cmd+[ ].
   "shortcuts": {
     "bindings": {
       "moveSurfaceToPaneLeft": "ctrl+opt+shift+h",
@@ -30,8 +31,8 @@
       "moveSurfaceToPaneUp": "ctrl+opt+shift+k",
       "moveSurfaceToPaneRight": "ctrl+opt+shift+l",
 
-      "nextSidebarTab": "cmd+opt+j",
-      "prevSidebarTab": "cmd+opt+k",
+      "nextSidebarTab": "ctrl+opt+j",
+      "prevSidebarTab": "ctrl+opt+k",
       "moveWorkspaceDown": "cmd+opt+ctrl+j",
       "moveWorkspaceUp": "cmd+opt+ctrl+k"
     },
