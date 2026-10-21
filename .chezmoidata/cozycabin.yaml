@@ -12,12 +12,14 @@ cozycabin:
   bg3: "#37312c" # cursor line; terminal black
   bg4: "#625850" # borders, conceal; terminal bright black
 
-  # Text: cream.
-  fg0: "#e4d9ca" # nvim only, between fg1 and white (Quartz has no fg0)
-  fg1: "#dcd0c0" # the foreground
+  # Text: cream. 2026-10-20: fg0, fg1, and white warmed to OKLCH C ~0.035
+  # (from ~0.023) and hue 69 (from 75), toward the ember, at the same
+  # lightness; was #e4d9ca, #dcd0c0, #ebe1d3.
+  fg0: "#ebd7c2" # nvim only, between fg1 and white (Quartz has no fg0)
+  fg1: "#e2ceb9" # the foreground
   fg2: "#b5a998" # status line text
   fg3: "#8f8476" # line numbers, inactive text
-  white: "#ebe1d3" # terminal bright white
+  white: "#f2dfcb" # terminal bright white
   comment: "#857a6d"
   punct: "#9a8e80" # Quartz code punctuation and operators
 
