@@ -70,17 +70,31 @@ cozycabin:
     pink: "#c79a9c"
 
   # Claude Code colors no other consumer uses. The diff backgrounds are their
-  # own greens and reds (OKLCH L 0.39/0.38 C 0.075/0.085 at hues 142/22; dimmed
-  # L 0.32/0.31, word marks L 0.50/0.48 C 0.10/0.11): blends of the pastel
-  # hues over bg1 came out as two browns (2026-10-20). The message backgrounds
+  # own greens and reds (OKLCH L 0.39/0.38 C 0.038/0.043 at hues 142/22; dimmed
+  # L 0.32/0.31, word marks L 0.50/0.48 C 0.050/0.055): blends of the pastel
+  # hues over bg1 came out as two browns (2026-10-20), and the first greens
+  # and reds were cut to 50% chroma the same day as too saturated. The message backgrounds
   # are faint tints of pink (bash) and magenta (memory) over bg1, picked at 12%;
   # they are values of their own, and a small hue edit does not move them.
+  # Claude Code draws diffs in 256 colors under the dark-ansi base, so a hex
+  # there rounds to the nearest xterm color, and these all rounded to greys
+  # (2026-10-20). The theme names a 256-color slot for each diff color and
+  # the Ghostty theme paints the slot with it. Each slot's stock color is a
+  # green or red of the same rank, so a terminal without this palette still
+  # shows green and red.
   claude_code:
-    diff_added: "#2c4f28"
-    diff_removed: "#682d2d"
-    diff_added_dimmed: "#243922"
-    diff_removed_dimmed: "#482424"
-    diff_added_word: "#3f713a"
-    diff_removed_word: "#924141"
+    diff_added: "#3a4a38"
+    diff_removed: "#573938"
+    diff_added_dimmed: "#2c362b"
+    diff_removed_dimmed: "#3d2b2a"
+    diff_added_word: "#536a50"
+    diff_removed_word: "#7a5250"
+    diff_slots:
+      diff_added_dimmed: 22
+      diff_added: 28
+      diff_added_word: 34
+      diff_removed_dimmed: 52
+      diff_removed: 88
+      diff_removed_word: 124
     bash_message_bg: "#372c2a"
     memory_bg: "#342c2c"

@@ -31,12 +31,12 @@
     "fastModeShimmer": "{{ .cozycabin.white }}",
     "effortUltra": "{{ .cozycabin.magenta_bright }}",
 
-    "diffAdded": "{{ .cozycabin.claude_code.diff_added }}",
-    "diffRemoved": "{{ .cozycabin.claude_code.diff_removed }}",
-    "diffAddedDimmed": "{{ .cozycabin.claude_code.diff_added_dimmed }}",
-    "diffRemovedDimmed": "{{ .cozycabin.claude_code.diff_removed_dimmed }}",
-    "diffAddedWord": "{{ .cozycabin.claude_code.diff_added_word }}",
-    "diffRemovedWord": "{{ .cozycabin.claude_code.diff_removed_word }}",
+    "diffAdded": "ansi256({{ .cozycabin.claude_code.diff_slots.diff_added }})",
+    "diffRemoved": "ansi256({{ .cozycabin.claude_code.diff_slots.diff_removed }})",
+    "diffAddedDimmed": "ansi256({{ .cozycabin.claude_code.diff_slots.diff_added_dimmed }})",
+    "diffRemovedDimmed": "ansi256({{ .cozycabin.claude_code.diff_slots.diff_removed_dimmed }})",
+    "diffAddedWord": "ansi256({{ .cozycabin.claude_code.diff_slots.diff_added_word }})",
+    "diffRemovedWord": "ansi256({{ .cozycabin.claude_code.diff_slots.diff_removed_word }})",
 
     "userMessageBackground": "{{ .cozycabin.bg2 }}",
     "userMessageBackgroundHover": "{{ .cozycabin.bg3 }}",
