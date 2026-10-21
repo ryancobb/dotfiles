@@ -1,0 +1,261 @@
+#!/usr/bin/env bash
+# Find a page in the work vault with fzf and open it in the terminal browser
+# (through `daily --open`, so it lands where `daily` puts the plan). The look
+# follows fzf-lua in nvim: one rounded box titled with the mode holds the
+# prompt, the key hints, and the list; a second box titled with the page's
+# path holds the preview; each row is an icon for the page's kind, the title,
+# and the path dimmed after it. Two modes; Ctrl-G switches, and each keeps its
+# own query:
+#
+#   Pages   fuzzy match over every page's title and path, newest first (the
+#           start mode; fzf's own matcher, so dropped letters are fine)
+#   Grep    live ripgrep over the pages' text as you type; the query is a
+#           regex, case-insensitive until it has a capital letter
+#
+# Enter opens the page; a grep hit also scrolls the page to its match. Esc
+# leaves. The preview sits below the list; Ctrl-/ flips it to the right and
+# back, and VAULT_FIND_PREVIEW=right starts it there. The icons need a Nerd
+# Font (cmux and Ghostty carry one; kitty does not): VAULT_FIND_ICONS=0 drops
+# them.
+#
+# chezmoi renders this file from dot_local/bin/executable_vault-find.tmpl;
+# the colors are the cozy cabin palette in .chezmoidata/cozycabin.yaml, and
+# cozycabin-apply applies this file with the palette's other consumers.
+#
+#   vault-find [QUERY]
+set -euo pipefail
+
+self="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SOURCE[0]}")"
+vault="${PLANNER_VAULT:-$HOME/Projects/vaults/work}"
+cd "$vault"
+export BAT_THEME="${BAT_THEME:-ansi}"
+# The pages Quartz renders: what quartz.config.yaml's ignorePatterns leave in.
+# --no-ignore, because the site does not read .gitignore (the global one hides
+# docs/superpowers/). Every rg call names the directory: without a path, rg
+# reads a piped stdin.
+globs=(--no-ignore -g '*.md' -g '*.base' -g '!tools/**' -g '!planner/**' -g '!.claude/**'
+  -g '!**/private/**' -g '!**/templates/**' -g '!notes/planner/*-evidence/**')
+
+# The cozy cabin palette in the roles fzf-lua gives its highlight groups
+# under the cozycabin nightfox palette.
+fg='{{ .cozycabin.fg1 }}'            # Normal: text, labels, the query
+dim='{{ .cozycabin.fg3 }}'           # FloatBorder, LineNr: borders, counts, a page's icon
+comment='{{ .cozycabin.comment }}'   # Comment: the directory part of a path (FzfLuaDirPart)
+cursor_bg='{{ .cozycabin.bg3 }}'     # CursorLine
+accent='{{ .cozycabin.blue }}'       # Special: matched text, the pointer, the prompt
+live='{{ .cozycabin.pink }}'         # FzfLuaLivePrompt: the prompt of a live (grep) query
+key='{{ .cozycabin.white }}'         # FzfLuaHeaderBind: a key in the hints
+hint='{{ .cozycabin.red }}'          # FzfLuaHeaderText: what the key does
+green='{{ .cozycabin.green }}'       # rg's line numbers
+match='{{ .cozycabin.red }}'         # rg's matches
+icon_folder='{{ .cozycabin.blue }}'  # an index page (mini.icons: directory, azure)
+icon_gitlab='{{ .cozycabin.orange }}' # an MR, issue, or epic working doc (mini.icons: gitlab, orange)
+icon_plan='{{ .cozycabin.yellow }}'  # a daily plan
+icon_base='{{ .cozycabin.green }}'   # a Bases file (mini.icons: csv, green)
+reset=$'\e[0m'
+
+# A truecolor SGR for a hex color, and rg's form of the same.
+sgr() { local h=${1#\#}; printf '\e[38;2;%d;%d;%dm' "0x${h:0:2}" "0x${h:2:2}" "0x${h:4:2}"; }
+rgb() { local h=${1#\#}; printf '0x%s,0x%s,0x%s' "${h:0:2}" "${h:2:2}" "${h:4:2}"; }
+
+icons=1
+[[ ${VAULT_FIND_ICONS:-1} == 0 ]] && icons=0
+# The awk programs below share these, with the icons from mini.icons' set.
+awk_colors=(-v icons="$icons" -v R="$reset" -v c_dim="$(sgr "$dim")" -v c_comment="$(sgr "$comment")"
+  -v c_green="$(sgr "$green")" -v c_folder="$(sgr "$icon_folder")" -v c_gitlab="$(sgr "$icon_gitlab")"
+  -v c_plan="$(sgr "$icon_plan")" -v c_base="$(sgr "$icon_base")")
+awk_icon='
+  function icon(p) {
+    if (!icons) return ""
+    if (p ~ /(^|\/)index\.md$/) return c_folder "󰉋" R " "
+    if (p ~ /^weeklies\//) return c_plan "󰃭" R " "
+    if (p ~ /\/(mr|issue|epic)\/[^\/]+\/working\.md$/) return c_gitlab "󰮠" R " "
+    if (p ~ /\.base$/) return c_base "" R " "
+    return c_dim "󰍔" R " "
+  }'
+
+# One line per page, newest first: path<TAB>title<TAB>display, the display
+# an icon, the title, and the dimmed path. The title is the frontmatter title,
+# else the file name (the folder's for an index page).
+pages() {
+  # The title list gets a blank first line: awk's NR == FNR test reads every
+  # line as a title when the first input is empty.
+  { printf '\t\n'
+    rg -m1 -N -o --no-heading --with-filename --field-match-separator $'\t' \
+      -e '^title:\s*(?:"((?:[^"\\]|\\.)*)"|'"'"'([^'"'"']*)'"'"'|(.*?))\s*$' -r '$1$2$3' \
+      "${globs[@]}" . || true
+  } | awk -F'\t' -v OFS='\t' "${awk_colors[@]}" "$awk_icon"'
+      { sub(/^\.\//, "", $1) }
+      NR == FNR { gsub(/\\"/, "\"", $2); gsub(/\\\\/, "\\", $2); title[$1] = $2; next }
+      {
+        if ($1 in title) t = title[$1]
+        else {
+          t = $1
+          sub(/\.(md|base)$/, "", t)
+          if (t ~ /(^|\/)index$/) sub(/\/?index$/, "", t)
+          sub(/.*\//, "", t)
+        }
+        print $1, t, icon($1) t "  " c_comment $1 R
+      }' - <(rg --files --sortr modified "${globs[@]}" .)
+}
+
+# Matching lines: path<TAB>line<TAB>text<TAB>display, the text with rg's match
+# colors and the display an icon, the text, and the dimmed path with the file
+# name plain and the line number green (fzf-lua puts the path after the text).
+grep_pages() {
+  local query=$1
+  [[ -n $query ]] || return 0
+  rg --line-number --no-heading --with-filename --color=always --smart-case \
+    --colors path:none --colors line:none --colors column:none \
+    --colors match:none --colors "match:fg:$(rgb "$match")" --colors match:style:bold \
+    --field-match-separator $'\t' --max-columns 240 --max-columns-preview \
+    "${globs[@]}" -e "$query" . 2>/dev/null |
+    awk -F'\t' -v OFS='\t' -v c_fg="$(sgr "$fg")" -v ESC=$'\e' "${awk_colors[@]}" "$awk_icon"'
+      {
+        # rg wraps even an uncolored path and line number in resets.
+        gsub(ESC "\\[[0-9;]*m", "", $1); gsub(ESC "\\[[0-9;]*m", "", $2)
+        sub(/^\.\//, "", $1)
+        text = $3
+        for (i = 4; i <= NF; i++) text = text " " $i
+        dir = $1; file = $1
+        if (sub(/\/[^\/]*$/, "", dir)) { dir = dir "/"; sub(/.*\//, "", file) } else dir = ""
+        print $1, $2, text, icon($1) text "  " c_comment dir c_fg file R ":" c_green $2 R
+      }' || true
+}
+
+# The page, at the matched line when the second field is one.
+preview() {
+  local path=$1 line=${2:-}
+  local at=() from=1
+  if [[ $line =~ ^[0-9]+$ ]]; then
+    # The hit a third of the way down the box (wrapped lines above it push it lower).
+    local above=$(( ${FZF_PREVIEW_LINES:-36} / 3 ))
+    from=$((line > above ? line - above : 1))
+    at=(--highlight-line "$line" --line-range "$from:")
+  fi
+  if command -v bat >/dev/null; then
+    local opts=(--color=always --style=numbers --paging=never)
+    [[ $path == *.base ]] && opts+=(--language=yaml)
+    bat "${opts[@]}" ${at[@]+"${at[@]}"} "$path"
+  else
+    sed -n "$from,\$p" "$path"
+  fi
+}
+
+# The text fragment for a grep hit: the first match of the query on the
+# page's own line (rg's display text is cut at 240 columns), with up to three
+# words of the line before and after it, so the browser lands on that line and
+# not on the word's first occurrence; the bare match comes second, for when
+# the context does not survive rendering (markdown syntax is stripped from it
+# first). Chromium scrolls to the first directive that matches.
+fragment() {
+  local path=$1 line=$2 query=$3 src match
+  src=$(sed -n "${line}p" "$path")
+  match=$(rg -o -m1 --smart-case -e "$query" <<<"$src" | head -n 1 || true)
+  [[ -n ${match//[[:space:]]/} ]] || return 0
+  jq -rn --arg s "$src" --arg m "$match" '
+    def enc: @uri | gsub("-"; "%2D");
+    ($s | gsub("\\]\\([^)]*\\)"; "]") | gsub("[*_`~\\[\\]<>|#]"; "")
+        | sub("^[[:space:]>-]+"; "") | sub("^[0-9]+\\.[[:space:]]+"; "")) as $t
+    | ($t | split($m)) as $p
+    | if ($p | length) < 2 then "#:~:text=\($m | enc)"
+      else ($p[0] | [scan("[^[:space:]]+")] | .[-3:] | join(" ")) as $pre
+         | ($p[1:] | join($m) | [scan("[^[:space:]]+")] | .[:3] | join(" ")) as $suf
+         | "#:~:text=" + (if $pre != "" then ($pre | enc) + "-," else "" end) + ($m | enc)
+           + (if $suf != "" then ",-" + ($suf | enc) else "" end) + "&text=" + ($m | enc)
+      end'
+}
+
+# The preview box's title: the page's path, with the line of a grep hit,
+# cut from the left when it is wider than the box.
+label() {
+  local path=${1:-} line=${2:-} text
+  [[ -n $path ]] || return 0
+  text=$path
+  [[ $line =~ ^[0-9]+$ ]] && text="$path:$line"
+  local width=${FZF_PREVIEW_COLUMNS:-0}
+  if [[ $width =~ ^[0-9]+$ ]] && (( width > 8 && ${#text} > width - 4 )); then
+    text="…${text: -$((width - 5))}"
+  fi
+  printf ' %s ' "$text"
+}
+
+# The prompt and the key hints for a mode, in fzf-lua's form and colors.
+prompt() {
+  if [[ $1 == pages ]]; then printf '%s> %s' "$(sgr "$accent")" "$reset"; else printf '%s> %s' "$(sgr "$live")" "$reset"; fi
+}
+header() {
+  local other='Regex Search'
+  [[ $1 == pages ]] || other='Fuzzy Search'
+  local k h s
+  k=$(sgr "$key"); h=$(sgr "$hint"); s=$(sgr "$dim")
+  printf '%s<ctrl-g>%s to %s%s %s|%s %s<ctrl-/>%s to %sFlip Preview%s %s|%s %s<enter>%s to %sOpen Page%s' \
+    "$k" "$reset" "$h" "$other" "$s" "$reset" "$k" "$reset" "$h" "$reset" "$s" "$reset" "$k" "$reset" "$h" "$reset"
+}
+
+# The actions for Ctrl-G, by the mode the list's title names. Each mode's
+# query is kept in a file while the other runs, and each mode shows its own
+# display field. fzf expands {q} in what this prints.
+toggle() {
+  local tmp=$1
+  if [[ $FZF_LIST_LABEL == *Pages* ]]; then
+    echo "rebind(change)+change-list-label( Grep )+change-prompt($(prompt grep))+change-header($(header grep))+disable-search+change-with-nth({4})+transform-query(printf '%s\\n' {q} >$tmp/pages; cat $tmp/grep)+reload($self --grep {q})"
+  else
+    echo "unbind(change)+change-list-label( Pages )+change-prompt($(prompt pages))+change-header($(header pages))+enable-search+change-with-nth({3})+transform-query(printf '%s\\n' {q} >$tmp/grep; cat $tmp/pages)+reload($self --pages)"
+  fi
+}
+
+case "${1:-}" in
+  --pages) pages; exit 0 ;;
+  --grep) grep_pages "${2:-}"; exit 0 ;;
+  --preview) preview "${2:?path}" "${3:-}"; exit 0 ;;
+  --label) label "${2:-}" "${3:-}"; exit 0 ;;
+  --fragment) fragment "${2:?path}" "${3:?line}" "${4:?query}"; exit 0 ;;
+  --toggle) toggle "${2:?tmp dir}"; exit 0 ;;
+  --help | -h) sed -n '2,26p' "$self" | cut -c3-; exit 0 ;;
+esac
+
+for tool in fzf rg jq daily; do
+  command -v "$tool" >/dev/null || { echo "vault-find: $tool is not installed" >&2; exit 1; }
+done
+
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+: >"$tmp/pages"
+: >"$tmp/grep"
+
+# The preview below the list, or to its right, and the other for Ctrl-/.
+right='right,55%,border-rounded,wrap'
+down='down,50%,border-rounded,wrap'
+if [[ ${VAULT_FIND_PREVIEW:-down} == right ]]; then preview=$right other=$down; else preview=$down other=$right; fi
+
+# --print-query puts the query on the first line, the chosen page on the next.
+chosen=$(fzf --ansi --delimiter $'\t' --with-nth '{3}' --tiebreak=index \
+  --layout=reverse --info=inline-right --no-separator --highlight-line \
+  --gutter ' ' --scrollbar ' ┃' \
+  --list-border=rounded --list-label ' Pages ' \
+  --color "fg:$fg,bg:-1,hl:$accent,fg+:$fg:regular,bg+:$cursor_bg,hl+:$accent,gutter:-1" \
+  --color "info:$dim,border:$dim,scrollbar:$dim,label:$fg,header:$fg" \
+  --color "prompt:$accent:regular,pointer:$accent,marker:$accent,spinner:$accent,query:$fg:regular,disabled:$fg" \
+  --query "${1:-}" --prompt "$(prompt pages)" --header "$(header pages)" \
+  --bind "change:reload($self --grep {q})" \
+  --bind "start:unbind(change)+reload($self --pages)" \
+  --bind "focus:transform-preview-label($self --label {1} {2})" \
+  --bind "ctrl-g:transform($self --toggle $tmp)" \
+  --preview "$self --preview {1} {2}" --preview-window "$preview" \
+  --bind "ctrl-/:change-preview-window($other|)" \
+  --print-query) || exit 0
+query=$(sed -n '1p' <<<"$chosen")
+pick=$(sed -n '2p' <<<"$chosen")
+[[ -n $pick ]] || exit 0
+
+IFS=$'\t' read -r path line _text _display <<<"$pick"
+target=$path
+# A grep hit opens the page at the query's match on that line, as a text
+# fragment, which the browser scrolls to and highlights.
+if [[ $line =~ ^[0-9]+$ ]]; then
+  target="$path$(fragment "$path" "$line" "$query")"
+fi
+# exec skips the EXIT trap.
+rm -rf "$tmp"
+exec daily --open "$target"

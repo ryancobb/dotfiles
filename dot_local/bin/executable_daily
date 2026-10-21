@@ -12,9 +12,12 @@
 #   daily --restart     restart the Quartz server (after a config or style edit)
 #   daily --restart --if-running
 #                       the same, but do nothing when the server is down
+#   daily --open PATH   a page instead of a plan: a path under the vault, with
+#                       an optional #fragment (vault-find uses it)
 set -euo pipefail
 
 vault="${PLANNER_VAULT:-$HOME/Projects/vaults/work}"
+vault=${vault%/}
 quartz="$HOME/.local/share/quartz"
 patch="$HOME/.config/quartz-vault/quartz.patch"
 tokens="$HOME/.config/quartz-vault/_cozycabin.scss"
@@ -22,7 +25,7 @@ port=8080
 log="$HOME/.local/state/quartz-vault.log"
 
 usage() {
-  echo "usage: daily [--url] [--restart [--if-running]] [YYYY-MM-DD]" >&2
+  echo "usage: daily [--url] [--restart [--if-running]] [--open PATH] [YYYY-MM-DD]" >&2
   exit 2
 }
 
@@ -31,16 +34,25 @@ restart=false
 if_running=false
 day=$(TZ=America/Los_Angeles date +%F)
 asked_day=false
-for arg in "$@"; do
-  case "$arg" in
+page=""
+fragment=""
+while (($#)); do
+  case "$1" in
     --url) print_only=true ;;
     --restart) restart=true ;;
     --if-running) if_running=true ;;
-    [0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]) day=$arg asked_day=true ;;
+    --open)
+      shift
+      page=${1:-}
+      [[ -n $page ]] || usage
+      ;;
+    [0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]) day=$1 asked_day=true ;;
     *) usage ;;
   esac
+  shift
 done
 if $if_running && ! $restart; then usage; fi
+if [[ -n $page ]] && $asked_day; then usage; fi
 
 # A port probe, not a request: the server holds every request until a rebuild
 # ends, which can take longer than a request timeout.
@@ -98,21 +110,34 @@ if command -v mr-diff >/dev/null; then
   (nohup mr-diff --watch >>"$(dirname "$log")/mr-diff.log" 2>&1 &)
 fi
 
-shopt -s nullglob
-plans=("$vault"/weeklies/*/"$day"-daily-plan.md)
-if ((${#plans[@]} == 0)); then
-  if $asked_day; then
-    echo "daily: no plan for $day" >&2
-    exit 1
+if [[ -n $page ]]; then
+  # A page by its path under the vault (absolute or relative), plus the
+  # fragment after its first #, which the caller has percent-encoded.
+  rel=${page%%#*}
+  fragment=${page#"$rel"}
+  rel=${rel#"$vault"/}
+  rel=${rel#./}
+  [[ -f $vault/$rel ]] || { echo "daily: no page at $vault/$rel" >&2; exit 1; }
+  # Quartz's slug for a path: spaces to -, & to -and-, % to -percent, no ?#<>:"|*,
+  # lowercase; .md dropped, .base kept.
+  slug=$(sed -E 's/[[:space:]]/-/g; s/&/-and-/g; s/%/-percent/g; s/[?#<>:"|*]//g' <<<"${rel%.md}" | tr '[:upper:]' '[:lower:]')
+  url="http://localhost:$port/$slug$fragment"
+else
+  shopt -s nullglob
+  plans=("$vault"/weeklies/*/"$day"-daily-plan.md)
+  if ((${#plans[@]} == 0)); then
+    if $asked_day; then
+      echo "daily: no plan for $day" >&2
+      exit 1
+    fi
+    all=("$vault"/weeklies/*/*-daily-plan.md)
+    ((${#all[@]})) || { echo "daily: no daily plans in $vault/weeklies" >&2; exit 1; }
+    plans=("${all[${#all[@]} - 1]}")
+    echo "daily: no plan for $day yet; opening $(basename "${plans[0]}" .md)" >&2
   fi
-  all=("$vault"/weeklies/*/*-daily-plan.md)
-  ((${#all[@]})) || { echo "daily: no daily plans in $vault/weeklies" >&2; exit 1; }
-  plans=("${all[${#all[@]} - 1]}")
-  echo "daily: no plan for $day yet; opening $(basename "${plans[0]}" .md)" >&2
+  rel=${plans[${#plans[@]} - 1]#"$vault"/}
+  url="http://localhost:$port/${rel%.md}"
 fi
-
-rel=${plans[${#plans[@]} - 1]#"$vault"/}
-url="http://localhost:$port/${rel%.md}"
 
 if $print_only; then
   echo "$url"
@@ -129,14 +154,20 @@ fi
 # terminal-browser takes over.
 if [[ ${HERDR_ENV:-} != 1 && -n ${CMUX_WORKSPACE_ID:-} ]] && command -v cmux >/dev/null; then
   tree=$(cmux tree --all --json 2>/dev/null) || tree=""
-  pane="" surface=""
-  { read -r pane && read -r surface; } < <(jq -r --arg site "http://localhost:$port/" '
+  pane="" surface="" showing=""
+  { read -r pane && read -r surface && read -r showing; } < <(jq -r --arg site "http://localhost:$port/" '
     .caller as $c
     | [.windows[]?.workspaces[]? | select(.ref == $c.workspace_ref) | .panes[]?.surfaces[]?
        | select(.type == "browser" and (.url // "" | startswith($site)))] as $tabs
-    | ($c.pane_ref // ""),
-      ((first(($tabs[] | select(.pane_ref == $c.pane_ref)), $tabs[]) | .ref) // "")
+    | (first(($tabs[] | select(.pane_ref == $c.pane_ref)), $tabs[]) // {}) as $tab
+    | ($c.pane_ref // ""), ($tab.ref // ""), ($tab.url // "")
   ' <<<"$tree" 2>/dev/null) || true
+  # A text fragment on the page the tab already shows is a same-document
+  # navigation, which the browser does not scroll for; a query string makes it
+  # a new load (Quartz ignores the query).
+  if [[ -n ${fragment:-} && ${showing%%[#?]*} == "${url%%#*}" ]]; then
+    url="${url%%#*}?open=$(date +%s)$fragment"
+  fi
   if [[ -n $surface ]] && cmux browser --surface "$surface" goto "$url" >/dev/null 2>&1; then
     cmux focus-panel --panel "$surface" >/dev/null 2>&1 || true
     exit 0
