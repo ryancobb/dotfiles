@@ -36,17 +36,18 @@ cozycabin:
   # keeps the first cut under `quartz:` below. Later on 2026-10-20 the
   # ember (orange and orange_bright) went to C 0.12 and 0.11 at the same
   # lightness and hue, from 0.090 and 0.081, as it read as faded on the
-  # Claude Code mascot; was #d49a70 and #e4b088. Red (and red_bright)
-  # followed on 2026-10-20: C 0.12 and 0.11 at the same lightness, hue 30,
-  # from 0.086 and 0.079, as errors were quieter than the ember and too close
-  # to pink (ΔE 4.6, now 6.5); was #cb887a and #dd9d91. Magenta (and
-  # magenta_bright) went to hue 320 and C 0.065 and 0.062 the same day, at
-  # the same lightness, from hue 344 and C 0.055 and 0.052, toward purple and
-  # away from pink (ΔE 4.4, now 6.8); was #bb94aa and #cea8bc.
+  # Claude Code mascot, and went back the same day as too orange there (it
+  # was #e1945a and #f1ab73). Red (and red_bright) followed on 2026-10-20:
+  # C 0.12 and 0.11 at the same lightness, hue 30, from 0.086 and 0.079, as
+  # errors were quieter than the ember and too close to pink (ΔE 4.6, now
+  # 6.5); was #cb887a and #dd9d91. Magenta (and magenta_bright) went to hue
+  # 320 and C 0.065 and 0.062 the same day, at the same lightness, from hue
+  # 344 and C 0.055 and 0.052, toward purple and away from pink (ΔE 4.4, now
+  # 6.8); was #bb94aa and #cea8bc.
   red: "#dc7d6f" # worn flannel
   red_bright: "#ed9487"
-  orange: "#e1945a" # ember: the accent
-  orange_bright: "#f1ab73"
+  orange: "#d49a70" # dim ember: the accent
+  orange_bright: "#e4b088"
   yellow: "#d2b177" # lamp honey
   yellow_bright: "#e0c48e"
   green: "#a4ad79" # dusty moss
@@ -97,7 +98,11 @@ cozycabin:
   # green or red of the same rank, so a terminal without this palette still
   # shows green and red. The cost: another program that prints text in these
   # slots (256-color green 28 and 34, red 88 and 124) draws it at 1.2 to 1.5:1
-  # on bg1, close to invisible; none of the dotfiles do today.
+  # on bg1, close to invisible; none of the dotfiles do today. The mascot
+  # (Clawd) is drawn in clawd_body, not claude, and the dark-ansi base gave it
+  # red_bright, a faded salmon (2026-10-20). It now takes the orange; before
+  # that it had its own terracotta, #e98665 (an ember at #e6803b read as too
+  # orange). Its eye row sits on bg1, not terminal black.
   claude_code:
     diff_added: "#293027"
     diff_removed: "#382827"
