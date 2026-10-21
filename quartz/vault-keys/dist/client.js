@@ -224,7 +224,7 @@
   // sidebars, which keep a size but are clipped or hidden. Returns the index of
   // that line in getClientRects(), or -1.
   const hintLine = (el) => {
-    if (el.closest("#vault-actions, .search-container")) return -1
+    if (el.closest("#vault-actions")) return -1
     if (getComputedStyle(el).opacity === "0") return -1
     const rects = el.getClientRects()
     for (let i = 0; i < rects.length; i++) {
@@ -320,7 +320,6 @@
     ["H / L", "back / forward"],
     ["f", "link hints"],
     ["t", "today's daily plan"],
-    ["/", "search"],
     ["z", "toggle sidebars (zen)"],
     ["w", "toggle full width (wide)"],
     ["?", "this help"],
@@ -355,7 +354,7 @@
       else if (e.key === held) return e.preventDefault()
       if (hints) return hintKey(e)
       if (e.ctrlKey || e.metaKey || e.altKey || e.isComposing) return
-      if (typing(e.target) || document.querySelector(".search-container.active")) return
+      if (typing(e.target)) return
 
       if (e.key === "Escape") {
         document.getElementById("vault-keys-help")?.remove()
@@ -374,7 +373,6 @@
         L: () => history.forward(),
         f: showHints,
         t: openToday,
-        "/": () => document.querySelector(".search-button")?.click(),
         z: toggleZen,
         w: toggleWide,
         "?": toggleHelp,

@@ -182,8 +182,12 @@ plugins:
     layout:
       position: right
       priority: 10
+  # Off since 2026-10-21: vault-find (fzf and ripgrep in the terminal) finds
+  # pages, and the in-page index cost about a second and a few hundred MB on
+  # every page load. The content-index plugin stays: vault-keys' t key and the
+  # graph read its file. Set enabled: true to bring the box back.
   - source: "@quartz-community/search"
-    enabled: true
+    enabled: false
     layout:
       position: left
       priority: 20
