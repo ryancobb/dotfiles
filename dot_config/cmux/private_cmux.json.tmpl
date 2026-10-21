@@ -13,6 +13,10 @@
     "accentColor": "{{ .cozycabin.orange }}"
   },
 
+  // the divider between panes in a split workspace: the palette's border color, so terminal splits match nvim's window
+  // separators (2026-10-21). Ghostty's split-divider-color covers only Ghostty's own splits, which cmux does not draw.
+  "paneBorderColor": "{{ .cozycabin.bg4 }}",
+
   "integrations": {
     "claudeCode": {
       "customClaudePath": "{{ .chezmoi.homeDir }}/.local/bin/claude"
