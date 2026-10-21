@@ -75,10 +75,13 @@ cozycabin:
     pink: "#c79a9c"
 
   # Claude Code colors no other consumer uses. The diff backgrounds are their
-  # own greens and reds (OKLCH L 0.39/0.38 C 0.038/0.043 at hues 142/22; dimmed
-  # L 0.32/0.31, word marks L 0.50/0.48 C 0.050/0.055): blends of the pastel
-  # hues over bg1 came out as two browns (2026-10-20), and the first greens
-  # and reds were cut to 50% chroma the same day as too saturated. The message backgrounds
+  # own greens and reds (OKLCH L 0.30/0.295 C 0.019/0.024 at hues 142/22;
+  # dimmed L 0.26/0.255 C 0.015/0.015, word marks L 0.36/0.355 C 0.028/0.034):
+  # blends of the pastel hues over bg1 came out as two browns (2026-10-20).
+  # The first greens and reds were cut to 50% chroma the same day as too
+  # saturated, then to 60% of that as still jarring, then darkened from L
+  # 0.39/0.38 (dimmed 0.32/0.31, word marks 0.50/0.48) in two steps: the
+  # bright bands were the jar. The message backgrounds
   # are faint tints of pink (bash) and magenta (memory) over bg1, picked at 12%;
   # they are values of their own, and a small hue edit does not move them.
   # Claude Code draws diffs in 256 colors under the dark-ansi base, so a hex
@@ -88,12 +91,12 @@ cozycabin:
   # green or red of the same rank, so a terminal without this palette still
   # shows green and red.
   claude_code:
-    diff_added: "#3a4a38"
-    diff_removed: "#573938"
-    diff_added_dimmed: "#2c362b"
-    diff_removed_dimmed: "#3d2b2a"
-    diff_added_word: "#536a50"
-    diff_removed_word: "#7a5250"
+    diff_added: "#293027"
+    diff_removed: "#382827"
+    diff_added_dimmed: "#20261f"
+    diff_removed_dimmed: "#2a2020"
+    diff_added_word: "#344134"
+    diff_removed_word: "#4c3534"
     diff_slots:
       diff_added_dimmed: 22
       diff_added: 28
