@@ -33,11 +33,14 @@ cozycabin:
   # chroma halfway between the first cut and a 55% pull toward 0.12, at the
   # same lightness and hue (the first cut read as grey in Claude Code; the
   # 55% pull was too saturated in the terminal and nvim); the Quartz site
-  # keeps the first cut under `quartz:` below.
+  # keeps the first cut under `quartz:` below. Later on 2026-10-20 the
+  # ember (orange and orange_bright) went to C 0.12 and 0.11 at the same
+  # lightness and hue, from 0.090 and 0.081, as it read as faded on the
+  # Claude Code mascot; was #d49a70 and #e4b088.
   red: "#cb887a" # worn flannel
   red_bright: "#dd9d91"
-  orange: "#d49a70" # dim ember: the accent
-  orange_bright: "#e4b088"
+  orange: "#e1945a" # ember: the accent
+  orange_bright: "#f1ab73"
   yellow: "#d2b177" # lamp honey
   yellow_bright: "#e0c48e"
   green: "#a4ad79" # dusty moss
