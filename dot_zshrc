@@ -112,6 +112,7 @@ zstyle ':fzf-tab:complete:(kill|ps):argument-rest' \
 alias bx='bundle exec'
 alias ll='eza -lbF --git'
 alias icat="kitten icat"
+alias vf='vault-find'
 
 # Git Aliases
 alias gst='git status'
